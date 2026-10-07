@@ -327,14 +327,11 @@ void dcd_int_handler(uint8_t rhport)
     }
 
     if (sis & USB_SIS_SCRESUME_Set) {
-        USB_SetSIS(USB_SIS_SCRESUME_Set);
-        sis = USB_GetSIS();
         dcd_event_bus_signal(rhport, DCD_EVENT_RESUME, true);
     }
 
     if (sis & USB_SIS_SCNAKSENT_Set) {
-        USB_SetSIS(USB_SIS_SCNAKSENT_Set);
-        sis = USB_GetSIS();
+        // флаг уже сброшен в USB_IRQHandler
     }
 
     if (sis & USB_SIS_SCTDONE_Set) {
@@ -493,7 +490,8 @@ void USB_IRQHandler(uint8_t rhport)
 {
     (void)rhport;
     sis = USB_GetSIS();
+    // Сбрасываем только те флаги, что прочитали, ДО обработки: событие, пришедшее во время
+    // обработки, не будет потеряно (раньше после обработки сбрасывались все флаги разом)
+    USB_SetSIS(sis);
     dcd_int_handler(rhport);
-    USB_SetSIS(USB_SIS_Msk);
-    sis = USB_GetSIS();
 }
