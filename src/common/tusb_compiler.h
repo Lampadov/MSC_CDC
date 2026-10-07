@@ -158,12 +158,20 @@
   #define TU_ATTR_BIT_FIELD_ORDER_BEGIN
   #define TU_ATTR_BIT_FIELD_ORDER_END
 
-  #if (defined(__has_attribute) && __has_attribute(__fallthrough__)) || defined(__TI_COMPILER_VERSION__)
-    #define TU_ATTR_FALLTHROUGH __attribute__((fallthrough))
-  #else
+  // Local patch: ARM Compiler 5 (armcc, Keil) has no __has_attribute() and its preprocessor
+  // rejects the call even behind defined(); use the plain fallthrough there.
+  #if defined(__ARMCC_VERSION) && (__ARMCC_VERSION < 6000000)
     #define TU_ATTR_FALLTHROUGH     \
       do {                          \
       } while (0) /* fallthrough */
+  #else
+    #if (defined(__has_attribute) && __has_attribute(__fallthrough__)) || defined(__TI_COMPILER_VERSION__)
+      #define TU_ATTR_FALLTHROUGH __attribute__((fallthrough))
+    #else
+      #define TU_ATTR_FALLTHROUGH     \
+        do {                          \
+        } while (0) /* fallthrough */
+    #endif
   #endif
 
 // Endian conversion use well-known host to network (big endian) naming
