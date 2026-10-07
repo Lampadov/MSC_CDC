@@ -5,6 +5,7 @@
 #include "stdio.h"
 
 void Delay(int waitTicks);
+void cdc_task(void);
 
 #define LED_PERIOD 50000
 #define VD3 PORT_Pin_0
@@ -31,25 +32,20 @@ int main()
   while (1)
   {
 		tud_task(); // tinyusb device task
-//		cdc_task();
+		cdc_task();
   }      
 }
 
 
 void cdc_task(void)
 {
-		if (tud_cdc_available()) {
-		{
-				// „итаем байт
-//				uint8_t buf;
-				//uint32_t data = tud_cdc_read(buf, sizeof(buf));
-				tud_cdc_write(0x55, 0x1);
-//				if(data == 0x11)
-//				{
-//					PORT_SetBits(MDR_PORTC, LED_ALL);
-//				}
-		}
-	}
+  // Ёхо: всЄ, что пришло в CDC, отправл€ем обратно
+  if (tud_cdc_available()) {
+    uint8_t buf[64];
+    uint32_t n = tud_cdc_read(buf, sizeof(buf));
+    tud_cdc_write(buf, n);
+    tud_cdc_write_flush();
+  }
 }
 
 void Delay(int waitTicks)
