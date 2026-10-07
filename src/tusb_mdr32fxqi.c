@@ -344,6 +344,12 @@ void dcd_int_handler(uint8_t rhport)
         uint32_t ts   = USB_GetSEPxTS(USB_EP0);
         uint32_t sts  = USB_GetSEPxSTS(USB_EP0);
 
+        // Был отправлен STALL: переключаем DATASEQ и снова готовим EP0 (как и для EP1-EP3)
+        if (sts & USB_SEPx_STS_SCSTALLSENT_Set) {
+            USB_SEPxToggleEPDATASEQ(USB_EP0);
+            USB_SetSEPxCTRL(USB_EP0, USB_SEPx_CTRL_EPRDY_Ready);
+        }
+
         if ((USB_GetSEPxCTRL(USB_EP0) & USB_SEPx_CTRL_EPRDY_Ready) == 0) {
             // Обработка SETUP
             if ((ts & USB_SEPx_TS_SCTTYPE_Msk) == USB_SEPx_TS_SCTTYPE_Setup) {
