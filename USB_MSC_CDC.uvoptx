@@ -163,7 +163,7 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>.\src\tusb_mdr32fxqi.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\HelloW\src/tusb_mdr32fxqi.c\137</Expression>
+          <Expression>\\USB_MSC_CDC\src/tusb_mdr32fxqi.c\137</Expression>
         </Bp>
         <Bp>
           <Number>1</Number>

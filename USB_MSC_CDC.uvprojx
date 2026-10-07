@@ -48,7 +48,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>.\Objects\</OutputDirectory>
-          <OutputName>HelloW</OutputName>
+          <OutputName>USB_MSC_CDC</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -369,7 +369,7 @@
             <TextAddressRange>0x08000000</TextAddressRange>
             <DataAddressRange>0x20000000</DataAddressRange>
             <pXoBase></pXoBase>
-            <ScatterFile>.\Objects\HelloW.sct</ScatterFile>
+            <ScatterFile>.\Objects\USB_MSC_CDC.sct</ScatterFile>
             <IncludeLibs></IncludeLibs>
             <IncludeLibsPath></IncludeLibsPath>
             <Misc></Misc>
@@ -608,7 +608,7 @@
   <LayerInfo>
     <Layers>
       <Layer>
-        <LayName>HelloW</LayName>
+        <LayName>USB_MSC_CDC</LayName>
         <LayPrjMark>1</LayPrjMark>
       </Layer>
     </Layers>
