@@ -107,6 +107,9 @@ bool dcd_dcache_clean_invalidate(const void* addr, uint32_t data_size);
 // Controller API
 //--------------------------------------------------------------------+
 
+// optional dcd configuration, called by tud_configure()
+bool dcd_configure(uint8_t rhport, uint32_t cfg_id, const void* cfg_param);
+
 // Initialize controller to device mode
 bool dcd_init(uint8_t rhport, const tusb_rhport_init_t* rh_init);
 
@@ -158,11 +161,11 @@ bool dcd_edpt_open            (uint8_t rhport, tusb_desc_endpoint_t const * desc
 void dcd_edpt_close_all       (uint8_t rhport);
 
 // Submit a transfer, When complete dcd_event_xfer_complete() is invoked to notify the stack
-bool dcd_edpt_xfer            (uint8_t rhport, uint8_t ep_addr, uint8_t * buffer, uint16_t total_bytes);
+bool dcd_edpt_xfer            (uint8_t rhport, uint8_t ep_addr, uint8_t * buffer, uint16_t total_bytes, bool is_isr);
 
 // Submit an transfer using fifo, When complete dcd_event_xfer_complete() is invoked to notify the stack
 // This API is optional, may be useful for register-based for transferring data.
-bool dcd_edpt_xfer_fifo       (uint8_t rhport, uint8_t ep_addr, tu_fifo_t * ff, uint16_t total_bytes);
+bool dcd_edpt_xfer_fifo       (uint8_t rhport, uint8_t ep_addr, tu_fifo_t * ff, uint16_t total_bytes, bool is_isr);
 
 // Stall endpoint, any queuing transfer should be removed from endpoint
 void dcd_edpt_stall           (uint8_t rhport, uint8_t ep_addr);
@@ -216,6 +219,11 @@ TU_ATTR_ALWAYS_INLINE static inline void dcd_event_setup_received(uint8_t rhport
   event.rhport = rhport;
   event.event_id = DCD_EVENT_SETUP_RECEIVED;
   (void) memcpy(&event.setup_received, setup, sizeof(tusb_control_request_t));
+  // USB wire format is little-endian. Convert multi-byte fields to host byte order
+  // so the stack always sees correct values regardless of CPU endianness.
+  event.setup_received.wValue  = tu_le16toh(event.setup_received.wValue);
+  event.setup_received.wIndex  = tu_le16toh(event.setup_received.wIndex);
+  event.setup_received.wLength = tu_le16toh(event.setup_received.wLength);
   dcd_event_handler(&event, in_isr);
 }
 

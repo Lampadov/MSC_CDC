@@ -70,6 +70,13 @@ typedef struct TU_ATTR_PACKED {
   uint8_t bEntityId;
 } tusb_desc_cs_video_entity_itf_t;
 
+typedef struct TU_ATTR_PACKED {
+  uint8_t  bLength;
+  uint8_t  bDescriptorType;
+  uint8_t  bDescriptorSubtype;
+  uint16_t wMaxTransferSize;
+} tusb_desc_cs_video_vc_ep_t;
+
 typedef union {
   struct TU_ATTR_PACKED {
     uint8_t bLength;
@@ -740,6 +747,9 @@ static bool _close_vc_itf(uint8_t rhport, videod_interface_t *self)
   /* The end of the video control interface descriptor. */
   void const *end = _end_of_control_descriptor(vc);
   if (vc->std.bNumEndpoints != 0) {
+    /* Extend end to cover the standard endpoint and class-specific endpoint descriptors
+     * that follow wTotalLength */
+    end = (uint8_t const*)end + sizeof(tusb_desc_endpoint_t) + sizeof(tusb_desc_cs_video_vc_ep_t);
     /* Find the notification endpoint descriptor. */
     cur = _find_desc(cur, end, TUSB_DESC_ENDPOINT);
     TU_ASSERT(cur < end);
@@ -780,6 +790,9 @@ static bool _open_vc_itf(uint8_t rhport, videod_interface_t *self, uint_fast8_t 
   if (vc->std.bNumEndpoints != 0) {
     /* Support for 1 endpoint only. */
     TU_VERIFY(1 == vc->std.bNumEndpoints);
+    /* Extend end to cover the standard endpoint and class-specific endpoint descriptors
+     * that follow wTotalLength */
+    end = (uint8_t const*)end + sizeof(tusb_desc_endpoint_t) + sizeof(tusb_desc_cs_video_vc_ep_t);
     /* Find the notification endpoint descriptor. */
     cur = _find_desc(cur, end, TUSB_DESC_ENDPOINT);
     TU_VERIFY(cur < end);
@@ -852,7 +865,7 @@ static bool _open_vs_itf(uint8_t rhport, videod_streaming_interface_t *stm, uint
       /* FS must be less than or equal to max packet size */
       TU_VERIFY (tu_edpt_packet_size(ep) >= max_size);
 #ifdef TUP_DCD_EDPT_ISO_ALLOC
-      usbd_edpt_iso_activate(rhport, ep);
+      TU_ASSERT(usbd_edpt_iso_activate(rhport, ep));
 #else
       TU_ASSERT(usbd_edpt_open(rhport, ep));
 #endif
@@ -1308,7 +1321,7 @@ bool tud_video_n_frame_xfer(uint_fast8_t ctl_idx, uint_fast8_t stm_idx, void *bu
   stm->buffer     = (uint8_t*)buffer;
   stm->bufsize    = bufsize;
   uint_fast16_t pkt_len = _prepare_in_payload(stm, stm_epbuf->buf);
-  TU_ASSERT( usbd_edpt_xfer(0, ep_addr, stm_epbuf->buf, (uint16_t) pkt_len), 0);
+  TU_ASSERT( usbd_edpt_xfer(0, ep_addr, stm_epbuf->buf, (uint16_t) pkt_len, false), 0);
   return true;
 }
 
@@ -1501,7 +1514,7 @@ bool videod_xfer_cb(uint8_t rhport, uint8_t ep_addr, xfer_result_t result, uint3
     /* Claim the endpoint */
     TU_VERIFY(usbd_edpt_claim(rhport, ep_addr), 0);
     uint_fast16_t pkt_len = _prepare_in_payload(stm, stm_epbuf->buf);
-    TU_ASSERT(usbd_edpt_xfer(rhport, ep_addr, stm_epbuf->buf, (uint16_t) pkt_len), 0);
+    TU_ASSERT(usbd_edpt_xfer(rhport, ep_addr, stm_epbuf->buf, (uint16_t) pkt_len, false), 0);
   } else {
     stm->buffer  = NULL;
     stm->bufsize = 0;

@@ -18,7 +18,7 @@
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN0
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
  * This file is part of the TinyUSB stack.
@@ -78,6 +78,10 @@ typedef struct {
     mtp_auint16_t(_capture_count) capture_formats; \
     mtp_auint16_t(_playback_count) playback_formats; \
     /* string fields will be added using append function */ \
+    /* mtp_string_t() Manufacturer */ \
+    /* mtp_string_t() Model */ \
+    /* mtp_string_t() Device Version */ \
+    /* mtp_string_t() Serial Number */ \
   }
 
 typedef MTP_DEVICE_INFO_STRUCT( //-V2586 [MISRA-C-18.7] Flexible array members should not be declared

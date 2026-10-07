@@ -26,7 +26,7 @@
 
 #include "tusb_option.h"
 
-#if (CFG_TUD_ENABLED && CFG_TUD_MIDI)
+#if CFG_TUD_ENABLED && CFG_TUD_MIDI
 
 //--------------------------------------------------------------------+
 // INCLUDE
@@ -71,20 +71,21 @@ typedef struct {
 
 static midid_interface_t _midid_itf[CFG_TUD_MIDI];
 
-// Endpoint Transfer buffer
+  #if CFG_TUD_EDPT_DEDICATED_HWFIFO == 0
+// Endpoint Transfer buffer: not used if dedicated hw FIFO is available
 typedef struct {
-  TUD_EPBUF_DEF(epin, CFG_TUD_MIDI_EP_BUFSIZE);
-  TUD_EPBUF_DEF(epout, CFG_TUD_MIDI_EP_BUFSIZE);
+  TUD_EPBUF_DEF(epin, CFG_TUD_MIDI_TX_EPSIZE);
+  TUD_EPBUF_DEF(epout, CFG_TUD_MIDI_RX_EPSIZE);
 } midid_epbuf_t;
 
 CFG_TUD_MEM_SECTION static midid_epbuf_t _midid_epbuf[CFG_TUD_MIDI];
+  #endif
 
 //--------------------------------------------------------------------+
 // INTERNAL OBJECT & FUNCTION DECLARATION
 //--------------------------------------------------------------------+
 bool tud_midi_n_mounted (uint8_t itf) {
   midid_interface_t *p_midi = &_midid_itf[itf];
-
   const bool tx_opened = tu_edpt_stream_is_opened(&p_midi->ep_stream.tx);
   const bool rx_opened = tu_edpt_stream_is_opened(&p_midi->ep_stream.rx);
   return tx_opened && rx_opened;
@@ -167,19 +168,118 @@ uint32_t tud_midi_n_stream_read(uint8_t itf, uint8_t cable_num, void *buffer, ui
   return total_read;
 }
 
+// Note: this function shares stream->buffer with tud_midi_n_stream_read().
+// Do not mix calls to both functions on the same interface.
+uint32_t tud_midi_n_demux_stream_read(uint8_t itf, uint8_t *p_cable_num, void *buffer, uint32_t bufsize) {
+  TU_VERIFY(p_cable_num != NULL && buffer != NULL && bufsize > 0, 0);
+
+  midid_interface_t    *p_midi = &_midid_itf[itf];
+  midi_driver_stream_t *stream = &p_midi->stream_read;
+  tu_edpt_stream_t     *ep_str = &p_midi->ep_stream.rx;
+
+  uint8_t  *buf8 = (uint8_t *)buffer;
+  uint32_t total_read = 0;
+
+  // Initialize to invalid cable so callers can detect "no data" even when
+  // the return value is 0.
+  *p_cable_num = 0xff;
+
+  // If there are leftover bytes from a previous partial read, return them first
+  if (stream->total > 0) {
+    *p_cable_num = (stream->buffer[0] >> 4) & 0x0f;
+    const uint8_t count = (uint8_t)tu_min32((uint32_t)(stream->total - stream->index), bufsize);
+    TU_VERIFY(0 == tu_memcpy_s(buf8, bufsize, stream->buffer + 1 + stream->index, count));
+
+    total_read += count;
+    stream->index += count;
+    buf8 += count;
+    bufsize -= count;
+
+    if (stream->total == stream->index) {
+      stream->index = 0;
+      stream->total = 0;
+    }
+
+    if (bufsize == 0) {
+      return total_read;
+    }
+  }
+
+  while (bufsize > 0) {
+    // Peek at next packet header to get cable number without consuming
+    uint8_t one_byte;
+    if (!tu_edpt_stream_peek(ep_str, &one_byte)) {
+      break;
+    }
+
+    const uint8_t next_cable = (one_byte >> 4) & 0x0f;
+
+    // Stop if cable changed (covers both leftover-originated reads and
+    // freshly consumed packets — total_read > 0 in either case)
+    if (total_read > 0 && next_cable != *p_cable_num) {
+      break;
+    }
+    *p_cable_num = next_cable;
+
+    // Consume the packet
+    if (!tud_midi_n_packet_read(itf, stream->buffer)) {
+      break;
+    }
+
+    const uint8_t code_index = stream->buffer[0] & 0x0f;
+    uint8_t msg_bytes;
+
+    // MIDI 1.0 Table 4-1: Code Index Number Classifications
+    switch (code_index) {
+      case MIDI_CIN_MISC:
+      case MIDI_CIN_CABLE_EVENT:
+        // Reserved and unused, skip this packet
+        continue;
+
+      case MIDI_CIN_SYSEX_END_1BYTE:
+      case MIDI_CIN_1BYTE_DATA:
+        msg_bytes = 1;
+        break;
+
+      case MIDI_CIN_SYSCOM_2BYTE:
+      case MIDI_CIN_SYSEX_END_2BYTE:
+      case MIDI_CIN_PROGRAM_CHANGE:
+      case MIDI_CIN_CHANNEL_PRESSURE:
+        msg_bytes = 2;
+        break;
+
+      default:
+        msg_bytes = 3;
+        break;
+    }
+
+    const uint8_t count = (uint8_t)tu_min32((uint32_t)msg_bytes, bufsize);
+    TU_VERIFY(0 == tu_memcpy_s(buf8, bufsize, stream->buffer + 1, count));
+
+    total_read += count;
+    buf8 += count;
+    bufsize -= count;
+
+    if (count < msg_bytes) {
+      // Output buffer full, save remaining for next call
+      stream->total = msg_bytes;
+      stream->index = count;
+    }
+  }
+
+  return total_read;
+}
+
 bool tud_midi_n_packet_read(uint8_t itf, uint8_t packet[4]) {
   midid_interface_t *p_midi = &_midid_itf[itf];
   tu_edpt_stream_t  *ep_str = &p_midi->ep_stream.rx;
-  TU_VERIFY(tu_edpt_stream_is_opened(ep_str));
-  return 4 == tu_edpt_stream_read(p_midi->rhport, ep_str, packet, 4);
+  return 4 == tu_edpt_stream_read(ep_str, packet, 4);
 }
 
 uint32_t tud_midi_n_packet_read_n(uint8_t itf, uint8_t packets[], uint32_t max_packets) {
   midid_interface_t *p_midi = &_midid_itf[itf];
   tu_edpt_stream_t  *ep_str = &p_midi->ep_stream.rx;
-  TU_VERIFY(tu_edpt_stream_is_opened(ep_str), 0);
-
-  const uint32_t num_read = tu_edpt_stream_read(p_midi->rhport, ep_str, packets, 4u * max_packets);
+  const uint32_t num_read = tu_edpt_stream_read(ep_str, packets, 4u * max_packets);
   return num_read >> 2u;
 }
 
@@ -194,7 +294,7 @@ uint32_t tud_midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *
 
   uint32_t i = 0;
   while (i < bufsize) {
-    if (tu_edpt_stream_write_available(p_midi->rhport, ep_str) < 4) {
+    if (tu_edpt_stream_write_available(ep_str) < 4) {
       break;
     }
 
@@ -267,7 +367,7 @@ uint32_t tud_midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *
         stream->buffer[idx] = 0;
       }
 
-      const uint32_t count = tu_edpt_stream_write(p_midi->rhport, ep_str, stream->buffer, 4);
+      const uint32_t count = tu_edpt_stream_write(ep_str, stream->buffer, 4);
 
       // complete current event packet, reset stream
       stream->index = stream->total = 0;
@@ -277,7 +377,7 @@ uint32_t tud_midi_n_stream_write(uint8_t itf, uint8_t cable_num, const uint8_t *
     }
   }
 
-  (void)tu_edpt_stream_write_xfer(p_midi->rhport, ep_str);
+  (void)tu_edpt_stream_write_xfer(ep_str);
 
   return i;
 }
@@ -287,9 +387,9 @@ bool tud_midi_n_packet_write (uint8_t itf, const uint8_t packet[4]) {
   tu_edpt_stream_t  *ep_str = &p_midi->ep_stream.tx;
   TU_VERIFY(tu_edpt_stream_is_opened(ep_str));
 
-  TU_VERIFY(tu_edpt_stream_write_available(p_midi->rhport, ep_str) >= 4);
-  TU_VERIFY(tu_edpt_stream_write(p_midi->rhport, ep_str, packet, 4) > 0);
-  (void)tu_edpt_stream_write_xfer(p_midi->rhport, ep_str);
+  TU_VERIFY(tu_edpt_stream_write_available(ep_str) >= 4);
+  TU_VERIFY(tu_edpt_stream_write(ep_str, packet, 4) > 0);
+  (void)tu_edpt_stream_write_xfer(ep_str);
 
   return true;
 }
@@ -299,11 +399,11 @@ uint32_t tud_midi_n_packet_write_n(uint8_t itf, const uint8_t packets[], uint32_
   tu_edpt_stream_t  *ep_str = &p_midi->ep_stream.tx;
   TU_VERIFY(tu_edpt_stream_is_opened(ep_str), 0);
 
-  uint32_t n_bytes = tu_edpt_stream_write_available(p_midi->rhport, ep_str);
+  uint32_t n_bytes = tu_edpt_stream_write_available(ep_str);
   n_bytes          = tu_min32(tu_align4(n_bytes), n_packets << 2u);
 
-  const uint32_t n_write = tu_edpt_stream_write(p_midi->rhport, ep_str, packets, n_bytes);
-  (void)tu_edpt_stream_write_xfer(p_midi->rhport, ep_str);
+  const uint32_t n_write = tu_edpt_stream_write(ep_str, packets, n_bytes);
+  (void)tu_edpt_stream_write_xfer(ep_str);
 
   return n_write >> 2u;
 }
@@ -313,18 +413,23 @@ uint32_t tud_midi_n_packet_write_n(uint8_t itf, const uint8_t packets[], uint32_
 //--------------------------------------------------------------------+
 void midid_init(void) {
   tu_memclr(_midid_itf, sizeof(_midid_itf));
-
   for (uint8_t i = 0; i < CFG_TUD_MIDI; i++) {
     midid_interface_t *p_midi  = &_midid_itf[i];
+
+  #if CFG_TUD_EDPT_DEDICATED_HWFIFO
+    uint8_t *epout_buf = NULL;
+    uint8_t *epin_buf  = NULL;
+  #else
     midid_epbuf_t     *p_epbuf = &_midid_epbuf[i];
+    uint8_t       *epout_buf = p_epbuf->epout;
+    uint8_t       *epin_buf  = p_epbuf->epin;
+  #endif
 
-    tu_edpt_stream_init(
-        &p_midi->ep_stream.rx, false, false, false, p_midi->ep_stream.rx_ff_buf, CFG_TUD_MIDI_RX_BUFSIZE,
-        p_epbuf->epout, CFG_TUD_MIDI_EP_BUFSIZE);
+    tu_edpt_stream_init(&p_midi->ep_stream.rx, false, false, false, p_midi->ep_stream.rx_ff_buf,
+                        CFG_TUD_MIDI_RX_BUFSIZE, epout_buf);
 
-    tu_edpt_stream_init(
-        &p_midi->ep_stream.tx, false, true, false, p_midi->ep_stream.tx_ff_buf, CFG_TUD_MIDI_TX_BUFSIZE, p_epbuf->epin,
-        CFG_TUD_MIDI_EP_BUFSIZE);
+    tu_edpt_stream_init(&p_midi->ep_stream.tx, false, true, false, p_midi->ep_stream.tx_ff_buf, CFG_TUD_MIDI_TX_BUFSIZE,
+                        epin_buf);
   }
 }
 
@@ -405,13 +510,13 @@ uint16_t midid_open(uint8_t rhport, const tusb_desc_interface_t *desc_itf, uint1
 
       if (tu_edpt_dir(ep_addr) == TUSB_DIR_IN) {
         tu_edpt_stream_t *stream_tx = &p_midi->ep_stream.tx;
-        tu_edpt_stream_open(stream_tx, desc_ep);
+        tu_edpt_stream_open(stream_tx, rhport, desc_ep, CFG_TUD_MIDI_TX_EPSIZE);
         tu_edpt_stream_clear(stream_tx);
       } else {
         tu_edpt_stream_t *stream_rx = &p_midi->ep_stream.rx;
-        tu_edpt_stream_open(stream_rx, desc_ep);
+        tu_edpt_stream_open(stream_rx, rhport, desc_ep, tu_edpt_packet_size(desc_ep));
         tu_edpt_stream_clear(stream_rx);
-        TU_ASSERT(tu_edpt_stream_read_xfer(rhport, stream_rx) > 0, 0); // prepare to receive data
+        TU_ASSERT(tu_edpt_stream_read_xfer(stream_rx) > 0, 0);         // prepare to receive data
       }
 
       p_desc = tu_desc_next(p_desc);                                   // skip CS Endpoint descriptor
@@ -433,6 +538,7 @@ bool midid_control_xfer_cb(uint8_t rhport, uint8_t stage, const tusb_control_req
 }
 
 bool midid_xfer_cb(uint8_t rhport, uint8_t ep_addr, xfer_result_t result, uint32_t xferred_bytes) {
+  (void)rhport;
   (void)result;
 
   uint8_t idx = find_midi_itf(ep_addr);
@@ -448,12 +554,12 @@ bool midid_xfer_cb(uint8_t rhport, uint8_t ep_addr, xfer_result_t result, uint32
       tu_edpt_stream_read_xfer_complete(ep_st_rx, xferred_bytes);
       tud_midi_rx_cb(idx);                      // invoke callback
     }
-    tu_edpt_stream_read_xfer(rhport, ep_st_rx); // prepare for next data
+    tu_edpt_stream_read_xfer(ep_st_rx);         // prepare for next data
   } else if (ep_addr == ep_st_tx->ep_addr && result == XFER_RESULT_SUCCESS) {
     // sent complete: try to send more if possible
-    if (0 == tu_edpt_stream_write_xfer(rhport, ep_st_tx)) {
+    if (0 == tu_edpt_stream_write_xfer(ep_st_tx)) {
       // If there is no data left, a ZLP should be sent if needed
-      (void)tu_edpt_stream_write_zlp_if_needed(rhport, ep_st_tx, xferred_bytes);
+      (void)tu_edpt_stream_write_zlp_if_needed(ep_st_tx, xferred_bytes);
     }
   } else {
     return false;

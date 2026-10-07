@@ -243,7 +243,7 @@ TU_ATTR_ALWAYS_INLINE static inline uint16_t get_buf_offset(void const * buffer)
 }
 
 TU_ATTR_ALWAYS_INLINE static inline uint8_t ep_addr2id(uint8_t ep_addr) {
-  return 2*(ep_addr & 0x0F) + ((ep_addr & TUSB_DIR_IN_MASK) ? 1 : 0);
+  return (uint8_t)(2*(ep_addr & 0x0F) + ((ep_addr & TUSB_DIR_IN_MASK) ? 1 : 0));
 }
 
 TU_ATTR_ALWAYS_INLINE static inline bool ep_is_iso(ep_cmd_sts_t* ep_cs, bool is_highspeed) {
@@ -322,7 +322,7 @@ void dcd_set_address(uint8_t rhport, uint8_t dev_addr)
   dcd_registers_t* dcd_reg = _dcd_controller[rhport].regs;
 
   // Response with status first before changing device address
-  dcd_edpt_xfer(rhport, tu_edpt_addr(0, TUSB_DIR_IN), NULL, 0);
+  dcd_edpt_xfer(rhport, tu_edpt_addr(0, TUSB_DIR_IN), NULL, 0, false);
 
   dcd_reg->DEVCMDSTAT &= ~DEVCMDSTAT_DEVICE_ADDR_MASK;
   dcd_reg->DEVCMDSTAT |= dev_addr;
@@ -479,7 +479,8 @@ static void prepare_ep_xfer(uint8_t rhport, uint8_t ep_id, uint16_t buf_offset, 
   ep_cs[0].cmd_sts.active = 1;
 }
 
-bool dcd_edpt_xfer(uint8_t rhport, uint8_t ep_addr, uint8_t* buffer, uint16_t total_bytes) {
+bool dcd_edpt_xfer(uint8_t rhport, uint8_t ep_addr, uint8_t * buffer, uint16_t total_bytes, bool is_isr) {
+  (void) is_isr;
   uint8_t const ep_id = ep_addr2id(ep_addr);
 
   if (!buffer || total_bytes == 0) {
@@ -538,8 +539,8 @@ static void process_xfer_isr(uint8_t rhport, uint32_t int_status) {
       uint16_t buf_nbytes;
 
       if ( rhport_is_highspeed(rhport) ) {
-        buf_offset = ep_cs->buffer_hs.offset;
-        buf_nbytes = ep_cs->buffer_hs.nbytes;
+        buf_offset = (uint16_t)ep_cs->buffer_hs.offset;
+        buf_nbytes = (uint16_t)ep_cs->buffer_hs.nbytes;
 
         #if TU_CHECK_MCU(OPT_MCU_LPC54)
         // LPC54 Errata USB.2: In USB high-speed device mode, the NBytes field is not correct after BULK IN transfer
@@ -549,8 +550,8 @@ static void process_xfer_isr(uint8_t rhport, uint32_t int_status) {
         }
         #endif
       } else {
-        buf_offset = ep_cs->buffer_fs.offset;
-        buf_nbytes = ep_cs->buffer_fs.nbytes;
+        buf_offset = (uint16_t)ep_cs->buffer_fs.offset;
+        buf_nbytes = (uint16_t)ep_cs->buffer_fs.nbytes;
       }
 
       xfer_dma->xferred_bytes += xfer_dma->nbytes - buf_nbytes;

@@ -42,6 +42,8 @@
 #ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wredundant-decls"
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
 
 #include "NuMicro.h"
@@ -291,7 +293,7 @@ bool dcd_edpt_open(uint8_t rhport, tusb_desc_endpoint_t const * p_endpoint_desc)
 
   /* mine the data for the information we need */
   int const dir = tu_edpt_dir(p_endpoint_desc->bEndpointAddress);
-  int const size = tu_edpt_packet_size(p_endpoint_desc);
+  uint16_t const size = tu_edpt_packet_size(p_endpoint_desc);
   tusb_xfer_type_t const type = (tusb_xfer_type_t) p_endpoint_desc->bmAttributes.xfer;
   struct xfer_ctl_t *xfer = &xfer_table[ep - USBD->EP];
 
@@ -333,8 +335,9 @@ void dcd_edpt_close_all (uint8_t rhport)
   // TODO implement dcd_edpt_close_all()
 }
 
-bool dcd_edpt_xfer(uint8_t rhport, uint8_t ep_addr, uint8_t *buffer, uint16_t total_bytes)
+bool dcd_edpt_xfer(uint8_t rhport, uint8_t ep_addr, uint8_t * buffer, uint16_t total_bytes, bool is_isr)
 {
+  (void) is_isr;
   (void) rhport;
 
   /* mine the data for the information we need */
@@ -365,8 +368,9 @@ bool dcd_edpt_xfer(uint8_t rhport, uint8_t ep_addr, uint8_t *buffer, uint16_t to
 }
 
 #if 0 // TODO support dcd_edpt_xfer_fifo API
-bool dcd_edpt_xfer_fifo (uint8_t rhport, uint8_t ep_addr, tu_fifo_t * ff, uint16_t total_bytes)
+bool dcd_edpt_xfer_fifo(uint8_t rhport, uint8_t ep_addr, tu_fifo_t * ff, uint16_t total_bytes, bool is_isr)
 {
+  (void) is_isr;
   (void) rhport;
 
   /* mine the data for the information we need */
@@ -476,7 +480,7 @@ void dcd_int_handler(uint8_t rhport)
   {
     if (status & USBD_INTSTS_EPEVT0_Msk) /* PERIPH_EP0 (EP0_IN) event: this is treated separately from the rest */
     {
-      uint16_t const available_bytes = USBD->EP[PERIPH_EP0].MXPLD;
+      uint16_t const available_bytes = (uint16_t)USBD->EP[PERIPH_EP0].MXPLD;
 
       active_ep0_xfer = (available_bytes == xfer_table[PERIPH_EP0].max_packet_size);
 
@@ -494,7 +498,7 @@ void dcd_int_handler(uint8_t rhport)
       {
         USBD->INTSTS = mask;
 
-        uint16_t const available_bytes = ep->MXPLD;
+        uint16_t const available_bytes = (uint16_t)ep->MXPLD;
         uint8_t const ep_addr = decode_ep_addr(ep);
         bool const out_ep = !(ep_addr & TUSB_DIR_IN_MASK);
 

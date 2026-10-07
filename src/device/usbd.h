@@ -33,11 +33,37 @@
 extern "C" {
 #endif
 
+// ConfigID for tud_configure()
+enum {
+  TUD_CFGID_INVALID = 0,
+  TUD_CFGID_DWC2 = 100,
+};
+
+typedef struct {
+  uint16_t bm_double_buffered; // bitmap of IN endpoints to be double buffered, only effective for bulk endpoints
+  bool vbus_sensing; // Vbus pin is used for device connection detection, mandatory for tud_umount_cb()
+} tud_configure_dwc2_t;
+
+  #ifndef CFG_TUD_CONFIGURE_DWC2_DEFAULT
+    #define CFG_TUD_CONFIGURE_DWC2_DEFAULT {.bm_double_buffered = 0, .vbus_sensing = CFG_TUD_VBUS_DETECT_HW}
+  #endif
+
+typedef union {
+  tud_configure_dwc2_t dwc2;
+} tud_configure_param_t;
+
 //--------------------------------------------------------------------+
 // Application API
 //--------------------------------------------------------------------+
 
+// Configure device stack behavior with dynamic or port-specific parameters.
+// Should be called before initialization of the device stack
+// - cfg_id   : configure ID from TUD_CFGID_* enum values
+// - cfg_param: configure data, structure depends on the ID
+bool tud_configure(uint8_t rhport, uint32_t cfg_id, const void* cfg_param);
+
 // New API to replace tud_init() to init device stack on specific roothub port
+// Must be called in the same task/context as tud_task() if RTOS is used
 bool tud_rhport_init(uint8_t rhport, const tusb_rhport_init_t* rh_init);
 
 // Init device stack on roothub port
@@ -53,6 +79,7 @@ TU_ATTR_ALWAYS_INLINE static inline bool tud_init (uint8_t rhport) {
 }
 
 // Deinit device stack on roothub port
+// Must be called in the same task/context as tud_task() if RTOS is used
 bool tud_deinit(uint8_t rhport);
 
 // Check if device stack is already initialized
@@ -270,6 +297,19 @@ bool tud_vendor_control_xfer_cb(uint8_t rhport, uint8_t stage, tusb_control_requ
   /* Endpoint In */\
   7, TUSB_DESC_ENDPOINT, _epin, TUSB_XFER_BULK, U16_TO_U8S_LE(_epsize), 0
 
+//--------------------------------------------------------------------+
+// Printer Descriptor Templates
+//--------------------------------------------------------------------+
+
+#define TUD_PRINTER_DESC_LEN (9 + 7 + 7)  // one interface, two endpoints
+
+#define TUD_PRINTER_DESCRIPTOR(_itfnum, _stridx, _epout, _epin, _epsize) \
+  /* Interface */\
+  9, TUSB_DESC_INTERFACE, _itfnum, 0, 2, TUSB_CLASS_PRINTER, 1, 2, _stridx,\
+  /* Endpoint Out */\
+  7, TUSB_DESC_ENDPOINT, _epout, TUSB_XFER_BULK, U16_TO_U8S_LE(_epsize), 0,\
+  /* Endpoint In */\
+  7, TUSB_DESC_ENDPOINT, _epin, TUSB_XFER_BULK, U16_TO_U8S_LE(_epsize), 0
 
 //--------------------------------------------------------------------+
 // MTP Descriptor Templates
@@ -383,6 +423,43 @@ bool tud_vendor_control_xfer_cb(uint8_t rhport, uint8_t stage, tusb_control_requ
   TUD_MIDI_JACKID_IN_EMB(1),\
   TUD_MIDI_DESC_EP(_epin, _epsize, 1),\
   TUD_MIDI_JACKID_OUT_EMB(1)
+
+//--------------------------------------------------------------------+
+// MIDI 2.0 Descriptor Templates (USB-MIDI 2.0)
+//--------------------------------------------------------------------+
+
+// Alt Setting 1: MS Interface + MS Header (bcdMSC=0x0200)
+// Per USB-MIDI 2.0 Table 5-2: wTotalLength in the MS Header is not used in 2.0
+// and shall be set to match bLength (= 0x0007) for conformity with USB-MIDI 1.0.
+#define TUD_MIDI2_DESC_ALT1_HEAD_LEN (9 + 7)
+#define TUD_MIDI2_DESC_ALT1_HEAD(_itfnum, _stridx) \
+  /* MIDI Streaming Interface, Alt Setting 1 */\
+  9, TUSB_DESC_INTERFACE, (uint8_t)((_itfnum) + 1), 1, 2, TUSB_CLASS_AUDIO, AUDIO_SUBCLASS_MIDI_STREAMING, AUDIO_FUNC_PROTOCOL_CODE_UNDEF, 0,\
+  /* MS Header (MIDI 2.0): wTotalLength = bLength per spec */\
+  7, TUSB_DESC_CS_INTERFACE, MIDI_CS_INTERFACE_HEADER, U16_TO_U8S_LE(0x0200), U16_TO_U8S_LE(0x0007)
+
+// Alt Setting 1: Standard USB Endpoint (7 bytes) + CS Endpoint General 2.0
+#define TUD_MIDI2_DESC_ALT1_EP_LEN(_numgtbs) (7 + 4 + (_numgtbs))
+#define TUD_MIDI2_DESC_ALT1_EP(_ep, _epsize, _numgtbs, ...) \
+  7, TUSB_DESC_ENDPOINT, _ep, TUSB_XFER_BULK, U16_TO_U8S_LE(_epsize), 0, \
+  (uint8_t)(4 + (_numgtbs)), TUSB_DESC_CS_ENDPOINT, MIDI_CS_ENDPOINT_GENERAL_2_0, _numgtbs, ## __VA_ARGS__
+
+// Total length: Alt 0 (MIDI 1.0) + Alt 1 (UMP)
+#define TUD_MIDI2_DESC_LEN (TUD_MIDI_DESC_LEN + TUD_MIDI2_DESC_ALT1_HEAD_LEN + TUD_MIDI2_DESC_ALT1_EP_LEN(1) * 2)
+
+// Complete MIDI 2.0 descriptor with both alternate settings (single cable/GTB)
+#define TUD_MIDI2_DESCRIPTOR(_itfnum, _stridx, _epout, _epin, _epsize) \
+  /* Alt Setting 0 (MIDI 1.0) */\
+  TUD_MIDI_DESC_HEAD(_itfnum, _stridx, 1),\
+  TUD_MIDI_DESC_JACK_DESC(1, 0),\
+  TUD_MIDI_DESC_EP(_epout, _epsize, 1),\
+  TUD_MIDI_JACKID_IN_EMB(1),\
+  TUD_MIDI_DESC_EP(_epin, _epsize, 1),\
+  TUD_MIDI_JACKID_OUT_EMB(1),\
+  /* Alt Setting 1 (UMP) */\
+  TUD_MIDI2_DESC_ALT1_HEAD(_itfnum, _stridx),\
+  TUD_MIDI2_DESC_ALT1_EP(_epout, _epsize, 1, 1 /* bAssoGrpTrmBlkID */),\
+  TUD_MIDI2_DESC_ALT1_EP(_epin, _epsize, 1, 1 /* bAssoGrpTrmBlkID */)
 
 //--------------------------------------------------------------------+
 // Audio Descriptor Templates
@@ -797,7 +874,7 @@ bool tud_vendor_control_xfer_cb(uint8_t rhport, uint8_t stage, tusb_control_requ
   /* Interface */ \
   9, TUSB_DESC_INTERFACE, _itfnum, 0, 0, TUD_DFU_APP_CLASS, TUD_DFU_APP_SUBCLASS, DFU_PROTOCOL_RT, _stridx, \
   /* Function */ \
-  9, DFU_DESC_FUNCTIONAL, _attr, U16_TO_U8S_LE(_timeout), U16_TO_U8S_LE(_xfer_size), U16_TO_U8S_LE(0x0101)
+  9, DFU_DESC_FUNCTIONAL, _attr, U16_TO_U8S_LE(_timeout), U16_TO_U8S_LE(_xfer_size), U16_TO_U8S_LE(0x0110)
 
 //--------------------------------------------------------------------+
 // DFU Descriptor Templates
@@ -811,7 +888,7 @@ bool tud_vendor_control_xfer_cb(uint8_t rhport, uint8_t stage, tusb_control_requ
 #define TUD_DFU_DESCRIPTOR(_itfnum, _alt_count, _stridx, _attr, _timeout, _xfer_size) \
   TU_XSTRCAT(TUD_DFU_ALT_,_alt_count)(_itfnum, 0, _stridx), \
   /* Function */ \
-  9, DFU_DESC_FUNCTIONAL, _attr, U16_TO_U8S_LE(_timeout), U16_TO_U8S_LE(_xfer_size), U16_TO_U8S_LE(0x0101)
+  9, DFU_DESC_FUNCTIONAL, _attr, U16_TO_U8S_LE(_timeout), U16_TO_U8S_LE(_xfer_size), U16_TO_U8S_LE(0x0110)
 
 #define TUD_DFU_ALT(_itfnum, _alt, _stridx) \
   /* Interface */ \
@@ -986,23 +1063,23 @@ bool tud_vendor_control_xfer_cb(uint8_t rhport, uint8_t stage, tusb_control_requ
 // Length of template descriptor
 #define TUD_CDC_NCM_DESC_LEN  (8+9+5+5+13+6+7+9+9+7+7)
 
-// CDC-ECM Descriptor Template
-// Interface number, description string index, MAC address string index, EP notification address and size, EP data address (out, in), and size, max segment size.
-#define TUD_CDC_NCM_DESCRIPTOR(_itfnum, _desc_stridx, _mac_stridx, _ep_notif, _ep_notif_size, _epout, _epin, _epsize, _maxsegmentsize) \
+// CDC-NCM Descriptor Template
+// Interface number, description string index, MAC address string index, EP notification address and size, EP data address (out, in), and size, max segment size, EP notification bInterval, capability.
+#define TUD_CDC_NCM_DESCRIPTOR(_itfnum, _desc_stridx, _mac_stridx, _ep_notif, _ep_notif_size, _epout, _epin, _epsize, _maxsegmentsize, _ep_notif_interval, _capability) \
   /* Interface Association */\
   8, TUSB_DESC_INTERFACE_ASSOCIATION, _itfnum, 2, TUSB_CLASS_CDC, CDC_COMM_SUBCLASS_NETWORK_CONTROL_MODEL, 0, 0,\
   /* CDC Control Interface */\
   9, TUSB_DESC_INTERFACE, _itfnum, 0, 1, TUSB_CLASS_CDC, CDC_COMM_SUBCLASS_NETWORK_CONTROL_MODEL, 0, _desc_stridx,\
-  /* CDC-NCM Header */\
+  /* CDC Header */\
   5, TUSB_DESC_CS_INTERFACE, CDC_FUNC_DESC_HEADER, U16_TO_U8S_LE(0x0110),\
-  /* CDC-NCM Union */\
+  /* CDC Union */\
   5, TUSB_DESC_CS_INTERFACE, CDC_FUNC_DESC_UNION, _itfnum, (uint8_t)((_itfnum) + 1),\
-  /* CDC-NCM Functional Descriptor */\
+  /* CDC Ethernet Networking Descriptor */\
   13, TUSB_DESC_CS_INTERFACE, CDC_FUNC_DESC_ETHERNET_NETWORKING, _mac_stridx, 0, 0, 0, 0, U16_TO_U8S_LE(_maxsegmentsize), U16_TO_U8S_LE(0), 0, \
   /* CDC-NCM Functional Descriptor */\
-  6, TUSB_DESC_CS_INTERFACE, CDC_FUNC_DESC_NCM, U16_TO_U8S_LE(0x0100), 0, \
+  6, TUSB_DESC_CS_INTERFACE, CDC_FUNC_DESC_NCM, U16_TO_U8S_LE(0x0100), _capability, \
   /* Endpoint Notification */\
-  7, TUSB_DESC_ENDPOINT, _ep_notif, TUSB_XFER_INTERRUPT, U16_TO_U8S_LE(_ep_notif_size), 50,\
+  7, TUSB_DESC_ENDPOINT, _ep_notif, TUSB_XFER_INTERRUPT, U16_TO_U8S_LE(_ep_notif_size), _ep_notif_interval,\
   /* CDC Data Interface (default inactive) */\
   9, TUSB_DESC_INTERFACE, (uint8_t)((_itfnum)+1), 0, 0, TUSB_CLASS_CDC_DATA, 0, NCM_DATA_PROTOCOL_NETWORK_TRANSFER_BLOCK, 0,\
   /* CDC Data Interface (alternative active) */\

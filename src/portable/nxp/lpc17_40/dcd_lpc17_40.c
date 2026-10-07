@@ -131,7 +131,7 @@ static uint8_t sie_read (uint8_t cmd_code)
 //--------------------------------------------------------------------+
 static inline uint8_t ep_addr2idx(uint8_t ep_addr)
 {
-  return 2*(ep_addr & 0x0F) + ((ep_addr & TUSB_DIR_IN_MASK) ? 1 : 0);
+  return (uint8_t)(2*(ep_addr & 0x0F) + ((ep_addr & TUSB_DIR_IN_MASK) ? 1 : 0));
 }
 
 static void set_ep_size(uint8_t ep_id, uint16_t max_packet_size)
@@ -205,7 +205,7 @@ void dcd_int_disable(uint8_t rhport)
 void dcd_set_address(uint8_t rhport, uint8_t dev_addr)
 {
   // Response with status first before changing device address
-  dcd_edpt_xfer(rhport, tu_edpt_addr(0, TUSB_DIR_IN), NULL, 0);
+  dcd_edpt_xfer(rhport, tu_edpt_addr(0, TUSB_DIR_IN), NULL, 0, false);
 
   sie_write(SIE_CMDCODE_SET_ADDRESS, 1, 0x80 | dev_addr); // 7th bit is : device_enable
 
@@ -243,7 +243,7 @@ void dcd_sof_enable(uint8_t rhport, bool en)
 //--------------------------------------------------------------------+
 static inline uint8_t byte2dword(uint8_t bytes)
 {
-  return (bytes + 3) / 4; // length in dwords
+  return (uint8_t)((bytes + 3) / 4); // length in dwords
 }
 
 static void control_ep_write(void const * buffer, uint8_t len)
@@ -407,8 +407,9 @@ static bool control_xact(uint8_t rhport, uint8_t dir, uint8_t * buffer, uint8_t 
   return true;
 }
 
-bool dcd_edpt_xfer (uint8_t rhport, uint8_t ep_addr, uint8_t* buffer, uint16_t total_bytes)
+bool dcd_edpt_xfer(uint8_t rhport, uint8_t ep_addr, uint8_t * buffer, uint16_t total_bytes, bool is_isr)
 {
+  (void) is_isr;
   // Control transfer is not DMA support, and must be done in slave mode
   if ( tu_edpt_number(ep_addr) == 0 )
   {

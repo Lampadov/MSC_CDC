@@ -403,11 +403,6 @@
               <FilePath>.\src\device\usbd.c</FilePath>
             </File>
             <File>
-              <FileName>usbd_control.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\src\device\usbd_control.c</FilePath>
-            </File>
-            <File>
               <FileName>usbc.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\typec\usbc.c</FilePath>

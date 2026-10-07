@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2019 Ha Thach (tinyusb.org)
+ * Copyright (c) 2026 Ha Thach (tinyusb.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,40 +24,39 @@
  * This file is part of the TinyUSB stack.
  */
 
-/** \ingroup CDC_RNDIS
- * \defgroup CDC_RNSID_Host Host
- *  @{ */
-
-#ifndef TUSB_CDC_RNDIS_HOST_H_
-#define TUSB_CDC_RNDIS_HOST_H_
+#ifndef TUSB_PRINTER_H_
+#define TUSB_PRINTER_H_
 
 #include "common/tusb_common.h"
-#include "host/usbh.h"
-#include "cdc_rndis.h"
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
-//--------------------------------------------------------------------+
-// INTERNAL RNDIS-CDC Driver API
-//--------------------------------------------------------------------+
-typedef struct {
-  OSAL_SEM_DEF(semaphore_notification);
-  osal_semaphore_handle_t sem_notification_hdl;  // used to wait on notification pipe
-  uint32_t max_xfer_size; // got from device's msg initialize complete
-  uint8_t mac_address[6];
-}rndish_data_t;
+/// Printer Class Specific Control Request
+typedef enum {
+  TUSB_PRINTER_REQUEST_GET_DEVICE_ID   = 0x00, ///< Get device ID
+  TUSB_PRINTER_REQUEST_GET_PORT_STATUS = 0x01, ///< Get port status
+  TUSB_PRINTER_REQUEST_SOFT_RESET      = 0x02, ///< Soft reset
+} tusb_printer_request_type_t;
 
-void rndish_init(void);
-bool rndish_open_subtask(uint8_t dev_addr, cdch_data_t *p_cdc);
-void rndish_xfer_isr(cdch_data_t *p_cdc, pipe_handle_t pipe_hdl, xfer_result_t event, uint32_t xferred_bytes);
-void rndish_close(uint8_t dev_addr);
+/// Printer Port Status (returned by GET_PORT_STATUS request)
+/// USB Printer Class spec 1.1, Section 4.2
+typedef union TU_ATTR_PACKED {
+  uint8_t status;
+  struct TU_ATTR_PACKED {
+    uint8_t reserved0   : 3; ///< Reserved (bits 0-2)
+    uint8_t not_error   : 1; ///< 1 = no error, 0 = error
+    uint8_t selected    : 1; ///< 1 = selected (online), 0 = not selected
+    uint8_t paper_empty : 1; ///< 1 = paper empty, 0 = paper not empty
+    uint8_t reserved6   : 2; ///< Reserved (bits 6-7)
+  } status_bm;
+} tusb_printer_port_status_t;
+
+TU_VERIFY_STATIC(sizeof(tusb_printer_port_status_t) == 1, "size is not correct");
 
 #ifdef __cplusplus
- }
+}
 #endif
 
-#endif /* TUSB_CDC_RNDIS_HOST_H_ */
-
-/** @} */
+#endif

@@ -31,6 +31,24 @@
 extern "C" {
 #endif
 
+// osal_time_millis() is not provided, tusb_time_millis_api() must be implemented by user application
+
+//--------------------------------------------------------------------+
+// TASK API
+//--------------------------------------------------------------------+
+// Bare-metal single context: return a non-NULL sentinel so equality compares true.
+typedef void* osal_task_handle_t;
+
+TU_ATTR_ALWAYS_INLINE static inline osal_task_handle_t osal_task_get_current_handle(void) {
+  return (osal_task_handle_t) 1;
+}
+
+// Bare-metal has no scheduler to yield to; this is dead code in practice because
+// callers gate it on running outside the host task, which can't happen here.
+TU_ATTR_ALWAYS_INLINE static inline void osal_task_delay(uint32_t msec) {
+  (void) msec;
+}
+
 //--------------------------------------------------------------------+
 // Spinlock API
 //--------------------------------------------------------------------+
@@ -49,6 +67,10 @@ typedef struct {
   osal_spinlock_t _name = { .interrupt_set = _int_set, .nested_count = 0 }
 
 TU_ATTR_ALWAYS_INLINE static inline void osal_spin_init(osal_spinlock_t *ctx) {
+  (void) ctx;
+}
+
+TU_ATTR_ALWAYS_INLINE static inline void osal_spin_deinit(osal_spinlock_t *ctx) {
   (void) ctx;
 }
 
@@ -157,21 +179,21 @@ TU_ATTR_ALWAYS_INLINE static inline bool osal_mutex_unlock(osal_mutex_t mutex_hd
 
 typedef struct {
   void (* interrupt_set)(bool enabled);
+  uint16_t  item_size;
   tu_fifo_t ff;
 } osal_queue_def_t;
 
 typedef osal_queue_def_t* osal_queue_t;
 
 // _int_set is used as mutex in OS NONE (disable/enable USB ISR)
-#define OSAL_QUEUE_DEF(_int_set, _name, _depth, _type)    \
-  uint8_t _name##_buf[_depth*sizeof(_type)];              \
-  osal_queue_def_t _name = {                              \
-    .interrupt_set = _int_set,                            \
-    .ff = TU_FIFO_INIT(_name##_buf, _depth, _type, false) \
-  }
+#define OSAL_QUEUE_DEF(_int_set, _name, _depth, _type)                                                 \
+  uint8_t          _name##_buf[_depth * sizeof(_type)];                                                \
+  osal_queue_def_t _name = {.interrupt_set = _int_set,                                                 \
+                            .item_size     = sizeof(_type),                                            \
+                            .ff            = TU_FIFO_INIT(_name##_buf, _depth * sizeof(_type), false)}
 
 TU_ATTR_ALWAYS_INLINE static inline osal_queue_t osal_queue_create(osal_queue_def_t* qdef) {
-  (void) tu_fifo_clear(&qdef->ff);
+  tu_fifo_clear(&qdef->ff);
   return (osal_queue_t) qdef;
 }
 
@@ -184,7 +206,7 @@ TU_ATTR_ALWAYS_INLINE static inline bool osal_queue_receive(osal_queue_t qhdl, v
   (void) msec; // not used, always behave as msec = 0
 
   qhdl->interrupt_set(false);
-  const bool success = tu_fifo_read(&qhdl->ff, data);
+  const bool success = (tu_fifo_read_n(&qhdl->ff, data, qhdl->item_size) > 0);
   qhdl->interrupt_set(true);
 
   return success;
@@ -195,7 +217,7 @@ TU_ATTR_ALWAYS_INLINE static inline bool osal_queue_send(osal_queue_t qhdl, void
     qhdl->interrupt_set(false);
   }
 
-  const bool success = tu_fifo_write(&qhdl->ff, data);
+  const bool success = (tu_fifo_write_n(&qhdl->ff, data, qhdl->item_size) > 0);
 
   if (!in_isr) {
     qhdl->interrupt_set(true);

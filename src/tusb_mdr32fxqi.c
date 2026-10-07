@@ -248,9 +248,10 @@ void dcd_edpt_close_all(uint8_t rhport)
     (void)rhport;
 }
 
-bool dcd_edpt_xfer(uint8_t rhport, uint8_t ep_addr, uint8_t* buffer, uint16_t total_bytes)
+bool dcd_edpt_xfer(uint8_t rhport, uint8_t ep_addr, uint8_t* buffer, uint16_t total_bytes, bool is_isr)
 {
     (void)rhport;
+    (void)is_isr;
 
     uint8_t epnum = tu_edpt_number(ep_addr);
     uint8_t dir   = tu_edpt_dir(ep_addr);

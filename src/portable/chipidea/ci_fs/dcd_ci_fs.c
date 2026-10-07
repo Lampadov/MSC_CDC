@@ -131,7 +131,7 @@ static void prepare_next_setup_packet(uint8_t rhport)
   _dcd.bdt[0][1][in_odd].data      = 1;
   _dcd.bdt[0][1][in_odd ^ 1].data  = 0;
   dcd_edpt_xfer(rhport, tu_edpt_addr(0, TUSB_DIR_OUT),
-                _dcd.setup_packet, sizeof(_dcd.setup_packet));
+                _dcd.setup_packet, sizeof(_dcd.setup_packet), false);
 }
 
 static void process_stall(uint8_t rhport)
@@ -303,7 +303,7 @@ void dcd_set_address(uint8_t rhport, uint8_t dev_addr)
 {
   _dcd.addr = dev_addr & 0x7F;
   /* Response with status first before changing device address */
-  dcd_edpt_xfer(rhport, tu_edpt_addr(0, TUSB_DIR_IN), NULL, 0);
+  dcd_edpt_xfer(rhport, tu_edpt_addr(0, TUSB_DIR_IN), NULL, 0, false);
 }
 
 void dcd_remote_wakeup(uint8_t rhport)
@@ -360,7 +360,7 @@ static bool edpt_open(uint8_t rhport, uint8_t ep_addr, uint16_t max_packet_size,
   unsigned val = USB_ENDPT_EPCTLDIS_MASK;
   val |= (xfer != TUSB_XFER_ISOCHRONOUS) ? USB_ENDPT_EPHSHK_MASK : 0;
   val |= dir ? USB_ENDPT_EPTXEN_MASK : USB_ENDPT_EPRXEN_MASK;
-  CI_REG->EP[epn].CTL |= val;
+  CI_REG->EP[epn].CTL |= (uint8_t)val;
 
   if (xfer != TUSB_XFER_ISOCHRONOUS) {
     bd[odd].dts      = 1;
@@ -415,8 +415,9 @@ void dcd_edpt_close_all(uint8_t rhport) {
   }
 }
 
-bool dcd_edpt_xfer(uint8_t rhport, uint8_t ep_addr, uint8_t* buffer, uint16_t total_bytes)
+bool dcd_edpt_xfer(uint8_t rhport, uint8_t ep_addr, uint8_t * buffer, uint16_t total_bytes, bool is_isr)
 {
+  (void) is_isr;
   const unsigned epn      = tu_edpt_number(ep_addr);
   const unsigned dir      = tu_edpt_dir(ep_addr);
   endpoint_state_t    *ep = &_dcd.endpoint[epn][dir];
@@ -433,11 +434,11 @@ bool dcd_edpt_xfer(uint8_t rhport, uint8_t ep_addr, uint8_t* buffer, uint16_t to
     buffer_descriptor_t *next = ep->odd ? bd - 1: bd + 1;
     /* When total_bytes is greater than the max packet size,
      * it prepares to the next transfer to avoid NAK in advance. */
-    next->bc   = total_bytes >= 2 * mps ? mps: total_bytes - mps;
+    next->bc   = (total_bytes >= 2 * mps) ? mps : (total_bytes - mps);
     next->addr = buffer + mps;
     next->own  = 1;
   }
-  bd->bc   = total_bytes >= mps ? mps: total_bytes;
+  bd->bc   = (total_bytes >= mps ? mps : total_bytes);
   bd->addr = buffer;
   __DSB();
   bd->own  = 1; /* This bit must be set last */
@@ -505,16 +506,16 @@ void dcd_edpt_clear_stall(uint8_t rhport, uint8_t ep_addr)
 //--------------------------------------------------------------------+
 void dcd_int_handler(uint8_t rhport)
 {
-  uint32_t is  = CI_REG->INT_STAT;
-  uint32_t msk = CI_REG->INT_EN;
+  uint8_t is  = CI_REG->INT_STAT;
+  uint8_t msk = CI_REG->INT_EN;
 
   // clear non-enabled interrupts
-  CI_REG->INT_STAT = is & ~msk;
+  CI_REG->INT_STAT = (uint8_t)(is & ~msk);
   is &= msk;
 
   if (is & USB_ISTAT_ERROR_MASK) {
     /* TODO: */
-    uint32_t es = CI_REG->ERR_STAT;
+    uint8_t es = CI_REG->ERR_STAT;
     CI_REG->ERR_STAT = es;
     CI_REG->INT_STAT = is; /* discard any pending events */
   }

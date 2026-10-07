@@ -72,6 +72,8 @@ void usbd_int_set(bool enabled);
 void usbd_spin_lock(bool in_isr);
 void usbd_spin_unlock(bool in_isr);
 
+uint8_t* usbd_get_ctrl_buf(void);
+
 //--------------------------------------------------------------------+
 // USBD Endpoint API
 // Note: rhport should be 0 since device stack only support 1 rhport for now
@@ -84,10 +86,10 @@ bool usbd_edpt_open(uint8_t rhport, tusb_desc_endpoint_t const * desc_ep);
 void usbd_edpt_close(uint8_t rhport, uint8_t ep_addr);
 
 // Submit a usb transfer
-bool usbd_edpt_xfer(uint8_t rhport, uint8_t ep_addr, uint8_t * buffer, uint16_t total_bytes);
+bool usbd_edpt_xfer(uint8_t rhport, uint8_t ep_addr, uint8_t * buffer, uint16_t total_bytes, bool is_isr);
 
 // Submit a usb ISO transfer by use of a FIFO (ring buffer) - all bytes in FIFO get transmitted
-bool usbd_edpt_xfer_fifo(uint8_t rhport, uint8_t ep_addr, tu_fifo_t * ff, uint16_t total_bytes);
+bool usbd_edpt_xfer_fifo(uint8_t rhport, uint8_t ep_addr, tu_fifo_t * ff, uint16_t total_bytes, bool is_isr);
 
 // Claim an endpoint before submitting a transfer.
 // If caller does not make any transfer, it must release endpoint for others.
@@ -127,10 +129,6 @@ void usbd_sof_enable(uint8_t rhport, sof_consumer_t consumer, bool en);
 
 bool usbd_open_edpt_pair(uint8_t rhport, uint8_t const* p_desc, uint8_t ep_count, uint8_t xfer_type, uint8_t* ep_out, uint8_t* ep_in);
 void usbd_defer_func(osal_task_func_t func, void *param, bool in_isr);
-
-#if CFG_TUSB_DEBUG >= CFG_TUD_LOG_LEVEL
-void usbd_driver_print_control_complete_name(usbd_control_xfer_cb_t callback);
-#endif
 
 #ifdef __cplusplus
  }
