@@ -19,6 +19,7 @@ uint8_t  MSC_endpoint;
 
 uint32_t tusb_time_millis_api(void);
 void     board_get_unique_id(uint8_t* id, uint8_t max_len);
+tusb_class_code_t get_class_by_endpoint(uint8_t ep_addr);
 
 void handle_usb_device_reset(uint8_t rhport)
 {
