@@ -7,6 +7,7 @@
 typedef struct {
     uint8_t* buffer;
     uint16_t total_len;
+    volatile bool pending; // передача поставлена стеком (dcd_edpt_xfer) и ещё не завершена
     uint8_t  class_ep;
 } ep_state_t;
 
@@ -32,6 +33,8 @@ void handle_usb_device_reset(uint8_t rhport)
         ep_state[ep][TUSB_DIR_IN].total_len  = 0;
         ep_state[ep][TUSB_DIR_OUT].buffer    = NULL;
         ep_state[ep][TUSB_DIR_OUT].total_len = 0;
+        ep_state[ep][TUSB_DIR_IN].pending    = false;
+        ep_state[ep][TUSB_DIR_OUT].pending   = false;
     }
 	
     for (int ep = 0; ep < 4; ep++) {
@@ -261,6 +264,7 @@ bool dcd_edpt_xfer(uint8_t rhport, uint8_t ep_addr, uint8_t* buffer, uint16_t to
 
     state->buffer    = buffer;
     state->total_len = total_bytes;
+    state->pending   = true;
 
     if (epnum == USB_EP0) {
         if (dir == TUSB_DIR_IN) {
@@ -405,15 +409,24 @@ void dcd_int_handler(uint8_t rhport)
             if ((ts & USB_SEPx_TS_SCTTYPE_Msk) == USB_SEPx_TS_SCTTYPE_In) {
 
                 if (sts & USB_SEPx_STS_SCACKRXED_Set) {
-                    USB_SetSEPxTXFDC((USB_EP_TypeDef)ep, 1);
                     ep_state_t* state = &ep_state[ep][TUSB_DIR_IN];
-                    dcd_event_xfer_complete(rhport, ep | 0x80, state->total_len, XFER_RESULT_SUCCESS, true);
-                    USB_SEPxToggleEPDATASEQ(ep);
+                    // Завершаем только поставленную стеком передачу, ACK без неё игнорируем
+                    if (state->pending) {
+                        state->pending = false;
+                        USB_SetSEPxTXFDC((USB_EP_TypeDef)ep, 1);
+                        dcd_event_xfer_complete(rhport, ep | 0x80, state->total_len, XFER_RESULT_SUCCESS, true);
+                        USB_SEPxToggleEPDATASEQ(ep);
+                    }
                 }
             }
             // Обработка OUT
             else if ((ts & USB_SEPx_TS_SCTTYPE_Msk) == USB_SEPx_TS_SCTTYPE_Outdata) {
-                handle_ep_out(rhport, ep);
+                ep_state_t* state = &ep_state[ep][TUSB_DIR_OUT];
+                // Читаем данные только если стек поставил приём (иначе state->buffer == NULL)
+                if (state->pending) {
+                    state->pending = false;
+                    handle_ep_out(rhport, ep);
+                }
             }
 
             /* Если класс точки не MSC, то восстановить работу EPRDY этой точки и точки с MSC,
