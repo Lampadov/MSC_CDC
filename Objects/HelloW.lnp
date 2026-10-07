@@ -1,0 +1,21 @@
+--cpu Cortex-M3
+".\objects\main.o"
+".\objects\cdc_device.o"
+".\objects\tusb_fifo.o"
+".\objects\usbd.o"
+".\objects\usbd_control.o"
+".\objects\usbc.o"
+".\objects\tusb.o"
+".\objects\usb_descriptors.o"
+".\objects\tusb_mdr32fxqi.o"
+".\objects\msc_device.o"
+".\objects\msc_disk.o"
+".\objects\startup_mdr32f9q2i.o"
+".\objects\system_mdr32f9q2i.o"
+".\objects\mdr32fxqi_port.o"
+".\objects\mdr32fxqi_rst_clk.o"
+".\objects\mdr32fxqi_usb.o"
+--strict --scatter ".\Objects\HelloW.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list ".\Listings\HelloW.map" -o .\Objects\HelloW.axf

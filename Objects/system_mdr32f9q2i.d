@@ -1,0 +1,10 @@
+.\objects\system_mdr32f9q2i.o: RTE\Device\MDR32F9Q2I\system_MDR32F9Q2I.c
+.\objects\system_mdr32f9q2i.o: C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\DeviceSupport\MDR32F9Q2I\inc\MDR32F9Q2I.h
+.\objects\system_mdr32f9q2i.o: .\RTE\Device\MDR32F9Q2I\MDR32FxQI_config.h
+.\objects\system_mdr32f9q2i.o: C:\Keil_v51\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\system_mdr32f9q2i.o: .\RTE\_Target_1\RTE_Components.h
+.\objects\system_mdr32f9q2i.o: C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\DeviceSupport\MDR32F9Q2I\inc\MDR32F9Q2I.h
+.\objects\system_mdr32f9q2i.o: C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3\core_cm3.h
+.\objects\system_mdr32f9q2i.o: C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3\core_cmInstr.h
+.\objects\system_mdr32f9q2i.o: C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3\core_cmFunc.h
+.\objects\system_mdr32f9q2i.o: .\RTE\Device\MDR32F9Q2I\system_MDR32F9Q2I.h

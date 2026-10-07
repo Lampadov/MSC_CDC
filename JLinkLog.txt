@@ -1,0 +1,87 @@
+T54CC 027:647.060   SEGGER J-Link V8.80 Log File
+T54CC 027:647.162   DLL Compiled: Oct 22 2025 11:56:02
+T54CC 027:647.174   Logging started @ 2026-02-03 06:26
+T54CC 027:647.184   Process: C:\Keil_v51\UV4\UV4.exe
+T54CC 027:647.194 - 8.451ms 
+T54CC 027:647.206 JLINK_SetWarnOutHandler(...)
+T54CC 027:647.220 - 0.010ms 
+T54CC 027:647.228 JLINK_OpenEx(...)
+T54CC 027:649.532   Firmware: J-Link V10 compiled Jan 30 2023 11:28:07
+T54CC 027:650.474   Firmware: J-Link V10 compiled Jan 30 2023 11:28:07
+T54CC 027:650.656   Decompressing FW timestamp took 151 us
+T54CC 027:652.522   Hardware: V10.10
+T54CC 027:652.544   S/N: 50109172
+T54CC 027:652.556   OEM: SEGGER
+T54CC 027:652.572   Feature(s): GDB
+T54CC 027:653.766   Bootloader: (FW returned invalid version)
+T54CC 027:654.582   TELNET listener socket opened on port 19021
+T54CC 027:660.634   WEBSRV WEBSRV_Init(): Starting webserver thread(s)
+T54CC 027:660.860   WEBSRV Webserver running on local port 19080
+T54CC 027:661.014   Looking for J-Link GUI Server exe at: C:\Keil_v51\ARM\Segger\JLinkGUIServer.exe
+T54CC 027:661.116   Looking for J-Link GUI Server exe at: \JLinkGUIServer.exe
+T54CC 027:966.810   Failed to connect to J-Link GUI Server.
+T54CC 027:966.848 - 319.616ms returns "O.K."
+T54CC 027:966.890 JLINK_GetEmuCaps()
+T54CC 027:966.902 - 0.011ms returns 0xB9FF7BBF
+T54CC 027:966.916 JLINK_TIF_GetAvailable(...)
+T54CC 027:967.148 - 0.232ms 
+T54CC 027:967.194 JLINK_SetErrorOutHandler(...)
+T54CC 027:967.220 - 0.025ms 
+T54CC 027:967.238 JLINK_ExecCommand("ProjectFile = "C:\Users\lampadov.i\Desktop\AT250\TinyUSB\Project\JLinkSettings.ini"", ...). 
+T54CC 027:969.860 - 2.619ms returns 0x00
+T54CC 027:969.908 JLINK_ExecCommand("Device = MDR32F9Q2I", ...). 
+T54CC 027:970.362   Looking for J-Link GUI Server exe at: C:\Keil_v51\ARM\Segger\JLinkGUIServer.exe
+T54CC 027:970.452   Looking for J-Link GUI Server exe at: \JLinkGUIServer.exe
+T54CC 028:272.998   Failed to connect to J-Link GUI Server.
+T54CC 028:277.364   ERROR: Failed to set device
+T54CC 028:277.398 - 307.477ms returns 0xFFFFFFFF
+T54CC 028:277.444 JLINK_ExecCommand("DisableConnectionTimeout", ...). 
+T54CC 028:277.702   ERROR: Unknown command
+T54CC 028:277.728 - 0.028ms returns 0x01
+T54CC 028:277.740 JLINK_GetHardwareVersion()
+T54CC 028:277.754 - 0.010ms returns 101000
+T54CC 028:277.764 JLINK_GetDLLVersion()
+T54CC 028:277.786 - 0.022ms returns 88000
+T54CC 028:277.798 JLINK_GetOEMString(...)
+T54CC 028:277.812 JLINK_GetFirmwareString(...)
+T54CC 028:277.818 - 0.009ms 
+T54CC 028:277.834 JLINK_GetDLLVersion()
+T54CC 028:277.844 - 0.009ms returns 88000
+T54CC 028:277.852 JLINK_GetCompileDateTime()
+T54CC 028:277.862 - 0.009ms 
+T54CC 028:277.876 JLINK_GetFirmwareString(...)
+T54CC 028:277.884 - 0.009ms 
+T54CC 028:277.898 JLINK_GetHardwareVersion()
+T54CC 028:277.908 - 0.009ms returns 101000
+T54CC 028:277.920 JLINK_GetSN()
+T54CC 028:277.930 - 0.009ms returns 50109172
+T54CC 028:277.940 JLINK_GetOEMString(...)
+T54CC 028:277.956 JLINK_TIF_Select(JLINKARM_TIF_JTAG)
+T54CC 028:278.960 - 1.005ms returns 0x00
+T54CC 028:278.986 JLINK_HasError()
+T54CC 028:278.998 JLINK_SetSpeed(5000)
+T54CC 028:279.116 - 0.118ms 
+T54CC 028:279.510 JLINK_HasError()
+T54CC 028:279.530 JLINK_SetResetType(JLINKARM_RESET_TYPE_NORMAL)
+T54CC 028:279.542 - 0.010ms returns JLINKARM_RESET_TYPE_NORMAL
+T54CC 028:279.552 JLINK_Reset()
+T54CC 028:279.834   
+  ***** Error: 
+T54CC 028:279.856   No CPU core or target device has been selected. Please make sure at least the core J-Link shall connect to, is selected.
+T54CC 028:279.868 - 0.317ms 
+T54CC 028:279.888 JLINK_GetIdData(pIdData)
+T54CC 028:280.128   
+  ***** Error: 
+T54CC 028:280.154   No CPU core or target device has been selected. Please make sure at least the core J-Link shall connect to, is selected.
+T54CC 028:280.166 - 0.280ms 
+T54CC 028:280.182 JLINK_GetIdData(pIdData)
+T54CC 028:280.378   
+  ***** Error: 
+T54CC 028:280.400   No CPU core or target device has been selected. Please make sure at least the core J-Link shall connect to, is selected.
+T54CC 028:280.416 - 0.230ms 
+T54CC 028:283.370 JLINK_GetFirmwareString(...)
+T54CC 028:283.460 - 0.087ms 
+T54CC 030:904.320 JLINK_Close()
+T54CC 030:915.252 - 10.928ms
+T54CC 030:915.348   
+T54CC 030:915.364   Closed

@@ -1,0 +1,305 @@
+Dependencies for Project 'HelloW', Target 'Target 1': (DO NOT MODIFY !)
+CompilerVersion: 5060960::V5.06 update 7 (build 960)::.\ARMCC
+F (.\main.c)(0x69A94D50)(--c99 --gnu -c --cpu Cortex-M3 -D__EVAL -g -O1 --apcs=interwork --split_sections -I .\src\class\cdc\serial -I .\src\class\cdc -I .\src\common -I .\src\device -I .\src\osal -I .\src\typec -I .\src -I .\src\bsp -I .\src\class\msc-I.\RTE\Device\MDR32F9Q2I-I.\RTE\_Target_1-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\DeviceSupport\MDR32F9Q2I\inc-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\SPL\MDR32FxQI\inc-D__UVISION_VERSION="535" -D_RTE_ -D_RTE_ -DCFG_TUSB_MCU-o .\objects\main.o --omf_browse .\objects\main.crf --depend .\objects\main.d)
+I (C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\SPL\MDR32FxQI\inc\MDR32FxQI_port.h)(0x67E63F1E)
+I (.\RTE\Device\MDR32F9Q2I\MDR32FxQI_config.h)(0x67E63F1E)
+I (C:\Keil_v51\ARM\ARMCC\include\stdint.h)(0x602569CE)
+I (.\RTE\_Target_1\RTE_Components.h)(0x69A54A8E)
+I (C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\DeviceSupport\MDR32F9Q2I\inc\MDR32F9Q2I.h)(0x67E63F1E)
+I (C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3\core_cm3.h)(0x69AAC1E0)
+I (C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3\core_cmInstr.h)(0x67E63F1E)
+I (C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3\core_cmFunc.h)(0x67E63F1E)
+I (.\RTE\Device\MDR32F9Q2I\system_MDR32F9Q2I.h)(0x67E63F1E)
+I (C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\SPL\MDR32FxQI\inc\MDR32FxQI_rst_clk.h)(0x67E63F1E)
+I (.\src\tusb.h)(0x698044FB)
+I (.\src\common/tusb_common.h)(0x698044FB)
+I (C:\Keil_v51\ARM\ARMCC\include\stdbool.h)(0x602569CC)
+I (C:\Keil_v51\ARM\ARMCC\include\inttypes.h)(0x602569CE)
+I (C:\Keil_v51\ARM\ARMCC\include\stddef.h)(0x602569CE)
+I (C:\Keil_v51\ARM\ARMCC\include\string.h)(0x602569CE)
+I (.\src\tusb_option.h)(0x698044FB)
+I (.\src\common/tusb_compiler.h)(0x699FF7E5)
+I (.\src\tusb_config.h)(0x69A832B5)
+I (.\src\common/tusb_mcu.h)(0x698044FC)
+I (.\src\common/tusb_verify.h)(0x698044FC)
+I (.\src\common/tusb_types.h)(0x698044FC)
+I (.\src\common/tusb_debug.h)(0x698044FC)
+I (.\src\osal/osal.h)(0x698044FC)
+I (.\src\osal/osal_none.h)(0x6981F7BA)
+I (.\src\common/tusb_fifo.h)(0x698044FC)
+I (.\src\device/usbd.h)(0x69A02053)
+I (.\src\class/cdc/cdc_device.h)(0x698044FB)
+I (.\src\class/cdc/cdc.h)(0x698044FB)
+I (.\src\class/msc/msc_device.h)(0x698044FB)
+I (.\src\class/msc/msc.h)(0x698044FB)
+I (C:\Keil_v51\ARM\ARMCC\include\stdio.h)(0x602569C4)
+F (.\src\class\cdc\cdc_device.c)(0x698044FB)(--c99 --gnu -c --cpu Cortex-M3 -D__EVAL -g -O1 --apcs=interwork --split_sections -I .\src\class\cdc\serial -I .\src\class\cdc -I .\src\common -I .\src\device -I .\src\osal -I .\src\typec -I .\src -I .\src\bsp -I .\src\class\msc-I.\RTE\Device\MDR32F9Q2I-I.\RTE\_Target_1-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\DeviceSupport\MDR32F9Q2I\inc-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\SPL\MDR32FxQI\inc-D__UVISION_VERSION="535" -D_RTE_ -D_RTE_ -DCFG_TUSB_MCU-o .\objects\cdc_device.o --omf_browse .\objects\cdc_device.crf --depend .\objects\cdc_device.d)
+I (.\src\tusb_option.h)(0x698044FB)
+I (.\src\common/tusb_compiler.h)(0x699FF7E5)
+I (.\src\tusb_config.h)(0x69A832B5)
+I (.\src\common/tusb_mcu.h)(0x698044FC)
+I (.\src\device/usbd.h)(0x69A02053)
+I (.\src\common/tusb_common.h)(0x698044FB)
+I (C:\Keil_v51\ARM\ARMCC\include\stdbool.h)(0x602569CC)
+I (C:\Keil_v51\ARM\ARMCC\include\stdint.h)(0x602569CE)
+I (C:\Keil_v51\ARM\ARMCC\include\inttypes.h)(0x602569CE)
+I (C:\Keil_v51\ARM\ARMCC\include\stddef.h)(0x602569CE)
+I (C:\Keil_v51\ARM\ARMCC\include\string.h)(0x602569CE)
+I (.\src\common/tusb_verify.h)(0x698044FC)
+I (.\src\common/tusb_types.h)(0x698044FC)
+I (.\src\common/tusb_debug.h)(0x698044FC)
+I (.\src\device/usbd_pvt.h)(0x698044FC)
+I (.\src\osal/osal.h)(0x698044FC)
+I (.\src\osal/osal_none.h)(0x6981F7BA)
+I (.\src\common/tusb_fifo.h)(0x698044FC)
+I (.\src\common/tusb_private.h)(0x698044FC)
+I (src\class\cdc\cdc_device.h)(0x698044FB)
+I (src\class\cdc\cdc.h)(0x698044FB)
+F (.\src\common\tusb_fifo.c)(0x6980998C)(--c99 --gnu -c --cpu Cortex-M3 -D__EVAL -g -O1 --apcs=interwork --split_sections -I .\src\class\cdc\serial -I .\src\class\cdc -I .\src\common -I .\src\device -I .\src\osal -I .\src\typec -I .\src -I .\src\bsp -I .\src\class\msc-I.\RTE\Device\MDR32F9Q2I-I.\RTE\_Target_1-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\DeviceSupport\MDR32F9Q2I\inc-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\SPL\MDR32FxQI\inc-D__UVISION_VERSION="535" -D_RTE_ -D_RTE_ -DCFG_TUSB_MCU-o .\objects\tusb_fifo.o --omf_browse .\objects\tusb_fifo.crf --depend .\objects\tusb_fifo.d)
+I (.\src\osal/osal.h)(0x698044FC)
+I (.\src\common/tusb_common.h)(0x698044FB)
+I (C:\Keil_v51\ARM\ARMCC\include\stdbool.h)(0x602569CC)
+I (C:\Keil_v51\ARM\ARMCC\include\stdint.h)(0x602569CE)
+I (C:\Keil_v51\ARM\ARMCC\include\inttypes.h)(0x602569CE)
+I (C:\Keil_v51\ARM\ARMCC\include\stddef.h)(0x602569CE)
+I (C:\Keil_v51\ARM\ARMCC\include\string.h)(0x602569CE)
+I (.\src\tusb_option.h)(0x698044FB)
+I (.\src\common/tusb_compiler.h)(0x699FF7E5)
+I (.\src\tusb_config.h)(0x69A832B5)
+I (.\src\common/tusb_mcu.h)(0x698044FC)
+I (.\src\common/tusb_verify.h)(0x698044FC)
+I (.\src\common/tusb_types.h)(0x698044FC)
+I (.\src\common/tusb_debug.h)(0x698044FC)
+I (.\src\osal/osal_none.h)(0x6981F7BA)
+I (.\src\common/tusb_fifo.h)(0x698044FC)
+F (.\src\device\usbd.c)(0x6981EA8C)(--c99 --gnu -c --cpu Cortex-M3 -D__EVAL -g -O1 --apcs=interwork --split_sections -I .\src\class\cdc\serial -I .\src\class\cdc -I .\src\common -I .\src\device -I .\src\osal -I .\src\typec -I .\src -I .\src\bsp -I .\src\class\msc-I.\RTE\Device\MDR32F9Q2I-I.\RTE\_Target_1-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\DeviceSupport\MDR32F9Q2I\inc-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\SPL\MDR32FxQI\inc-D__UVISION_VERSION="535" -D_RTE_ -D_RTE_ -DCFG_TUSB_MCU-o .\objects\usbd.o --omf_browse .\objects\usbd.crf --depend .\objects\usbd.d)
+I (.\src\tusb_option.h)(0x698044FB)
+I (.\src\common/tusb_compiler.h)(0x699FF7E5)
+I (.\src\tusb_config.h)(0x69A832B5)
+I (.\src\common/tusb_mcu.h)(0x698044FC)
+I (.\src\device/dcd.h)(0x698044FC)
+I (.\src\common/tusb_common.h)(0x698044FB)
+I (C:\Keil_v51\ARM\ARMCC\include\stdbool.h)(0x602569CC)
+I (C:\Keil_v51\ARM\ARMCC\include\stdint.h)(0x602569CE)
+I (C:\Keil_v51\ARM\ARMCC\include\inttypes.h)(0x602569CE)
+I (C:\Keil_v51\ARM\ARMCC\include\stddef.h)(0x602569CE)
+I (C:\Keil_v51\ARM\ARMCC\include\string.h)(0x602569CE)
+I (.\src\common/tusb_verify.h)(0x698044FC)
+I (.\src\common/tusb_types.h)(0x698044FC)
+I (.\src\common/tusb_debug.h)(0x698044FC)
+I (.\src\osal/osal.h)(0x698044FC)
+I (.\src\osal/osal_none.h)(0x6981F7BA)
+I (.\src\common/tusb_fifo.h)(0x698044FC)
+I (.\src\tusb.h)(0x698044FB)
+I (.\src\device/usbd.h)(0x69A02053)
+I (.\src\class/cdc/cdc_device.h)(0x698044FB)
+I (.\src\class/cdc/cdc.h)(0x698044FB)
+I (.\src\class/msc/msc_device.h)(0x698044FB)
+I (.\src\class/msc/msc.h)(0x698044FB)
+I (.\src\common/tusb_private.h)(0x698044FC)
+I (.\src\device/usbd_pvt.h)(0x698044FC)
+F (.\src\device\usbd_control.c)(0x698044FC)(--c99 --gnu -c --cpu Cortex-M3 -D__EVAL -g -O1 --apcs=interwork --split_sections -I .\src\class\cdc\serial -I .\src\class\cdc -I .\src\common -I .\src\device -I .\src\osal -I .\src\typec -I .\src -I .\src\bsp -I .\src\class\msc-I.\RTE\Device\MDR32F9Q2I-I.\RTE\_Target_1-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\DeviceSupport\MDR32F9Q2I\inc-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\SPL\MDR32FxQI\inc-D__UVISION_VERSION="535" -D_RTE_ -D_RTE_ -DCFG_TUSB_MCU-o .\objects\usbd_control.o --omf_browse .\objects\usbd_control.crf --depend .\objects\usbd_control.d)
+I (.\src\tusb_option.h)(0x698044FB)
+I (.\src\common/tusb_compiler.h)(0x699FF7E5)
+I (.\src\tusb_config.h)(0x69A832B5)
+I (.\src\common/tusb_mcu.h)(0x698044FC)
+I (src\device\dcd.h)(0x698044FC)
+I (.\src\common/tusb_common.h)(0x698044FB)
+I (C:\Keil_v51\ARM\ARMCC\include\stdbool.h)(0x602569CC)
+I (C:\Keil_v51\ARM\ARMCC\include\stdint.h)(0x602569CE)
+I (C:\Keil_v51\ARM\ARMCC\include\inttypes.h)(0x602569CE)
+I (C:\Keil_v51\ARM\ARMCC\include\stddef.h)(0x602569CE)
+I (C:\Keil_v51\ARM\ARMCC\include\string.h)(0x602569CE)
+I (.\src\common/tusb_verify.h)(0x698044FC)
+I (.\src\common/tusb_types.h)(0x698044FC)
+I (.\src\common/tusb_debug.h)(0x698044FC)
+I (.\src\osal/osal.h)(0x698044FC)
+I (.\src\osal/osal_none.h)(0x6981F7BA)
+I (.\src\common/tusb_fifo.h)(0x698044FC)
+I (.\src\tusb.h)(0x698044FB)
+I (.\src\device/usbd.h)(0x69A02053)
+I (.\src\class/cdc/cdc_device.h)(0x698044FB)
+I (.\src\class/cdc/cdc.h)(0x698044FB)
+I (.\src\class/msc/msc_device.h)(0x698044FB)
+I (.\src\class/msc/msc.h)(0x698044FB)
+I (.\src\device/usbd_pvt.h)(0x698044FC)
+I (.\src\common/tusb_private.h)(0x698044FC)
+F (.\src\typec\usbc.c)(0x698044FC)(--c99 --gnu -c --cpu Cortex-M3 -D__EVAL -g -O1 --apcs=interwork --split_sections -I .\src\class\cdc\serial -I .\src\class\cdc -I .\src\common -I .\src\device -I .\src\osal -I .\src\typec -I .\src -I .\src\bsp -I .\src\class\msc-I.\RTE\Device\MDR32F9Q2I-I.\RTE\_Target_1-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\DeviceSupport\MDR32F9Q2I\inc-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\SPL\MDR32FxQI\inc-D__UVISION_VERSION="535" -D_RTE_ -D_RTE_ -DCFG_TUSB_MCU-o .\objects\usbc.o --omf_browse .\objects\usbc.crf --depend .\objects\usbc.d)
+I (.\src\tusb_option.h)(0x698044FB)
+I (.\src\common/tusb_compiler.h)(0x699FF7E5)
+I (.\src\tusb_config.h)(0x69A832B5)
+I (.\src\common/tusb_mcu.h)(0x698044FC)
+F (.\src\tusb.c)(0x698044FB)(--c99 --gnu -c --cpu Cortex-M3 -D__EVAL -g -O1 --apcs=interwork --split_sections -I .\src\class\cdc\serial -I .\src\class\cdc -I .\src\common -I .\src\device -I .\src\osal -I .\src\typec -I .\src -I .\src\bsp -I .\src\class\msc-I.\RTE\Device\MDR32F9Q2I-I.\RTE\_Target_1-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\DeviceSupport\MDR32F9Q2I\inc-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\SPL\MDR32FxQI\inc-D__UVISION_VERSION="535" -D_RTE_ -D_RTE_ -DCFG_TUSB_MCU-o .\objects\tusb.o --omf_browse .\objects\tusb.crf --depend .\objects\tusb.d)
+I (src\tusb_option.h)(0x698044FB)
+I (src\common/tusb_compiler.h)(0x699FF7E5)
+I (src\tusb_config.h)(0x69A832B5)
+I (src\common/tusb_mcu.h)(0x698044FC)
+I (src\tusb.h)(0x698044FB)
+I (src\common/tusb_common.h)(0x698044FB)
+I (C:\Keil_v51\ARM\ARMCC\include\stdbool.h)(0x602569CC)
+I (C:\Keil_v51\ARM\ARMCC\include\stdint.h)(0x602569CE)
+I (C:\Keil_v51\ARM\ARMCC\include\inttypes.h)(0x602569CE)
+I (C:\Keil_v51\ARM\ARMCC\include\stddef.h)(0x602569CE)
+I (C:\Keil_v51\ARM\ARMCC\include\string.h)(0x602569CE)
+I (src\common/tusb_verify.h)(0x698044FC)
+I (src\common/tusb_types.h)(0x698044FC)
+I (src\common/tusb_debug.h)(0x698044FC)
+I (src\osal/osal.h)(0x698044FC)
+I (src\osal/osal_none.h)(0x6981F7BA)
+I (.\src\common/tusb_fifo.h)(0x698044FC)
+I (.\src\osal/osal.h)(0x698044FC)
+I (src\device/usbd.h)(0x69A02053)
+I (src\class/cdc/cdc_device.h)(0x698044FB)
+I (src\class/cdc/cdc.h)(0x698044FB)
+I (src\class/msc/msc_device.h)(0x698044FB)
+I (src\class/msc/msc.h)(0x698044FB)
+I (src\common/tusb_private.h)(0x698044FC)
+I (src\device/usbd_pvt.h)(0x698044FC)
+F (.\src\usb_descriptors.c)(0x69A94CE5)(--c99 --gnu -c --cpu Cortex-M3 -D__EVAL -g -O1 --apcs=interwork --split_sections -I .\src\class\cdc\serial -I .\src\class\cdc -I .\src\common -I .\src\device -I .\src\osal -I .\src\typec -I .\src -I .\src\bsp -I .\src\class\msc-I.\RTE\Device\MDR32F9Q2I-I.\RTE\_Target_1-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\DeviceSupport\MDR32F9Q2I\inc-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\SPL\MDR32FxQI\inc-D__UVISION_VERSION="535" -D_RTE_ -D_RTE_ -DCFG_TUSB_MCU-o .\objects\usb_descriptors.o --omf_browse .\objects\usb_descriptors.crf --depend .\objects\usb_descriptors.d)
+I (src\tusb.h)(0x698044FB)
+I (src\common/tusb_common.h)(0x698044FB)
+I (C:\Keil_v51\ARM\ARMCC\include\stdbool.h)(0x602569CC)
+I (C:\Keil_v51\ARM\ARMCC\include\stdint.h)(0x602569CE)
+I (C:\Keil_v51\ARM\ARMCC\include\inttypes.h)(0x602569CE)
+I (C:\Keil_v51\ARM\ARMCC\include\stddef.h)(0x602569CE)
+I (C:\Keil_v51\ARM\ARMCC\include\string.h)(0x602569CE)
+I (.\src\tusb_option.h)(0x698044FB)
+I (.\src\common/tusb_compiler.h)(0x699FF7E5)
+I (.\src\tusb_config.h)(0x69A832B5)
+I (.\src\common/tusb_mcu.h)(0x698044FC)
+I (src\common/tusb_verify.h)(0x698044FC)
+I (src\common/tusb_types.h)(0x698044FC)
+I (src\common/tusb_debug.h)(0x698044FC)
+I (src\osal/osal.h)(0x698044FC)
+I (src\osal/osal_none.h)(0x6981F7BA)
+I (.\src\common/tusb_fifo.h)(0x698044FC)
+I (.\src\osal/osal.h)(0x698044FC)
+I (src\device/usbd.h)(0x69A02053)
+I (src\class/cdc/cdc_device.h)(0x698044FB)
+I (src\class/cdc/cdc.h)(0x698044FB)
+I (src\class/msc/msc_device.h)(0x698044FB)
+I (src\class/msc/msc.h)(0x698044FB)
+F (.\src\tusb_mdr32fxqi.c)(0x6A1E8790)(--c99 --gnu -c --cpu Cortex-M3 -D__EVAL -g -O1 --apcs=interwork --split_sections -I .\src\class\cdc\serial -I .\src\class\cdc -I .\src\common -I .\src\device -I .\src\osal -I .\src\typec -I .\src -I .\src\bsp -I .\src\class\msc-I.\RTE\Device\MDR32F9Q2I-I.\RTE\_Target_1-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\DeviceSupport\MDR32F9Q2I\inc-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\SPL\MDR32FxQI\inc-D__UVISION_VERSION="535" -D_RTE_ -D_RTE_ -DCFG_TUSB_MCU-o .\objects\tusb_mdr32fxqi.o --omf_browse .\objects\tusb_mdr32fxqi.crf --depend .\objects\tusb_mdr32fxqi.d)
+I (src\tusb.h)(0x698044FB)
+I (src\common/tusb_common.h)(0x698044FB)
+I (C:\Keil_v51\ARM\ARMCC\include\stdbool.h)(0x602569CC)
+I (C:\Keil_v51\ARM\ARMCC\include\stdint.h)(0x602569CE)
+I (C:\Keil_v51\ARM\ARMCC\include\inttypes.h)(0x602569CE)
+I (C:\Keil_v51\ARM\ARMCC\include\stddef.h)(0x602569CE)
+I (C:\Keil_v51\ARM\ARMCC\include\string.h)(0x602569CE)
+I (.\src\tusb_option.h)(0x698044FB)
+I (.\src\common/tusb_compiler.h)(0x699FF7E5)
+I (.\src\tusb_config.h)(0x69A832B5)
+I (.\src\common/tusb_mcu.h)(0x698044FC)
+I (src\common/tusb_verify.h)(0x698044FC)
+I (src\common/tusb_types.h)(0x698044FC)
+I (src\common/tusb_debug.h)(0x698044FC)
+I (src\osal/osal.h)(0x698044FC)
+I (src\osal/osal_none.h)(0x6981F7BA)
+I (.\src\common/tusb_fifo.h)(0x698044FC)
+I (.\src\osal/osal.h)(0x698044FC)
+I (src\device/usbd.h)(0x69A02053)
+I (src\class/cdc/cdc_device.h)(0x698044FB)
+I (src\class/cdc/cdc.h)(0x698044FB)
+I (src\class/msc/msc_device.h)(0x698044FB)
+I (src\class/msc/msc.h)(0x698044FB)
+I (C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\SPL\MDR32FxQI\inc\MDR32FxQI_rst_clk.h)(0x67E63F1E)
+I (.\RTE\Device\MDR32F9Q2I\MDR32FxQI_config.h)(0x67E63F1E)
+I (.\RTE\_Target_1\RTE_Components.h)(0x69A54A8E)
+I (C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\DeviceSupport\MDR32F9Q2I\inc\MDR32F9Q2I.h)(0x67E63F1E)
+I (C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3\core_cm3.h)(0x69AAC1E0)
+I (C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3\core_cmInstr.h)(0x67E63F1E)
+I (C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3\core_cmFunc.h)(0x67E63F1E)
+I (.\RTE\Device\MDR32F9Q2I\system_MDR32F9Q2I.h)(0x67E63F1E)
+I (C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\SPL\MDR32FxQI\inc\MDR32FxQI_usb.h)(0x67E63F1E)
+I (src\device/dcd.h)(0x698044FC)
+F (.\src\class\msc\msc_device.c)(0x69A94EB9)(--c99 --gnu -c --cpu Cortex-M3 -D__EVAL -g -O1 --apcs=interwork --split_sections -I .\src\class\cdc\serial -I .\src\class\cdc -I .\src\common -I .\src\device -I .\src\osal -I .\src\typec -I .\src -I .\src\bsp -I .\src\class\msc-I.\RTE\Device\MDR32F9Q2I-I.\RTE\_Target_1-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\DeviceSupport\MDR32F9Q2I\inc-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\SPL\MDR32FxQI\inc-D__UVISION_VERSION="535" -D_RTE_ -D_RTE_ -DCFG_TUSB_MCU-o .\objects\msc_device.o --omf_browse .\objects\msc_device.crf --depend .\objects\msc_device.d)
+I (.\src\tusb_option.h)(0x698044FB)
+I (.\src\common/tusb_compiler.h)(0x699FF7E5)
+I (.\src\tusb_config.h)(0x69A832B5)
+I (.\src\common/tusb_mcu.h)(0x698044FC)
+I (.\src\device/dcd.h)(0x698044FC)
+I (.\src\common/tusb_common.h)(0x698044FB)
+I (C:\Keil_v51\ARM\ARMCC\include\stdbool.h)(0x602569CC)
+I (C:\Keil_v51\ARM\ARMCC\include\stdint.h)(0x602569CE)
+I (C:\Keil_v51\ARM\ARMCC\include\inttypes.h)(0x602569CE)
+I (C:\Keil_v51\ARM\ARMCC\include\stddef.h)(0x602569CE)
+I (C:\Keil_v51\ARM\ARMCC\include\string.h)(0x602569CE)
+I (.\src\common/tusb_verify.h)(0x698044FC)
+I (.\src\common/tusb_types.h)(0x698044FC)
+I (.\src\common/tusb_debug.h)(0x698044FC)
+I (.\src\osal/osal.h)(0x698044FC)
+I (.\src\osal/osal_none.h)(0x6981F7BA)
+I (.\src\common/tusb_fifo.h)(0x698044FC)
+I (.\src\device/usbd.h)(0x69A02053)
+I (.\src\device/usbd_pvt.h)(0x698044FC)
+I (.\src\common/tusb_private.h)(0x698044FC)
+I (src\class\msc\msc_device.h)(0x698044FB)
+I (src\class\msc\msc.h)(0x698044FB)
+F (.\src\msc_disk.c)(0x69A94CC9)(--c99 --gnu -c --cpu Cortex-M3 -D__EVAL -g -O1 --apcs=interwork --split_sections -I .\src\class\cdc\serial -I .\src\class\cdc -I .\src\common -I .\src\device -I .\src\osal -I .\src\typec -I .\src -I .\src\bsp -I .\src\class\msc-I.\RTE\Device\MDR32F9Q2I-I.\RTE\_Target_1-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\DeviceSupport\MDR32F9Q2I\inc-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\SPL\MDR32FxQI\inc-D__UVISION_VERSION="535" -D_RTE_ -D_RTE_ -DCFG_TUSB_MCU-o .\objects\msc_disk.o --omf_browse .\objects\msc_disk.crf --depend .\objects\msc_disk.d)
+I (src\tusb.h)(0x698044FB)
+I (src\common/tusb_common.h)(0x698044FB)
+I (C:\Keil_v51\ARM\ARMCC\include\stdbool.h)(0x602569CC)
+I (C:\Keil_v51\ARM\ARMCC\include\stdint.h)(0x602569CE)
+I (C:\Keil_v51\ARM\ARMCC\include\inttypes.h)(0x602569CE)
+I (C:\Keil_v51\ARM\ARMCC\include\stddef.h)(0x602569CE)
+I (C:\Keil_v51\ARM\ARMCC\include\string.h)(0x602569CE)
+I (.\src\tusb_option.h)(0x698044FB)
+I (.\src\common/tusb_compiler.h)(0x699FF7E5)
+I (.\src\tusb_config.h)(0x69A832B5)
+I (.\src\common/tusb_mcu.h)(0x698044FC)
+I (src\common/tusb_verify.h)(0x698044FC)
+I (src\common/tusb_types.h)(0x698044FC)
+I (src\common/tusb_debug.h)(0x698044FC)
+I (src\osal/osal.h)(0x698044FC)
+I (src\osal/osal_none.h)(0x6981F7BA)
+I (.\src\common/tusb_fifo.h)(0x698044FC)
+I (.\src\osal/osal.h)(0x698044FC)
+I (src\device/usbd.h)(0x69A02053)
+I (src\class/cdc/cdc_device.h)(0x698044FB)
+I (src\class/cdc/cdc.h)(0x698044FB)
+I (src\class/msc/msc_device.h)(0x698044FB)
+I (src\class/msc/msc.h)(0x698044FB)
+F (RTE\Device\MDR32F9Q2I\MDR32F9Q2I.sct)(0x67E63F1E)()
+F (RTE\Device\MDR32F9Q2I\MDR32FxQI_config.h)(0x67E63F1E)()
+F (RTE\Device\MDR32F9Q2I\startup_MDR32F9Q2I.S)(0x69A59016)(--cpu Cortex-M3 --pd "__EVAL SETA 1" -g --apcs=interwork -I.\RTE\Device\MDR32F9Q2I-I.\RTE\_Target_1-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\DeviceSupport\MDR32F9Q2I\inc-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\SPL\MDR32FxQI\inc--cpreproc --pd "__UVISION_VERSION SETA 535" --pd "_RTE_ SETA 1" --pd "_RTE_ SETA 1"--list .\listings\startup_mdr32f9q2i.lst --xref -o .\objects\startup_mdr32f9q2i.o --depend .\objects\startup_mdr32f9q2i.d)
+F (RTE\Device\MDR32F9Q2I\system_MDR32F9Q2I.c)(0x67E63F1E)(--c99 --gnu -c --cpu Cortex-M3 -D__EVAL -g -O1 --apcs=interwork --split_sections -I .\src\class\cdc\serial -I .\src\class\cdc -I .\src\common -I .\src\device -I .\src\osal -I .\src\typec -I .\src -I .\src\bsp -I .\src\class\msc-I.\RTE\Device\MDR32F9Q2I-I.\RTE\_Target_1-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\DeviceSupport\MDR32F9Q2I\inc-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\SPL\MDR32FxQI\inc-D__UVISION_VERSION="535" -D_RTE_ -D_RTE_ -DCFG_TUSB_MCU-o .\objects\system_mdr32f9q2i.o --omf_browse .\objects\system_mdr32f9q2i.crf --depend .\objects\system_mdr32f9q2i.d)
+I (C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\DeviceSupport\MDR32F9Q2I\inc\MDR32F9Q2I.h)(0x67E63F1E)
+I (.\RTE\Device\MDR32F9Q2I\MDR32FxQI_config.h)(0x67E63F1E)
+I (C:\Keil_v51\ARM\ARMCC\include\stdint.h)(0x602569CE)
+I (.\RTE\_Target_1\RTE_Components.h)(0x69A54A8E)
+I (C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3\core_cm3.h)(0x69AAC1E0)
+I (C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3\core_cmInstr.h)(0x67E63F1E)
+I (C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3\core_cmFunc.h)(0x67E63F1E)
+I (.\RTE\Device\MDR32F9Q2I\system_MDR32F9Q2I.h)(0x67E63F1E)
+F (RTE\Device\MDR32F9Q2I\system_MDR32F9Q2I.h)(0x67E63F1E)()
+F (C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\SPL\MDR32FxQI\src\MDR32FxQI_port.c)(0x67E63F20)(--c99 --gnu -c --cpu Cortex-M3 -D__EVAL -g -O1 --apcs=interwork --split_sections -I .\src\class\cdc\serial -I .\src\class\cdc -I .\src\common -I .\src\device -I .\src\osal -I .\src\typec -I .\src -I .\src\bsp -I .\src\class\msc-I.\RTE\Device\MDR32F9Q2I-I.\RTE\_Target_1-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\DeviceSupport\MDR32F9Q2I\inc-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\SPL\MDR32FxQI\inc-D__UVISION_VERSION="535" -D_RTE_ -D_RTE_ -DCFG_TUSB_MCU-o .\objects\mdr32fxqi_port.o --omf_browse .\objects\mdr32fxqi_port.crf --depend .\objects\mdr32fxqi_port.d)
+I (C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\SPL\MDR32FxQI\inc\MDR32FxQI_port.h)(0x67E63F1E)
+I (.\RTE\Device\MDR32F9Q2I\MDR32FxQI_config.h)(0x67E63F1E)
+I (C:\Keil_v51\ARM\ARMCC\include\stdint.h)(0x602569CE)
+I (.\RTE\_Target_1\RTE_Components.h)(0x69A54A8E)
+I (C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\DeviceSupport\MDR32F9Q2I\inc\MDR32F9Q2I.h)(0x67E63F1E)
+I (C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3\core_cm3.h)(0x69AAC1E0)
+I (C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3\core_cmInstr.h)(0x67E63F1E)
+I (C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3\core_cmFunc.h)(0x67E63F1E)
+I (.\RTE\Device\MDR32F9Q2I\system_MDR32F9Q2I.h)(0x67E63F1E)
+F (C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\SPL\MDR32FxQI\src\MDR32FxQI_rst_clk.c)(0x67E63F20)(--c99 --gnu -c --cpu Cortex-M3 -D__EVAL -g -O1 --apcs=interwork --split_sections -I .\src\class\cdc\serial -I .\src\class\cdc -I .\src\common -I .\src\device -I .\src\osal -I .\src\typec -I .\src -I .\src\bsp -I .\src\class\msc-I.\RTE\Device\MDR32F9Q2I-I.\RTE\_Target_1-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\DeviceSupport\MDR32F9Q2I\inc-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\SPL\MDR32FxQI\inc-D__UVISION_VERSION="535" -D_RTE_ -D_RTE_ -DCFG_TUSB_MCU-o .\objects\mdr32fxqi_rst_clk.o --omf_browse .\objects\mdr32fxqi_rst_clk.crf --depend .\objects\mdr32fxqi_rst_clk.d)
+I (C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\SPL\MDR32FxQI\inc\MDR32FxQI_rst_clk.h)(0x67E63F1E)
+I (.\RTE\Device\MDR32F9Q2I\MDR32FxQI_config.h)(0x67E63F1E)
+I (C:\Keil_v51\ARM\ARMCC\include\stdint.h)(0x602569CE)
+I (.\RTE\_Target_1\RTE_Components.h)(0x69A54A8E)
+I (C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\DeviceSupport\MDR32F9Q2I\inc\MDR32F9Q2I.h)(0x67E63F1E)
+I (C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3\core_cm3.h)(0x69AAC1E0)
+I (C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3\core_cmInstr.h)(0x67E63F1E)
+I (C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3\core_cmFunc.h)(0x67E63F1E)
+I (.\RTE\Device\MDR32F9Q2I\system_MDR32F9Q2I.h)(0x67E63F1E)
+F (C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\SPL\MDR32FxQI\src\MDR32FxQI_usb.c)(0x67E63F20)(--c99 --gnu -c --cpu Cortex-M3 -D__EVAL -g -O1 --apcs=interwork --split_sections -I .\src\class\cdc\serial -I .\src\class\cdc -I .\src\common -I .\src\device -I .\src\osal -I .\src\typec -I .\src -I .\src\bsp -I .\src\class\msc-I.\RTE\Device\MDR32F9Q2I-I.\RTE\_Target_1-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\DeviceSupport\MDR32F9Q2I\inc-IC:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\SPL\MDR32FxQI\inc-D__UVISION_VERSION="535" -D_RTE_ -D_RTE_ -DCFG_TUSB_MCU-o .\objects\mdr32fxqi_usb.o --omf_browse .\objects\mdr32fxqi_usb.crf --depend .\objects\mdr32fxqi_usb.d)
+I (C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\SPL\MDR32FxQI\inc\MDR32FxQI_usb.h)(0x67E63F1E)
+I (.\RTE\Device\MDR32F9Q2I\MDR32FxQI_config.h)(0x67E63F1E)
+I (C:\Keil_v51\ARM\ARMCC\include\stdint.h)(0x602569CE)
+I (.\RTE\_Target_1\RTE_Components.h)(0x69A54A8E)
+I (C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\DeviceSupport\MDR32F9Q2I\inc\MDR32F9Q2I.h)(0x67E63F1E)
+I (C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3\core_cm3.h)(0x69AAC1E0)
+I (C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3\core_cmInstr.h)(0x67E63F1E)
+I (C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\CMSIS\MDR32FxQI\CoreSupport\CM3\core_cmFunc.h)(0x67E63F1E)
+I (.\RTE\Device\MDR32F9Q2I\system_MDR32F9Q2I.h)(0x67E63F1E)

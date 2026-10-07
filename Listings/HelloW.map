@@ -1,0 +1,1865 @@
+Component: ARM Compiler 5.06 update 7 (build 960) Tool: armlink [4d3601]
+
+==============================================================================
+
+Section Cross References
+
+    main.o(i.cdc_task) refers to cdc_device.o(i.tud_cdc_n_available) for tud_cdc_n_available
+    main.o(i.cdc_task) refers to cdc_device.o(i.tud_cdc_n_write) for tud_cdc_n_write
+    main.o(i.main) refers to mdr32fxqi_rst_clk.o(i.RST_CLK_PCLKcmd) for RST_CLK_PCLKcmd
+    main.o(i.main) refers to mdr32fxqi_port.o(i.PORT_StructInit) for PORT_StructInit
+    main.o(i.main) refers to mdr32fxqi_port.o(i.PORT_Init) for PORT_Init
+    main.o(i.main) refers to tusb.o(i.tusb_rhport_init) for tusb_rhport_init
+    main.o(i.main) refers to usbd.o(i.tud_task_ext) for tud_task_ext
+    main.o(i.main) refers to main.o(.constdata) for .constdata
+    cdc_device.o(i.cdcd_control_xfer_cb) refers to usbd_control.o(i.tud_control_xfer) for tud_control_xfer
+    cdc_device.o(i.cdcd_control_xfer_cb) refers to cdc_device.o(i.tud_cdc_line_coding_cb) for tud_cdc_line_coding_cb
+    cdc_device.o(i.cdcd_control_xfer_cb) refers to usbd_control.o(i.tud_control_status) for tud_control_status
+    cdc_device.o(i.cdcd_control_xfer_cb) refers to tusb_fifo.o(i.tu_fifo_set_overwritable) for tu_fifo_set_overwritable
+    cdc_device.o(i.cdcd_control_xfer_cb) refers to cdc_device.o(i.tud_cdc_line_state_cb) for tud_cdc_line_state_cb
+    cdc_device.o(i.cdcd_control_xfer_cb) refers to cdc_device.o(i.tud_cdc_send_break_cb) for tud_cdc_send_break_cb
+    cdc_device.o(i.cdcd_control_xfer_cb) refers to cdc_device.o(.bss) for .bss
+    cdc_device.o(i.cdcd_control_xfer_cb) refers to cdc_device.o(.data) for .data
+    cdc_device.o(i.cdcd_deinit) refers to tusb.o(i.tu_edpt_stream_deinit) for tu_edpt_stream_deinit
+    cdc_device.o(i.cdcd_deinit) refers to cdc_device.o(.bss) for .bss
+    cdc_device.o(i.cdcd_init) refers to rt_memclr_w.o(.text) for __aeabi_memclr4
+    cdc_device.o(i.cdcd_init) refers to tusb.o(i.tu_edpt_stream_init) for tu_edpt_stream_init
+    cdc_device.o(i.cdcd_init) refers to cdc_device.o(.bss) for .bss
+    cdc_device.o(i.cdcd_init) refers to cdc_device.o(.data) for .data
+    cdc_device.o(i.cdcd_open) refers to usbd.o(i.usbd_edpt_open) for usbd_edpt_open
+    cdc_device.o(i.cdcd_open) refers to tusb.o(i.tu_edpt_stream_write_xfer) for tu_edpt_stream_write_xfer
+    cdc_device.o(i.cdcd_open) refers to tusb_fifo.o(i.tu_fifo_clear) for tu_fifo_clear
+    cdc_device.o(i.cdcd_open) refers to tusb.o(i.tu_edpt_stream_read_xfer) for tu_edpt_stream_read_xfer
+    cdc_device.o(i.cdcd_open) refers to cdc_device.o(.bss) for .bss
+    cdc_device.o(i.cdcd_open) refers to cdc_device.o(.data) for .data
+    cdc_device.o(i.cdcd_reset) refers to tusb_fifo.o(i.tu_fifo_set_overwritable) for tu_fifo_set_overwritable
+    cdc_device.o(i.cdcd_reset) refers to cdc_device.o(.bss) for .bss
+    cdc_device.o(i.cdcd_reset) refers to cdc_device.o(.data) for .data
+    cdc_device.o(i.cdcd_xfer_cb) refers to tusb_fifo.o(i.tu_fifo_write_n) for tu_fifo_write_n
+    cdc_device.o(i.cdcd_xfer_cb) refers to cdc_device.o(i.tud_cdc_rx_wanted_cb) for tud_cdc_rx_wanted_cb
+    cdc_device.o(i.cdcd_xfer_cb) refers to cdc_device.o(i.tud_cdc_rx_cb) for tud_cdc_rx_cb
+    cdc_device.o(i.cdcd_xfer_cb) refers to tusb.o(i.tu_edpt_stream_read_xfer) for tu_edpt_stream_read_xfer
+    cdc_device.o(i.cdcd_xfer_cb) refers to cdc_device.o(i.tud_cdc_tx_complete_cb) for tud_cdc_tx_complete_cb
+    cdc_device.o(i.cdcd_xfer_cb) refers to tusb.o(i.tu_edpt_stream_write_xfer) for tu_edpt_stream_write_xfer
+    cdc_device.o(i.cdcd_xfer_cb) refers to tusb.o(i.tu_edpt_stream_write_zlp_if_needed) for tu_edpt_stream_write_zlp_if_needed
+    cdc_device.o(i.cdcd_xfer_cb) refers to cdc_device.o(i.tud_cdc_notify_complete_cb) for tud_cdc_notify_complete_cb
+    cdc_device.o(i.cdcd_xfer_cb) refers to cdc_device.o(.bss) for .bss
+    cdc_device.o(i.tud_cdc_configure) refers to cdc_device.o(.data) for .data
+    cdc_device.o(i.tud_cdc_n_available) refers to tusb_fifo.o(i.tu_fifo_count) for tu_fifo_count
+    cdc_device.o(i.tud_cdc_n_available) refers to cdc_device.o(.bss) for .bss
+    cdc_device.o(i.tud_cdc_n_connected) refers to usbd.o(i.tud_mounted) for tud_mounted
+    cdc_device.o(i.tud_cdc_n_connected) refers to usbd.o(i.tud_suspended) for tud_suspended
+    cdc_device.o(i.tud_cdc_n_connected) refers to cdc_device.o(.bss) for .bss
+    cdc_device.o(i.tud_cdc_n_get_line_coding) refers to cdc_device.o(.bss) for .bss
+    cdc_device.o(i.tud_cdc_n_get_line_state) refers to cdc_device.o(.bss) for .bss
+    cdc_device.o(i.tud_cdc_n_peek) refers to tusb_fifo.o(i.tu_fifo_peek) for tu_fifo_peek
+    cdc_device.o(i.tud_cdc_n_peek) refers to cdc_device.o(.bss) for .bss
+    cdc_device.o(i.tud_cdc_n_read) refers to tusb.o(i.tu_edpt_stream_read) for tu_edpt_stream_read
+    cdc_device.o(i.tud_cdc_n_read) refers to cdc_device.o(.bss) for .bss
+    cdc_device.o(i.tud_cdc_n_read_flush) refers to tusb_fifo.o(i.tu_fifo_clear) for tu_fifo_clear
+    cdc_device.o(i.tud_cdc_n_read_flush) refers to tusb.o(i.tu_edpt_stream_read_xfer) for tu_edpt_stream_read_xfer
+    cdc_device.o(i.tud_cdc_n_read_flush) refers to cdc_device.o(.bss) for .bss
+    cdc_device.o(i.tud_cdc_n_ready) refers to usbd.o(i.tud_mounted) for tud_mounted
+    cdc_device.o(i.tud_cdc_n_ready) refers to usbd.o(i.tud_suspended) for tud_suspended
+    cdc_device.o(i.tud_cdc_n_ready) refers to cdc_device.o(.bss) for .bss
+    cdc_device.o(i.tud_cdc_n_set_wanted_char) refers to cdc_device.o(.bss) for .bss
+    cdc_device.o(i.tud_cdc_n_write) refers to tusb.o(i.tu_edpt_stream_write) for tu_edpt_stream_write
+    cdc_device.o(i.tud_cdc_n_write) refers to cdc_device.o(.bss) for .bss
+    cdc_device.o(i.tud_cdc_n_write_available) refers to tusb.o(i.tu_edpt_stream_write_available) for tu_edpt_stream_write_available
+    cdc_device.o(i.tud_cdc_n_write_available) refers to cdc_device.o(.bss) for .bss
+    cdc_device.o(i.tud_cdc_n_write_clear) refers to tusb_fifo.o(i.tu_fifo_clear) for tu_fifo_clear
+    cdc_device.o(i.tud_cdc_n_write_clear) refers to cdc_device.o(.bss) for .bss
+    cdc_device.o(i.tud_cdc_n_write_flush) refers to tusb.o(i.tu_edpt_stream_write_xfer) for tu_edpt_stream_write_xfer
+    cdc_device.o(i.tud_cdc_n_write_flush) refers to cdc_device.o(.bss) for .bss
+    tusb_fifo.o(i._ff_pull_n) refers to rt_memcpy_v6.o(.text) for __aeabi_memcpy
+    tusb_fifo.o(i._ff_push_n) refers to rt_memcpy_v6.o(.text) for __aeabi_memcpy
+    tusb_fifo.o(i._tu_fifo_peek) refers to rt_memcpy_v6.o(.text) for __aeabi_memcpy
+    tusb_fifo.o(i._tu_fifo_peek_n) refers to tusb_fifo.o(i._ff_pull_n) for _ff_pull_n
+    tusb_fifo.o(i._tu_fifo_read_n) refers to tusb_fifo.o(i._tu_fifo_peek_n) for _tu_fifo_peek_n
+    tusb_fifo.o(i._tu_fifo_read_n) refers to tusb_fifo.o(i.advance_index) for advance_index
+    tusb_fifo.o(i._tu_fifo_write_n) refers to tusb_fifo.o(i.advance_index) for advance_index
+    tusb_fifo.o(i._tu_fifo_write_n) refers to tusb_fifo.o(i._ff_push_n) for _ff_push_n
+    tusb_fifo.o(i.tu_fifo_advance_read_pointer) refers to tusb_fifo.o(i.advance_index) for advance_index
+    tusb_fifo.o(i.tu_fifo_advance_write_pointer) refers to tusb_fifo.o(i.advance_index) for advance_index
+    tusb_fifo.o(i.tu_fifo_peek) refers to tusb_fifo.o(i._tu_fifo_peek) for _tu_fifo_peek
+    tusb_fifo.o(i.tu_fifo_peek_n) refers to tusb_fifo.o(i._tu_fifo_peek_n) for _tu_fifo_peek_n
+    tusb_fifo.o(i.tu_fifo_read) refers to tusb_fifo.o(i._tu_fifo_peek) for _tu_fifo_peek
+    tusb_fifo.o(i.tu_fifo_read) refers to tusb_fifo.o(i.advance_index) for advance_index
+    tusb_fifo.o(i.tu_fifo_read_n) refers to tusb_fifo.o(i._tu_fifo_read_n) for _tu_fifo_read_n
+    tusb_fifo.o(i.tu_fifo_write) refers to tusb_fifo.o(i.tu_fifo_full) for tu_fifo_full
+    tusb_fifo.o(i.tu_fifo_write) refers to rt_memcpy_v6.o(.text) for __aeabi_memcpy
+    tusb_fifo.o(i.tu_fifo_write) refers to tusb_fifo.o(i.advance_index) for advance_index
+    tusb_fifo.o(i.tu_fifo_write_n) refers to tusb_fifo.o(i._tu_fifo_write_n) for _tu_fifo_write_n
+    usbd.o(i.configuration_reset) refers to rt_memclr.o(.text) for __aeabi_memclr
+    usbd.o(i.configuration_reset) refers to aeabi_memset.o(.text) for __aeabi_memset
+    usbd.o(i.configuration_reset) refers to usbd.o(.data) for .data
+    usbd.o(i.configuration_reset) refers to usbd.o(.constdata) for .constdata
+    usbd.o(i.configuration_reset) refers to usbd.o(.bss) for .bss
+    usbd.o(i.dcd_event_handler) refers to tusb_fifo.o(i.tu_fifo_write) for tu_fifo_write
+    usbd.o(i.dcd_event_handler) refers to usbd.o(i.tud_event_hook_cb) for tud_event_hook_cb
+    usbd.o(i.dcd_event_handler) refers to usbd.o(.constdata) for .constdata
+    usbd.o(i.dcd_event_handler) refers to usbd.o(.data) for .data
+    usbd.o(i.dcd_event_handler) refers to usbd.o(.bss) for .bss
+    usbd.o(i.invoke_class_control) refers to usbd_control.o(i.usbd_control_set_complete_callback) for usbd_control_set_complete_callback
+    usbd.o(i.process_control_request) refers to usbd_control.o(i.usbd_control_set_complete_callback) for usbd_control_set_complete_callback
+    usbd.o(i.process_control_request) refers to usbd.o(i.tud_vendor_control_xfer_cb) for tud_vendor_control_xfer_cb
+    usbd.o(i.process_control_request) refers to usbd.o(i.invoke_class_control) for invoke_class_control
+    usbd.o(i.process_control_request) refers to usbd_control.o(i.usbd_control_set_request) for usbd_control_set_request
+    usbd.o(i.process_control_request) refers to tusb_mdr32fxqi.o(i.dcd_set_address) for dcd_set_address
+    usbd.o(i.process_control_request) refers to usbd_control.o(i.tud_control_xfer) for tud_control_xfer
+    usbd.o(i.process_control_request) refers to tusb_mdr32fxqi.o(i.dcd_sof_enable) for dcd_sof_enable
+    usbd.o(i.process_control_request) refers to tusb_mdr32fxqi.o(i.dcd_edpt_close_all) for dcd_edpt_close_all
+    usbd.o(i.process_control_request) refers to usbd.o(i.configuration_reset) for configuration_reset
+    usbd.o(i.process_control_request) refers to usbd.o(i.process_set_config) for process_set_config
+    usbd.o(i.process_control_request) refers to usbd.o(i.tud_mount_cb) for tud_mount_cb
+    usbd.o(i.process_control_request) refers to usbd_control.o(i.tud_control_status) for tud_control_status
+    usbd.o(i.process_control_request) refers to usbd.o(i.tud_umount_cb) for tud_umount_cb
+    usbd.o(i.process_control_request) refers to usbd.o(i.process_get_descriptor) for process_get_descriptor
+    usbd.o(i.process_control_request) refers to usbd.o(i.usbd_edpt_stalled) for usbd_edpt_stalled
+    usbd.o(i.process_control_request) refers to usbd.o(i.usbd_edpt_stall) for usbd_edpt_stall
+    usbd.o(i.process_control_request) refers to usbd.o(i.usbd_edpt_clear_stall) for usbd_edpt_clear_stall
+    usbd.o(i.process_control_request) refers to usbd.o(.constdata) for .constdata
+    usbd.o(i.process_control_request) refers to usbd.o(.bss) for .bss
+    usbd.o(i.process_control_request) refers to usbd.o(.data) for .data
+    usbd.o(i.process_get_descriptor) refers to usb_descriptors.o(i.tud_descriptor_device_cb) for tud_descriptor_device_cb
+    usbd.o(i.process_get_descriptor) refers to usbd_control.o(i.tud_control_xfer) for tud_control_xfer
+    usbd.o(i.process_get_descriptor) refers to usbd.o(i.tud_descriptor_bos_cb) for tud_descriptor_bos_cb
+    usbd.o(i.process_get_descriptor) refers to usbd.o(i.tud_descriptor_other_speed_configuration_cb) for tud_descriptor_other_speed_configuration_cb
+    usbd.o(i.process_get_descriptor) refers to usb_descriptors.o(i.tud_descriptor_configuration_cb) for tud_descriptor_configuration_cb
+    usbd.o(i.process_get_descriptor) refers to usb_descriptors.o(i.tud_descriptor_string_cb) for tud_descriptor_string_cb
+    usbd.o(i.process_get_descriptor) refers to usb_descriptors.o(i.tud_descriptor_device_qualifier_cb) for tud_descriptor_device_qualifier_cb
+    usbd.o(i.process_set_config) refers to usb_descriptors.o(i.tud_descriptor_configuration_cb) for tud_descriptor_configuration_cb
+    usbd.o(i.process_set_config) refers to tusb.o(i.tu_edpt_bind_driver) for tu_edpt_bind_driver
+    usbd.o(i.process_set_config) refers to usbd.o(.bss) for .bss
+    usbd.o(i.process_set_config) refers to usbd.o(.data) for .data
+    usbd.o(i.process_set_config) refers to usbd.o(.constdata) for .constdata
+    usbd.o(i.process_set_config) refers to cdc_device.o(i.cdcd_open) for cdcd_open
+    usbd.o(i.tud_connect) refers to tusb_mdr32fxqi.o(i.dcd_connect) for dcd_connect
+    usbd.o(i.tud_connect) refers to usbd.o(.data) for .data
+    usbd.o(i.tud_connected) refers to usbd.o(.bss) for .bss
+    usbd.o(i.tud_deinit) refers to usbd.o(i.tud_inited) for tud_inited
+    usbd.o(i.tud_deinit) refers to tusb_mdr32fxqi.o(i.dcd_int_disable) for dcd_int_disable
+    usbd.o(i.tud_deinit) refers to tusb_mdr32fxqi.o(i.dcd_disconnect) for dcd_disconnect
+    usbd.o(i.tud_deinit) refers to usbd.o(i.dcd_deinit) for dcd_deinit
+    usbd.o(i.tud_deinit) refers to usbd.o(.data) for .data
+    usbd.o(i.tud_deinit) refers to usbd.o(.constdata) for .constdata
+    usbd.o(i.tud_disconnect) refers to tusb_mdr32fxqi.o(i.dcd_disconnect) for dcd_disconnect
+    usbd.o(i.tud_disconnect) refers to usbd.o(.data) for .data
+    usbd.o(i.tud_inited) refers to usbd.o(.data) for .data
+    usbd.o(i.tud_mounted) refers to usbd.o(.bss) for .bss
+    usbd.o(i.tud_remote_wakeup) refers to tusb_mdr32fxqi.o(i.dcd_remote_wakeup) for dcd_remote_wakeup
+    usbd.o(i.tud_remote_wakeup) refers to usbd.o(.bss) for .bss
+    usbd.o(i.tud_remote_wakeup) refers to usbd.o(.data) for .data
+    usbd.o(i.tud_rhport_init) refers to usbd.o(i.tud_inited) for tud_inited
+    usbd.o(i.tud_rhport_init) refers to rt_memclr.o(.text) for __aeabi_memclr
+    usbd.o(i.tud_rhport_init) refers to tusb_fifo.o(i.tu_fifo_clear) for tu_fifo_clear
+    usbd.o(i.tud_rhport_init) refers to usbd.o(i.usbd_app_driver_get_cb) for usbd_app_driver_get_cb
+    usbd.o(i.tud_rhport_init) refers to tusb_mdr32fxqi.o(i.dcd_init) for dcd_init
+    usbd.o(i.tud_rhport_init) refers to tusb_mdr32fxqi.o(i.dcd_int_enable) for dcd_int_enable
+    usbd.o(i.tud_rhport_init) refers to usbd.o(.bss) for .bss
+    usbd.o(i.tud_rhport_init) refers to usbd.o(.data) for .data
+    usbd.o(i.tud_rhport_init) refers to usbd.o(.constdata) for .constdata
+    usbd.o(i.tud_sof_cb_enable) refers to usbd.o(i.usbd_sof_enable) for usbd_sof_enable
+    usbd.o(i.tud_sof_cb_enable) refers to usbd.o(.data) for .data
+    usbd.o(i.tud_speed_get) refers to usbd.o(.bss) for .bss
+    usbd.o(i.tud_suspended) refers to usbd.o(.bss) for .bss
+    usbd.o(i.tud_task_event_ready) refers to usbd.o(i.tud_inited) for tud_inited
+    usbd.o(i.tud_task_event_ready) refers to usbd.o(.data) for .data
+    usbd.o(i.tud_task_ext) refers to usbd.o(i.tud_inited) for tud_inited
+    usbd.o(i.tud_task_ext) refers to usbd.o(i.usbd_reset) for usbd_reset
+    usbd.o(i.tud_task_ext) refers to usbd.o(i.tud_umount_cb) for tud_umount_cb
+    usbd.o(i.tud_task_ext) refers to usbd.o(i.process_control_request) for process_control_request
+    usbd.o(i.tud_task_ext) refers to tusb_mdr32fxqi.o(i.dcd_edpt_stall) for dcd_edpt_stall
+    usbd.o(i.tud_task_ext) refers to usbd_control.o(i.usbd_control_xfer_cb) for usbd_control_xfer_cb
+    usbd.o(i.tud_task_ext) refers to usbd.o(i.tud_suspend_cb) for tud_suspend_cb
+    usbd.o(i.tud_task_ext) refers to usbd.o(i.tud_resume_cb) for tud_resume_cb
+    usbd.o(i.tud_task_ext) refers to usbd.o(i.tud_sof_cb) for tud_sof_cb
+    usbd.o(i.tud_task_ext) refers to tusb_fifo.o(i.tu_fifo_read) for tu_fifo_read
+    usbd.o(i.tud_task_ext) refers to usbd.o(.bss) for .bss
+    usbd.o(i.tud_task_ext) refers to usbd.o(.data) for .data
+    usbd.o(i.tud_task_ext) refers to usbd.o(.constdata) for .constdata
+    usbd.o(i.usbd_defer_func) refers to tusb_fifo.o(i.tu_fifo_write) for tu_fifo_write
+    usbd.o(i.usbd_defer_func) refers to usbd.o(i.tud_event_hook_cb) for tud_event_hook_cb
+    usbd.o(i.usbd_defer_func) refers to usbd.o(.constdata) for .constdata
+    usbd.o(i.usbd_defer_func) refers to usbd.o(.data) for .data
+    usbd.o(i.usbd_edpt_busy) refers to usbd.o(.bss) for .bss
+    usbd.o(i.usbd_edpt_claim) refers to tusb.o(i.tu_edpt_claim) for tu_edpt_claim
+    usbd.o(i.usbd_edpt_claim) refers to usbd.o(.bss) for .bss
+    usbd.o(i.usbd_edpt_clear_stall) refers to tusb_mdr32fxqi.o(i.dcd_edpt_clear_stall) for dcd_edpt_clear_stall
+    usbd.o(i.usbd_edpt_clear_stall) refers to usbd.o(.data) for .data
+    usbd.o(i.usbd_edpt_clear_stall) refers to usbd.o(.bss) for .bss
+    usbd.o(i.usbd_edpt_close) refers to tusb_mdr32fxqi.o(i.dcd_edpt_close) for dcd_edpt_close
+    usbd.o(i.usbd_edpt_close) refers to usbd.o(.data) for .data
+    usbd.o(i.usbd_edpt_close) refers to usbd.o(.bss) for .bss
+    usbd.o(i.usbd_edpt_open) refers to tusb.o(i.tu_edpt_validate) for tu_edpt_validate
+    usbd.o(i.usbd_edpt_open) refers to tusb_mdr32fxqi.o(i.dcd_edpt_open) for dcd_edpt_open
+    usbd.o(i.usbd_edpt_open) refers to usbd.o(.data) for .data
+    usbd.o(i.usbd_edpt_open) refers to usbd.o(.bss) for .bss
+    usbd.o(i.usbd_edpt_release) refers to tusb.o(i.tu_edpt_release) for tu_edpt_release
+    usbd.o(i.usbd_edpt_release) refers to usbd.o(.bss) for .bss
+    usbd.o(i.usbd_edpt_stall) refers to tusb_mdr32fxqi.o(i.dcd_edpt_stall) for dcd_edpt_stall
+    usbd.o(i.usbd_edpt_stall) refers to usbd.o(.data) for .data
+    usbd.o(i.usbd_edpt_stall) refers to usbd.o(.bss) for .bss
+    usbd.o(i.usbd_edpt_stalled) refers to usbd.o(.bss) for .bss
+    usbd.o(i.usbd_edpt_xfer) refers to tusb_mdr32fxqi.o(i.dcd_edpt_xfer) for dcd_edpt_xfer
+    usbd.o(i.usbd_edpt_xfer) refers to usbd.o(.data) for .data
+    usbd.o(i.usbd_edpt_xfer) refers to usbd.o(.bss) for .bss
+    usbd.o(i.usbd_edpt_xfer_fifo) refers to usbd.o(i.dcd_edpt_xfer_fifo) for dcd_edpt_xfer_fifo
+    usbd.o(i.usbd_edpt_xfer_fifo) refers to usbd.o(.data) for .data
+    usbd.o(i.usbd_edpt_xfer_fifo) refers to usbd.o(.bss) for .bss
+    usbd.o(i.usbd_int_set) refers to tusb_mdr32fxqi.o(i.dcd_int_enable) for dcd_int_enable
+    usbd.o(i.usbd_int_set) refers to tusb_mdr32fxqi.o(i.dcd_int_disable) for dcd_int_disable
+    usbd.o(i.usbd_int_set) refers to usbd.o(.data) for .data
+    usbd.o(i.usbd_open_edpt_pair) refers to usbd.o(i.usbd_edpt_open) for usbd_edpt_open
+    usbd.o(i.usbd_reset) refers to usbd.o(i.configuration_reset) for configuration_reset
+    usbd.o(i.usbd_reset) refers to usbd_control.o(i.usbd_control_reset) for usbd_control_reset
+    usbd.o(i.usbd_sof_enable) refers to tusb_mdr32fxqi.o(i.dcd_sof_enable) for dcd_sof_enable
+    usbd.o(i.usbd_sof_enable) refers to usbd.o(.data) for .data
+    usbd.o(i.usbd_sof_enable) refers to usbd.o(.bss) for .bss
+    usbd.o(i.usbd_spin_lock) refers to usbd.o(.data) for .data
+    usbd.o(i.usbd_spin_unlock) refers to usbd.o(.data) for .data
+    usbd.o(.constdata) refers to cdc_device.o(i.cdcd_init) for cdcd_init
+    usbd.o(.constdata) refers to cdc_device.o(i.cdcd_deinit) for cdcd_deinit
+    usbd.o(.constdata) refers to cdc_device.o(i.cdcd_reset) for cdcd_reset
+    usbd.o(.constdata) refers to cdc_device.o(i.cdcd_open) for cdcd_open
+    usbd.o(.constdata) refers to cdc_device.o(i.cdcd_control_xfer_cb) for cdcd_control_xfer_cb
+    usbd.o(.constdata) refers to cdc_device.o(i.cdcd_xfer_cb) for cdcd_xfer_cb
+    usbd.o(.constdata) refers to msc_device.o(i.mscd_init) for mscd_init
+    usbd.o(.constdata) refers to msc_device.o(i.mscd_reset) for mscd_reset
+    usbd.o(.constdata) refers to msc_device.o(i.mscd_open) for mscd_open
+    usbd.o(.constdata) refers to msc_device.o(i.mscd_control_xfer_cb) for mscd_control_xfer_cb
+    usbd.o(.constdata) refers to msc_device.o(i.mscd_xfer_cb) for mscd_xfer_cb
+    usbd.o(.data) refers to usbd.o(i.usbd_int_set) for usbd_int_set
+    usbd.o(.data) refers to usbd.o(.bss) for _usbd_qdef_buf
+    usbd_control.o(i.data_stage_xact) refers to rt_memcpy_v6.o(.text) for __aeabi_memcpy
+    usbd_control.o(i.data_stage_xact) refers to usbd.o(i.usbd_edpt_xfer) for usbd_edpt_xfer
+    usbd_control.o(i.data_stage_xact) refers to usbd_control.o(.bss) for .bss
+    usbd_control.o(i.status_stage_xact) refers to usbd.o(i.usbd_edpt_xfer) for usbd_edpt_xfer
+    usbd_control.o(i.tud_control_status) refers to usbd_control.o(i.status_stage_xact) for status_stage_xact
+    usbd_control.o(i.tud_control_status) refers to usbd_control.o(.bss) for .bss
+    usbd_control.o(i.tud_control_xfer) refers to usbd_control.o(i.data_stage_xact) for data_stage_xact
+    usbd_control.o(i.tud_control_xfer) refers to usbd_control.o(i.status_stage_xact) for status_stage_xact
+    usbd_control.o(i.tud_control_xfer) refers to usbd_control.o(.bss) for .bss
+    usbd_control.o(i.usbd_control_reset) refers to rt_memclr_w.o(.text) for __aeabi_memclr4
+    usbd_control.o(i.usbd_control_reset) refers to usbd_control.o(.bss) for .bss
+    usbd_control.o(i.usbd_control_set_complete_callback) refers to usbd_control.o(.bss) for .bss
+    usbd_control.o(i.usbd_control_set_request) refers to usbd_control.o(.bss) for .bss
+    usbd_control.o(i.usbd_control_xfer_cb) refers to usbd_control.o(i.dcd_edpt0_status_complete) for dcd_edpt0_status_complete
+    usbd_control.o(i.usbd_control_xfer_cb) refers to rt_memcpy_v6.o(.text) for __aeabi_memcpy
+    usbd_control.o(i.usbd_control_xfer_cb) refers to usbd_control.o(i.status_stage_xact) for status_stage_xact
+    usbd_control.o(i.usbd_control_xfer_cb) refers to tusb_mdr32fxqi.o(i.dcd_edpt_stall) for dcd_edpt_stall
+    usbd_control.o(i.usbd_control_xfer_cb) refers to usbd_control.o(i.data_stage_xact) for data_stage_xact
+    usbd_control.o(i.usbd_control_xfer_cb) refers to usbd_control.o(.bss) for .bss
+    tusb.o(i.tu_edpt_stream_init) refers to tusb_fifo.o(i.tu_fifo_config) for tu_fifo_config
+    tusb.o(i.tu_edpt_stream_read) refers to tusb_fifo.o(i.tu_fifo_read_n) for tu_fifo_read_n
+    tusb.o(i.tu_edpt_stream_read) refers to tusb.o(i.tu_edpt_stream_read_xfer) for tu_edpt_stream_read_xfer
+    tusb.o(i.tu_edpt_stream_read_xfer) refers to usbd.o(i.usbd_edpt_claim) for usbd_edpt_claim
+    tusb.o(i.tu_edpt_stream_read_xfer) refers to usbd.o(i.usbd_edpt_xfer) for usbd_edpt_xfer
+    tusb.o(i.tu_edpt_stream_read_xfer) refers to tusb_fifo.o(i.tu_fifo_remaining) for tu_fifo_remaining
+    tusb.o(i.tu_edpt_stream_read_xfer) refers to usbd.o(i.usbd_edpt_release) for usbd_edpt_release
+    tusb.o(i.tu_edpt_stream_write) refers to tusb_fifo.o(i.tu_fifo_write_n) for tu_fifo_write_n
+    tusb.o(i.tu_edpt_stream_write) refers to usbd.o(i.usbd_edpt_claim) for usbd_edpt_claim
+    tusb.o(i.tu_edpt_stream_write) refers to rt_memcpy_v6.o(.text) for __aeabi_memcpy
+    tusb.o(i.tu_edpt_stream_write) refers to usbd.o(i.usbd_edpt_xfer) for usbd_edpt_xfer
+    tusb.o(i.tu_edpt_stream_write) refers to tusb_fifo.o(i.tu_fifo_count) for tu_fifo_count
+    tusb.o(i.tu_edpt_stream_write) refers to tusb.o(i.tu_edpt_stream_write_xfer) for tu_edpt_stream_write_xfer
+    tusb.o(i.tu_edpt_stream_write_available) refers to tusb_fifo.o(i.tu_fifo_remaining) for tu_fifo_remaining
+    tusb.o(i.tu_edpt_stream_write_available) refers to usbd.o(i.usbd_edpt_busy) for usbd_edpt_busy
+    tusb.o(i.tu_edpt_stream_write_xfer) refers to tusb_fifo.o(i.tu_fifo_count) for tu_fifo_count
+    tusb.o(i.tu_edpt_stream_write_xfer) refers to usbd.o(i.usbd_edpt_claim) for usbd_edpt_claim
+    tusb.o(i.tu_edpt_stream_write_xfer) refers to tusb_fifo.o(i.tu_fifo_read_n) for tu_fifo_read_n
+    tusb.o(i.tu_edpt_stream_write_xfer) refers to usbd.o(i.usbd_edpt_xfer) for usbd_edpt_xfer
+    tusb.o(i.tu_edpt_stream_write_xfer) refers to usbd.o(i.usbd_edpt_release) for usbd_edpt_release
+    tusb.o(i.tu_edpt_stream_write_zlp_if_needed) refers to usbd.o(i.usbd_edpt_claim) for usbd_edpt_claim
+    tusb.o(i.tu_edpt_stream_write_zlp_if_needed) refers to usbd.o(i.usbd_edpt_xfer) for usbd_edpt_xfer
+    tusb.o(i.tusb_deinit) refers to usbd.o(i.tud_deinit) for tud_deinit
+    tusb.o(i.tusb_deinit) refers to tusb.o(.data) for .data
+    tusb.o(i.tusb_inited) refers to usbd.o(i.tud_inited) for tud_inited
+    tusb.o(i.tusb_int_handler) refers to tusb_mdr32fxqi.o(i.dcd_int_handler) for dcd_int_handler
+    tusb.o(i.tusb_int_handler) refers to tusb.o(.data) for .data
+    tusb.o(i.tusb_rhport_init) refers to usbd.o(i.tud_rhport_init) for tud_rhport_init
+    tusb.o(i.tusb_rhport_init) refers to tusb.o(.data) for .data
+    tusb.o(i.tusb_rhport_init) refers to tusb.o(.constdata) for .constdata
+    tusb.o(i.tusb_time_delay_ms_api) refers to tusb_mdr32fxqi.o(i.tusb_time_millis_api) for tusb_time_millis_api
+    usb_descriptors.o(i.tud_descriptor_configuration_cb) refers to usb_descriptors.o(.constdata) for .constdata
+    usb_descriptors.o(i.tud_descriptor_device_cb) refers to usb_descriptors.o(.constdata) for .constdata
+    usb_descriptors.o(i.tud_descriptor_device_qualifier_cb) refers to usb_descriptors.o(.constdata) for .constdata
+    usb_descriptors.o(i.tud_descriptor_string_cb) refers to strlen.o(.text) for strlen
+    usb_descriptors.o(i.tud_descriptor_string_cb) refers to usb_descriptors.o(.data) for .data
+    usb_descriptors.o(i.tud_descriptor_string_cb) refers to usb_descriptors.o(.bss) for .bss
+    usb_descriptors.o(.data) refers to usb_descriptors.o(.constdata) for <Data1>
+    usb_descriptors.o(.data) refers to usb_descriptors.o(.conststring) for .conststring
+    tusb_mdr32fxqi.o(i.USB_IRQHandler) refers to mdr32fxqi_usb.o(i.USB_GetSIS) for USB_GetSIS
+    tusb_mdr32fxqi.o(i.USB_IRQHandler) refers to tusb_mdr32fxqi.o(i.dcd_int_handler) for dcd_int_handler
+    tusb_mdr32fxqi.o(i.USB_IRQHandler) refers to mdr32fxqi_usb.o(i.USB_SetSIS) for USB_SetSIS
+    tusb_mdr32fxqi.o(i.USB_IRQHandler) refers to tusb_mdr32fxqi.o(.data) for .data
+    tusb_mdr32fxqi.o(i.dcd_edpt_clear_stall) refers to mdr32fxqi_usb.o(i.USB_SetSEPxTXFDC) for USB_SetSEPxTXFDC
+    tusb_mdr32fxqi.o(i.dcd_edpt_clear_stall) refers to mdr32fxqi_usb.o(i.USB_SetSEPxRXFC) for USB_SetSEPxRXFC
+    tusb_mdr32fxqi.o(i.dcd_edpt_clear_stall) refers to mdr32fxqi_usb.o(i.USB_SetSEPxCTRL) for USB_SetSEPxCTRL
+    tusb_mdr32fxqi.o(i.dcd_edpt_open) refers to mdr32fxqi_usb.o(i.USB_SetSEPxCTRL) for USB_SetSEPxCTRL
+    tusb_mdr32fxqi.o(i.dcd_edpt_open) refers to mdr32fxqi_usb.o(i.USB_SetSEPxRXFC) for USB_SetSEPxRXFC
+    tusb_mdr32fxqi.o(i.dcd_edpt_open) refers to mdr32fxqi_usb.o(i.USB_SetSEPxTXFDC) for USB_SetSEPxTXFDC
+    tusb_mdr32fxqi.o(i.dcd_edpt_stall) refers to mdr32fxqi_usb.o(i.USB_SetSEPxTXFDC) for USB_SetSEPxTXFDC
+    tusb_mdr32fxqi.o(i.dcd_edpt_stall) refers to mdr32fxqi_usb.o(i.USB_SetSEPxRXFC) for USB_SetSEPxRXFC
+    tusb_mdr32fxqi.o(i.dcd_edpt_stall) refers to mdr32fxqi_usb.o(i.USB_SetSEPxCTRL) for USB_SetSEPxCTRL
+    tusb_mdr32fxqi.o(i.dcd_edpt_xfer) refers to mdr32fxqi_usb.o(i.USB_SetSEPxRXFC) for USB_SetSEPxRXFC
+    tusb_mdr32fxqi.o(i.dcd_edpt_xfer) refers to mdr32fxqi_usb.o(i.USB_SetSEPxCTRL) for USB_SetSEPxCTRL
+    tusb_mdr32fxqi.o(i.dcd_edpt_xfer) refers to tusb_mdr32fxqi.o(i.handle_ep0_in) for handle_ep0_in
+    tusb_mdr32fxqi.o(i.dcd_edpt_xfer) refers to tusb_mdr32fxqi.o(i.handle_ep_in) for handle_ep_in
+    tusb_mdr32fxqi.o(i.dcd_edpt_xfer) refers to tusb_mdr32fxqi.o(.bss) for .bss
+    tusb_mdr32fxqi.o(i.dcd_init) refers to mdr32fxqi_rst_clk.o(i.RST_CLK_HSEconfig) for RST_CLK_HSEconfig
+    tusb_mdr32fxqi.o(i.dcd_init) refers to mdr32fxqi_rst_clk.o(i.RST_CLK_HSEstatus) for RST_CLK_HSEstatus
+    tusb_mdr32fxqi.o(i.dcd_init) refers to mdr32fxqi_rst_clk.o(i.RST_CLK_CPUclkSelectionC1) for RST_CLK_CPUclkSelectionC1
+    tusb_mdr32fxqi.o(i.dcd_init) refers to mdr32fxqi_rst_clk.o(i.RST_CLK_CPU_PLLconfig) for RST_CLK_CPU_PLLconfig
+    tusb_mdr32fxqi.o(i.dcd_init) refers to mdr32fxqi_rst_clk.o(i.RST_CLK_CPU_PLLcmd) for RST_CLK_CPU_PLLcmd
+    tusb_mdr32fxqi.o(i.dcd_init) refers to mdr32fxqi_rst_clk.o(i.RST_CLK_CPU_PLLstatus) for RST_CLK_CPU_PLLstatus
+    tusb_mdr32fxqi.o(i.dcd_init) refers to mdr32fxqi_rst_clk.o(i.RST_CLK_CPU_PLLuse) for RST_CLK_CPU_PLLuse
+    tusb_mdr32fxqi.o(i.dcd_init) refers to mdr32fxqi_rst_clk.o(i.RST_CLK_CPUclkPrescaler) for RST_CLK_CPUclkPrescaler
+    tusb_mdr32fxqi.o(i.dcd_init) refers to mdr32fxqi_rst_clk.o(i.RST_CLK_CPUclkSelection) for RST_CLK_CPUclkSelection
+    tusb_mdr32fxqi.o(i.dcd_init) refers to mdr32fxqi_rst_clk.o(i.RST_CLK_PCLKcmd) for RST_CLK_PCLKcmd
+    tusb_mdr32fxqi.o(i.dcd_init) refers to mdr32fxqi_usb.o(i.USB_BRGInit) for USB_BRGInit
+    tusb_mdr32fxqi.o(i.dcd_init) refers to mdr32fxqi_usb.o(i.USB_Reset) for USB_Reset
+    tusb_mdr32fxqi.o(i.dcd_init) refers to mdr32fxqi_usb.o(i.USB_SetHSCR) for USB_SetHSCR
+    tusb_mdr32fxqi.o(i.dcd_init) refers to mdr32fxqi_usb.o(i.USB_SetSC) for USB_SetSC
+    tusb_mdr32fxqi.o(i.dcd_init) refers to mdr32fxqi_usb.o(i.USB_SetSEPxCTRL) for USB_SetSEPxCTRL
+    tusb_mdr32fxqi.o(i.dcd_init) refers to tusb_mdr32fxqi.o(i.get_class_by_endpoint) for get_class_by_endpoint
+    tusb_mdr32fxqi.o(i.dcd_init) refers to mdr32fxqi_usb.o(i.USB_SetSIM) for USB_SetSIM
+    tusb_mdr32fxqi.o(i.dcd_init) refers to tusb_mdr32fxqi.o(.constdata) for .constdata
+    tusb_mdr32fxqi.o(i.dcd_int_handler) refers to tusb_mdr32fxqi.o(i.handle_usb_device_reset) for handle_usb_device_reset
+    tusb_mdr32fxqi.o(i.dcd_int_handler) refers to mdr32fxqi_usb.o(i.USB_SetSIS) for USB_SetSIS
+    tusb_mdr32fxqi.o(i.dcd_int_handler) refers to mdr32fxqi_usb.o(i.USB_GetSIS) for USB_GetSIS
+    tusb_mdr32fxqi.o(i.dcd_int_handler) refers to usbd.o(i.dcd_event_handler) for dcd_event_handler
+    tusb_mdr32fxqi.o(i.dcd_int_handler) refers to mdr32fxqi_usb.o(i.USB_GetSEPxCTRL) for USB_GetSEPxCTRL
+    tusb_mdr32fxqi.o(i.dcd_int_handler) refers to mdr32fxqi_usb.o(i.USB_GetSEPxTS) for USB_GetSEPxTS
+    tusb_mdr32fxqi.o(i.dcd_int_handler) refers to mdr32fxqi_usb.o(i.USB_GetSEPxSTS) for USB_GetSEPxSTS
+    tusb_mdr32fxqi.o(i.dcd_int_handler) refers to mdr32fxqi_usb.o(i.USB_SetSEPxCTRL) for USB_SetSEPxCTRL
+    tusb_mdr32fxqi.o(i.dcd_int_handler) refers to mdr32fxqi_usb.o(i.USB_GetSEPxRXFD) for USB_GetSEPxRXFD
+    tusb_mdr32fxqi.o(i.dcd_int_handler) refers to mdr32fxqi_usb.o(i.USB_SetSEPxRXFC) for USB_SetSEPxRXFC
+    tusb_mdr32fxqi.o(i.dcd_int_handler) refers to mdr32fxqi_usb.o(i.USB_SEPxToggleEPDATASEQ) for USB_SEPxToggleEPDATASEQ
+    tusb_mdr32fxqi.o(i.dcd_int_handler) refers to usbd.o(i.tud_task_ext) for tud_task_ext
+    tusb_mdr32fxqi.o(i.dcd_int_handler) refers to mdr32fxqi_usb.o(i.USB_SetSEPxTXFDC) for USB_SetSEPxTXFDC
+    tusb_mdr32fxqi.o(i.dcd_int_handler) refers to mdr32fxqi_usb.o(i.USB_SetSA) for USB_SetSA
+    tusb_mdr32fxqi.o(i.dcd_int_handler) refers to tusb_mdr32fxqi.o(i.handle_ep0_out) for handle_ep0_out
+    tusb_mdr32fxqi.o(i.dcd_int_handler) refers to tusb_mdr32fxqi.o(i.handle_ep_out) for handle_ep_out
+    tusb_mdr32fxqi.o(i.dcd_int_handler) refers to tusb_mdr32fxqi.o(.data) for .data
+    tusb_mdr32fxqi.o(i.dcd_int_handler) refers to tusb_mdr32fxqi.o(.bss) for .bss
+    tusb_mdr32fxqi.o(i.dcd_set_address) refers to tusb_mdr32fxqi.o(.data) for .data
+    tusb_mdr32fxqi.o(i.get_class_by_endpoint) refers to usb_descriptors.o(i.tud_descriptor_configuration_cb) for tud_descriptor_configuration_cb
+    tusb_mdr32fxqi.o(i.get_class_by_endpoint) refers to tusb_mdr32fxqi.o(.bss) for .bss
+    tusb_mdr32fxqi.o(i.get_class_by_endpoint) refers to tusb_mdr32fxqi.o(.data) for .data
+    tusb_mdr32fxqi.o(i.handle_ep0_in) refers to mdr32fxqi_usb.o(i.USB_SetSEPxTXFDC) for USB_SetSEPxTXFDC
+    tusb_mdr32fxqi.o(i.handle_ep0_in) refers to mdr32fxqi_usb.o(i.USB_SetSEPxCTRL) for USB_SetSEPxCTRL
+    tusb_mdr32fxqi.o(i.handle_ep0_in) refers to mdr32fxqi_usb.o(i.USB_SetSEPxTXFD) for USB_SetSEPxTXFD
+    tusb_mdr32fxqi.o(i.handle_ep0_in) refers to tusb_mdr32fxqi.o(.bss) for .bss
+    tusb_mdr32fxqi.o(i.handle_ep0_out) refers to mdr32fxqi_usb.o(i.USB_GetSEPxRXFDC) for USB_GetSEPxRXFDC
+    tusb_mdr32fxqi.o(i.handle_ep0_out) refers to mdr32fxqi_usb.o(i.USB_GetSEPxRXFD) for USB_GetSEPxRXFD
+    tusb_mdr32fxqi.o(i.handle_ep0_out) refers to mdr32fxqi_usb.o(i.USB_SetSEPxRXFC) for USB_SetSEPxRXFC
+    tusb_mdr32fxqi.o(i.handle_ep0_out) refers to usbd.o(i.dcd_event_handler) for dcd_event_handler
+    tusb_mdr32fxqi.o(i.handle_ep0_out) refers to tusb_mdr32fxqi.o(.bss) for .bss
+    tusb_mdr32fxqi.o(i.handle_ep_in) refers to mdr32fxqi_usb.o(i.USB_SetSEPxTXFDC) for USB_SetSEPxTXFDC
+    tusb_mdr32fxqi.o(i.handle_ep_in) refers to mdr32fxqi_usb.o(i.USB_SetSEPxCTRL) for USB_SetSEPxCTRL
+    tusb_mdr32fxqi.o(i.handle_ep_in) refers to mdr32fxqi_usb.o(i.USB_SetSEPxTXFD) for USB_SetSEPxTXFD
+    tusb_mdr32fxqi.o(i.handle_ep_in) refers to tusb_mdr32fxqi.o(.bss) for .bss
+    tusb_mdr32fxqi.o(i.handle_ep_out) refers to mdr32fxqi_usb.o(i.USB_GetSEPxRXFDC) for USB_GetSEPxRXFDC
+    tusb_mdr32fxqi.o(i.handle_ep_out) refers to mdr32fxqi_usb.o(i.USB_GetSEPxRXFD) for USB_GetSEPxRXFD
+    tusb_mdr32fxqi.o(i.handle_ep_out) refers to mdr32fxqi_usb.o(i.USB_SetSEPxRXFC) for USB_SetSEPxRXFC
+    tusb_mdr32fxqi.o(i.handle_ep_out) refers to usbd.o(i.dcd_event_handler) for dcd_event_handler
+    tusb_mdr32fxqi.o(i.handle_ep_out) refers to tusb_mdr32fxqi.o(.bss) for .bss
+    tusb_mdr32fxqi.o(i.handle_usb_device_reset) refers to mdr32fxqi_usb.o(i.USB_SetSA) for USB_SetSA
+    tusb_mdr32fxqi.o(i.handle_usb_device_reset) refers to mdr32fxqi_usb.o(i.USB_SetSEPxTXFDC) for USB_SetSEPxTXFDC
+    tusb_mdr32fxqi.o(i.handle_usb_device_reset) refers to mdr32fxqi_usb.o(i.USB_SetSEPxRXFC) for USB_SetSEPxRXFC
+    tusb_mdr32fxqi.o(i.handle_usb_device_reset) refers to mdr32fxqi_usb.o(i.USB_SetSEPxCTRL) for USB_SetSEPxCTRL
+    tusb_mdr32fxqi.o(i.handle_usb_device_reset) refers to usbd.o(i.dcd_event_handler) for dcd_event_handler
+    tusb_mdr32fxqi.o(i.handle_usb_device_reset) refers to tusb_mdr32fxqi.o(.data) for .data
+    tusb_mdr32fxqi.o(i.handle_usb_device_reset) refers to tusb_mdr32fxqi.o(.bss) for .bss
+    msc_device.o(i.fail_scsi_op) refers to msc_device.o(i.tud_msc_set_sense) for tud_msc_set_sense
+    msc_device.o(i.fail_scsi_op) refers to usbd.o(i.usbd_edpt_stall) for usbd_edpt_stall
+    msc_device.o(i.mscd_control_xfer_cb) refers to usbd.o(i.usbd_edpt_stall) for usbd_edpt_stall
+    msc_device.o(i.mscd_control_xfer_cb) refers to rt_memcpy_w.o(.text) for __aeabi_memcpy4
+    msc_device.o(i.mscd_control_xfer_cb) refers to usbd.o(i.usbd_edpt_xfer) for usbd_edpt_xfer
+    msc_device.o(i.mscd_control_xfer_cb) refers to usbd.o(i.usbd_edpt_busy) for usbd_edpt_busy
+    msc_device.o(i.mscd_control_xfer_cb) refers to usbd.o(i.usbd_edpt_stalled) for usbd_edpt_stalled
+    msc_device.o(i.mscd_control_xfer_cb) refers to msc_device.o(i.proc_bot_reset) for proc_bot_reset
+    msc_device.o(i.mscd_control_xfer_cb) refers to usbd_control.o(i.tud_control_status) for tud_control_status
+    msc_device.o(i.mscd_control_xfer_cb) refers to msc_device.o(i.tud_msc_get_maxlun_cb) for tud_msc_get_maxlun_cb
+    msc_device.o(i.mscd_control_xfer_cb) refers to usbd_control.o(i.tud_control_xfer) for tud_control_xfer
+    msc_device.o(i.mscd_control_xfer_cb) refers to msc_device.o(.bss) for .bss
+    msc_device.o(i.mscd_init) refers to rt_memclr_w.o(.text) for __aeabi_memclr4
+    msc_device.o(i.mscd_init) refers to msc_device.o(.bss) for .bss
+    msc_device.o(i.mscd_open) refers to usbd.o(i.usbd_open_edpt_pair) for usbd_open_edpt_pair
+    msc_device.o(i.mscd_open) refers to usbd.o(i.usbd_edpt_xfer) for usbd_edpt_xfer
+    msc_device.o(i.mscd_open) refers to msc_device.o(.bss) for .bss
+    msc_device.o(i.mscd_reset) refers to rt_memclr_w.o(.text) for __aeabi_memclr4
+    msc_device.o(i.mscd_reset) refers to msc_device.o(.bss) for .bss
+    msc_device.o(i.mscd_xfer_cb) refers to usbd.o(i.usbd_edpt_stall) for usbd_edpt_stall
+    msc_device.o(i.mscd_xfer_cb) refers to rt_memcpy_v6.o(.text) for __aeabi_memcpy
+    msc_device.o(i.mscd_xfer_cb) refers to msc_device.o(i.proc_builtin_scsi) for proc_builtin_scsi
+    msc_device.o(i.mscd_xfer_cb) refers to msc_device.o(i.rdwr10_validate_cmd) for rdwr10_validate_cmd
+    msc_device.o(i.mscd_xfer_cb) refers to msc_device.o(i.fail_scsi_op) for fail_scsi_op
+    msc_device.o(i.mscd_xfer_cb) refers to msc_device.o(i.proc_write10_cmd) for proc_write10_cmd
+    msc_device.o(i.mscd_xfer_cb) refers to msc_device.o(i.proc_read10_cmd) for proc_read10_cmd
+    msc_device.o(i.mscd_xfer_cb) refers to usbd.o(i.usbd_edpt_xfer) for usbd_edpt_xfer
+    msc_device.o(i.mscd_xfer_cb) refers to msc_disk.o(i.tud_msc_scsi_cb) for tud_msc_scsi_cb
+    msc_device.o(i.mscd_xfer_cb) refers to msc_device.o(i.proc_write10_host_data) for proc_write10_host_data
+    msc_device.o(i.mscd_xfer_cb) refers to msc_device.o(i.tud_msc_scsi_complete_cb) for tud_msc_scsi_complete_cb
+    msc_device.o(i.mscd_xfer_cb) refers to msc_device.o(i.tud_msc_read10_complete_cb) for tud_msc_read10_complete_cb
+    msc_device.o(i.mscd_xfer_cb) refers to msc_device.o(i.tud_msc_write10_complete_cb) for tud_msc_write10_complete_cb
+    msc_device.o(i.mscd_xfer_cb) refers to msc_device.o(i.proc_stage_status) for proc_stage_status
+    msc_device.o(i.mscd_xfer_cb) refers to msc_device.o(.bss) for .bss
+    msc_device.o(i.proc_async_io_done) refers to msc_device.o(i.proc_read_io_data) for proc_read_io_data
+    msc_device.o(i.proc_async_io_done) refers to msc_device.o(i.proc_write_io_data) for proc_write_io_data
+    msc_device.o(i.proc_async_io_done) refers to msc_device.o(i.proc_stage_status) for proc_stage_status
+    msc_device.o(i.proc_async_io_done) refers to msc_device.o(.bss) for .bss
+    msc_device.o(i.proc_builtin_scsi) refers to msc_disk.o(i.tud_msc_test_unit_ready_cb) for tud_msc_test_unit_ready_cb
+    msc_device.o(i.proc_builtin_scsi) refers to msc_device.o(i.tud_msc_set_sense) for tud_msc_set_sense
+    msc_device.o(i.proc_builtin_scsi) refers to msc_disk.o(i.tud_msc_start_stop_cb) for tud_msc_start_stop_cb
+    msc_device.o(i.proc_builtin_scsi) refers to msc_device.o(i.tud_msc_prevent_allow_medium_removal_cb) for tud_msc_prevent_allow_medium_removal_cb
+    msc_device.o(i.proc_builtin_scsi) refers to msc_disk.o(i.tud_msc_capacity_cb) for tud_msc_capacity_cb
+    msc_device.o(i.proc_builtin_scsi) refers to rt_memcpy_v6.o(.text) for __aeabi_memcpy
+    msc_device.o(i.proc_builtin_scsi) refers to rt_memclr.o(.text) for __aeabi_memclr
+    msc_device.o(i.proc_builtin_scsi) refers to msc_disk.o(i.tud_msc_inquiry2_cb) for tud_msc_inquiry2_cb
+    msc_device.o(i.proc_builtin_scsi) refers to msc_device.o(i.tud_msc_inquiry_cb) for tud_msc_inquiry_cb
+    msc_device.o(i.proc_builtin_scsi) refers to msc_disk.o(i.tud_msc_is_writable_cb) for tud_msc_is_writable_cb
+    msc_device.o(i.proc_builtin_scsi) refers to rt_memcpy_w.o(.text) for __aeabi_memcpy4
+    msc_device.o(i.proc_builtin_scsi) refers to msc_device.o(i.tud_msc_request_sense_cb) for tud_msc_request_sense_cb
+    msc_device.o(i.proc_builtin_scsi) refers to msc_device.o(.bss) for .bss
+    msc_device.o(i.proc_builtin_scsi) refers to msc_device.o(.constdata) for .constdata
+    msc_device.o(i.proc_read10_cmd) refers to msc_disk.o(i.tud_msc_read10_cb) for tud_msc_read10_cb
+    msc_device.o(i.proc_read10_cmd) refers to msc_device.o(i.proc_read_io_data) for proc_read_io_data
+    msc_device.o(i.proc_read10_cmd) refers to msc_device.o(.bss) for .bss
+    msc_device.o(i.proc_read_io_data) refers to usbd.o(i.usbd_edpt_xfer) for usbd_edpt_xfer
+    msc_device.o(i.proc_read_io_data) refers to usbd.o(i.dcd_event_handler) for dcd_event_handler
+    msc_device.o(i.proc_read_io_data) refers to msc_device.o(i.tud_msc_set_sense) for tud_msc_set_sense
+    msc_device.o(i.proc_read_io_data) refers to msc_device.o(i.fail_scsi_op) for fail_scsi_op
+    msc_device.o(i.proc_read_io_data) refers to msc_device.o(.bss) for .bss
+    msc_device.o(i.proc_stage_status) refers to usbd.o(i.usbd_edpt_stalled) for usbd_edpt_stalled
+    msc_device.o(i.proc_stage_status) refers to usbd.o(i.usbd_edpt_stall) for usbd_edpt_stall
+    msc_device.o(i.proc_stage_status) refers to rt_memcpy_w.o(.text) for __aeabi_memcpy4
+    msc_device.o(i.proc_stage_status) refers to usbd.o(i.usbd_edpt_xfer) for usbd_edpt_xfer
+    msc_device.o(i.proc_stage_status) refers to msc_device.o(.bss) for .bss
+    msc_device.o(i.proc_write10_cmd) refers to msc_disk.o(i.tud_msc_is_writable_cb) for tud_msc_is_writable_cb
+    msc_device.o(i.proc_write10_cmd) refers to usbd.o(i.usbd_edpt_xfer) for usbd_edpt_xfer
+    msc_device.o(i.proc_write10_cmd) refers to msc_device.o(i.tud_msc_set_sense) for tud_msc_set_sense
+    msc_device.o(i.proc_write10_cmd) refers to msc_device.o(i.fail_scsi_op) for fail_scsi_op
+    msc_device.o(i.proc_write10_cmd) refers to msc_device.o(.bss) for .bss
+    msc_device.o(i.proc_write10_host_data) refers to msc_disk.o(i.tud_msc_write10_cb) for tud_msc_write10_cb
+    msc_device.o(i.proc_write10_host_data) refers to msc_device.o(i.proc_write_io_data) for proc_write_io_data
+    msc_device.o(i.proc_write10_host_data) refers to msc_device.o(.bss) for .bss
+    msc_device.o(i.proc_write_io_data) refers to msc_device.o(i.tud_msc_set_sense) for tud_msc_set_sense
+    msc_device.o(i.proc_write_io_data) refers to msc_device.o(i.fail_scsi_op) for fail_scsi_op
+    msc_device.o(i.proc_write_io_data) refers to rt_memmove_v6.o(.text) for __aeabi_memmove
+    msc_device.o(i.proc_write_io_data) refers to usbd.o(i.dcd_event_handler) for dcd_event_handler
+    msc_device.o(i.proc_write_io_data) refers to msc_device.o(i.proc_write10_cmd) for proc_write10_cmd
+    msc_device.o(i.proc_write_io_data) refers to msc_device.o(.bss) for .bss
+    msc_device.o(i.tud_msc_async_io_done) refers to usbd.o(i.usbd_defer_func) for usbd_defer_func
+    msc_device.o(i.tud_msc_async_io_done) refers to msc_device.o(.bss) for .bss
+    msc_device.o(i.tud_msc_async_io_done) refers to msc_device.o(i.proc_async_io_done) for proc_async_io_done
+    msc_device.o(i.tud_msc_set_sense) refers to msc_device.o(.bss) for .bss
+    msc_disk.o(i.tud_msc_inquiry2_cb) refers to strncpy.o(.text) for strncpy
+    msc_disk.o(i.tud_msc_read10_cb) refers to rt_memcpy_v6.o(.text) for __aeabi_memcpy
+    msc_disk.o(i.tud_msc_read10_cb) refers to msc_disk.o(.data) for .data
+    msc_disk.o(i.tud_msc_scsi_cb) refers to msc_device.o(i.tud_msc_set_sense) for tud_msc_set_sense
+    msc_disk.o(i.tud_msc_start_stop_cb) refers to msc_disk.o(.data) for .data
+    msc_disk.o(i.tud_msc_test_unit_ready_cb) refers to msc_device.o(i.tud_msc_set_sense) for tud_msc_set_sense
+    msc_disk.o(i.tud_msc_test_unit_ready_cb) refers to msc_disk.o(.data) for .data
+    msc_disk.o(i.tud_msc_write10_cb) refers to rt_memcpy_v6.o(.text) for __aeabi_memcpy
+    msc_disk.o(i.tud_msc_write10_cb) refers to msc_disk.o(.data) for .data
+    startup_mdr32f9q2i.o(STACK) refers (Special) to heapauxi.o(.text) for __use_two_region_memory
+    startup_mdr32f9q2i.o(HEAP) refers (Special) to heapauxi.o(.text) for __use_two_region_memory
+    startup_mdr32f9q2i.o(RESET) refers (Special) to heapauxi.o(.text) for __use_two_region_memory
+    startup_mdr32f9q2i.o(RESET) refers to startup_mdr32f9q2i.o(STACK) for __initial_sp
+    startup_mdr32f9q2i.o(RESET) refers to startup_mdr32f9q2i.o(.text) for Reset_Handler
+    startup_mdr32f9q2i.o(RESET) refers to tusb_mdr32fxqi.o(i.USB_IRQHandler) for USB_IRQHandler
+    startup_mdr32f9q2i.o(.text) refers (Special) to heapauxi.o(.text) for __use_two_region_memory
+    startup_mdr32f9q2i.o(.text) refers to system_mdr32f9q2i.o(i.SystemInit) for SystemInit
+    startup_mdr32f9q2i.o(.text) refers to __main.o(!!!main) for __main
+    startup_mdr32f9q2i.o(.text) refers to startup_mdr32f9q2i.o(HEAP) for Heap_Mem
+    startup_mdr32f9q2i.o(.text) refers to startup_mdr32f9q2i.o(STACK) for Stack_Mem
+    system_mdr32f9q2i.o(i.SystemCoreClockUpdate) refers to system_mdr32f9q2i.o(.data) for .data
+    system_mdr32f9q2i.o(i.SystemInit) refers to system_mdr32f9q2i.o(i.SystemCoreClockUpdate) for SystemCoreClockUpdate
+    system_mdr32f9q2i.o(i.SystemInit) refers to startup_mdr32f9q2i.o(RESET) for __Vectors
+    mdr32fxqi_rst_clk.o(i.RST_CLK_CPU_PLLstatus) refers to mdr32fxqi_rst_clk.o(i.RST_CLK_GetFlagStatus) for RST_CLK_GetFlagStatus
+    mdr32fxqi_rst_clk.o(i.RST_CLK_DeInit) refers to mdr32fxqi_rst_clk.o(i.RST_CLK_WarmDeInit) for RST_CLK_WarmDeInit
+    mdr32fxqi_rst_clk.o(i.RST_CLK_HSEstatus) refers to mdr32fxqi_rst_clk.o(i.RST_CLK_GetFlagStatus) for RST_CLK_GetFlagStatus
+    mdr32fxqi_rst_clk.o(i.RST_CLK_HSIstatus) refers to mdr32fxqi_rst_clk.o(i.RST_CLK_GetFlagStatus) for RST_CLK_GetFlagStatus
+    mdr32fxqi_rst_clk.o(i.RST_CLK_LSEstatus) refers to mdr32fxqi_rst_clk.o(i.RST_CLK_GetFlagStatus) for RST_CLK_GetFlagStatus
+    mdr32fxqi_rst_clk.o(i.RST_CLK_LSIstatus) refers to mdr32fxqi_rst_clk.o(i.RST_CLK_GetFlagStatus) for RST_CLK_GetFlagStatus
+    mdr32fxqi_rst_clk.o(i.RST_CLK_USB_PLLstatus) refers to mdr32fxqi_rst_clk.o(i.RST_CLK_GetFlagStatus) for RST_CLK_GetFlagStatus
+    mdr32fxqi_rst_clk.o(i.RST_CLK_WarmDeInit) refers to mdr32fxqi_rst_clk.o(i.RST_CLK_HSIcmd) for RST_CLK_HSIcmd
+    mdr32fxqi_rst_clk.o(i.RST_CLK_WarmDeInit) refers to mdr32fxqi_rst_clk.o(i.RST_CLK_HSIstatus) for RST_CLK_HSIstatus
+    mdr32fxqi_usb.o(i.USB_Reset) refers to mdr32fxqi_usb.o(i.USB_SetHSCR) for USB_SetHSCR
+    rt_memcpy_v6.o(.text) refers to rt_memcpy_w.o(.text) for __aeabi_memcpy4
+    rt_memmove_v6.o(.text) refers to rt_memcpy_v6.o(.text) for __aeabi_memcpy
+    rt_memmove_v6.o(.text) refers to rt_memmove_w.o(.text) for __memmove_aligned
+    aeabi_memset.o(.text) refers to rt_memclr.o(.text) for _memset
+    rt_memclr.o(.text) refers to rt_memclr_w.o(.text) for _memset_w
+    strncpy.o(.text) refers to rt_memclr.o(.text) for __aeabi_memclr
+    __main.o(!!!main) refers to __rtentry.o(.ARM.Collect$$rtentry$$00000000) for __rt_entry
+    __rtentry.o(.ARM.Collect$$rtentry$$00000000) refers (Special) to __rtentry2.o(.ARM.Collect$$rtentry$$0000000A) for __rt_entry_li
+    __rtentry.o(.ARM.Collect$$rtentry$$00000000) refers (Special) to __rtentry2.o(.ARM.Collect$$rtentry$$0000000D) for __rt_entry_main
+    __rtentry.o(.ARM.Collect$$rtentry$$00000000) refers (Special) to __rtentry2.o(.ARM.Collect$$rtentry$$0000000C) for __rt_entry_postli_1
+    __rtentry.o(.ARM.Collect$$rtentry$$00000000) refers (Special) to __rtentry2.o(.ARM.Collect$$rtentry$$00000009) for __rt_entry_postsh_1
+    __rtentry.o(.ARM.Collect$$rtentry$$00000000) refers (Special) to __rtentry2.o(.ARM.Collect$$rtentry$$00000002) for __rt_entry_presh_1
+    __rtentry.o(.ARM.Collect$$rtentry$$00000000) refers (Special) to __rtentry4.o(.ARM.Collect$$rtentry$$00000004) for __rt_entry_sh
+    rt_memmove_w.o(.text) refers to rt_memcpy_w.o(.text) for __aeabi_memcpy4
+    __rtentry2.o(.ARM.Collect$$rtentry$$00000008) refers to boardinit2.o(.text) for _platform_post_stackheap_init
+    __rtentry2.o(.ARM.Collect$$rtentry$$0000000A) refers to libinit.o(.ARM.Collect$$libinit$$00000000) for __rt_lib_init
+    __rtentry2.o(.ARM.Collect$$rtentry$$0000000B) refers to boardinit3.o(.text) for _platform_post_lib_init
+    __rtentry2.o(.ARM.Collect$$rtentry$$0000000D) refers to main.o(i.main) for main
+    __rtentry2.o(.ARM.Collect$$rtentry$$0000000D) refers to exit.o(.text) for exit
+    __rtentry2.o(.ARM.exidx) refers to __rtentry2.o(.ARM.Collect$$rtentry$$00000001) for .ARM.Collect$$rtentry$$00000001
+    __rtentry2.o(.ARM.exidx) refers to __rtentry2.o(.ARM.Collect$$rtentry$$00000008) for .ARM.Collect$$rtentry$$00000008
+    __rtentry2.o(.ARM.exidx) refers to __rtentry2.o(.ARM.Collect$$rtentry$$0000000A) for .ARM.Collect$$rtentry$$0000000A
+    __rtentry2.o(.ARM.exidx) refers to __rtentry2.o(.ARM.Collect$$rtentry$$0000000B) for .ARM.Collect$$rtentry$$0000000B
+    __rtentry2.o(.ARM.exidx) refers to __rtentry2.o(.ARM.Collect$$rtentry$$0000000D) for .ARM.Collect$$rtentry$$0000000D
+    __rtentry4.o(.ARM.Collect$$rtentry$$00000004) refers to sys_stackheap_outer.o(.text) for __user_setup_stackheap
+    __rtentry4.o(.ARM.exidx) refers to __rtentry4.o(.ARM.Collect$$rtentry$$00000004) for .ARM.Collect$$rtentry$$00000004
+    sys_stackheap_outer.o(.text) refers to libspace.o(.text) for __user_perproc_libspace
+    sys_stackheap_outer.o(.text) refers to startup_mdr32f9q2i.o(.text) for __user_initial_stackheap
+    exit.o(.text) refers to rtexit.o(.ARM.Collect$$rtexit$$00000000) for __rt_exit
+    libinit.o(.ARM.Collect$$libinit$$00000000) refers (Special) to libinit2.o(.ARM.Collect$$libinit$$0000002E) for __rt_lib_init_alloca_1
+    libinit.o(.ARM.Collect$$libinit$$00000000) refers (Special) to libinit2.o(.ARM.Collect$$libinit$$0000002C) for __rt_lib_init_argv_1
+    libinit.o(.ARM.Collect$$libinit$$00000000) refers (Special) to libinit2.o(.ARM.Collect$$libinit$$0000001B) for __rt_lib_init_atexit_1
+    libinit.o(.ARM.Collect$$libinit$$00000000) refers (Special) to libinit2.o(.ARM.Collect$$libinit$$00000021) for __rt_lib_init_clock_1
+    libinit.o(.ARM.Collect$$libinit$$00000000) refers (Special) to libinit2.o(.ARM.Collect$$libinit$$00000032) for __rt_lib_init_cpp_1
+    libinit.o(.ARM.Collect$$libinit$$00000000) refers (Special) to libinit2.o(.ARM.Collect$$libinit$$00000030) for __rt_lib_init_exceptions_1
+    libinit.o(.ARM.Collect$$libinit$$00000000) refers (Special) to libinit2.o(.ARM.Collect$$libinit$$00000002) for __rt_lib_init_fp_1
+    libinit.o(.ARM.Collect$$libinit$$00000000) refers (Special) to libinit2.o(.ARM.Collect$$libinit$$0000001F) for __rt_lib_init_fp_trap_1
+    libinit.o(.ARM.Collect$$libinit$$00000000) refers (Special) to libinit2.o(.ARM.Collect$$libinit$$00000023) for __rt_lib_init_getenv_1
+    libinit.o(.ARM.Collect$$libinit$$00000000) refers (Special) to libinit2.o(.ARM.Collect$$libinit$$0000000A) for __rt_lib_init_heap_1
+    libinit.o(.ARM.Collect$$libinit$$00000000) refers (Special) to libinit2.o(.ARM.Collect$$libinit$$00000011) for __rt_lib_init_lc_collate_1
+    libinit.o(.ARM.Collect$$libinit$$00000000) refers (Special) to libinit2.o(.ARM.Collect$$libinit$$00000013) for __rt_lib_init_lc_ctype_1
+    libinit.o(.ARM.Collect$$libinit$$00000000) refers (Special) to libinit2.o(.ARM.Collect$$libinit$$00000015) for __rt_lib_init_lc_monetary_1
+    libinit.o(.ARM.Collect$$libinit$$00000000) refers (Special) to libinit2.o(.ARM.Collect$$libinit$$00000017) for __rt_lib_init_lc_numeric_1
+    libinit.o(.ARM.Collect$$libinit$$00000000) refers (Special) to libinit2.o(.ARM.Collect$$libinit$$00000019) for __rt_lib_init_lc_time_1
+    libinit.o(.ARM.Collect$$libinit$$00000000) refers (Special) to libinit2.o(.ARM.Collect$$libinit$$00000004) for __rt_lib_init_preinit_1
+    libinit.o(.ARM.Collect$$libinit$$00000000) refers (Special) to libinit2.o(.ARM.Collect$$libinit$$0000000E) for __rt_lib_init_rand_1
+    libinit.o(.ARM.Collect$$libinit$$00000000) refers (Special) to libinit2.o(.ARM.Collect$$libinit$$00000033) for __rt_lib_init_return
+    libinit.o(.ARM.Collect$$libinit$$00000000) refers (Special) to libinit2.o(.ARM.Collect$$libinit$$0000001D) for __rt_lib_init_signal_1
+    libinit.o(.ARM.Collect$$libinit$$00000000) refers (Special) to libinit2.o(.ARM.Collect$$libinit$$00000025) for __rt_lib_init_stdio_1
+    libinit.o(.ARM.Collect$$libinit$$00000000) refers (Special) to libinit2.o(.ARM.Collect$$libinit$$0000000C) for __rt_lib_init_user_alloc_1
+    libspace.o(.text) refers to libspace.o(.bss) for __libspace_start
+    rtexit.o(.ARM.Collect$$rtexit$$00000000) refers (Special) to rtexit2.o(.ARM.Collect$$rtexit$$00000004) for __rt_exit_exit
+    rtexit.o(.ARM.Collect$$rtexit$$00000000) refers (Special) to rtexit2.o(.ARM.Collect$$rtexit$$00000003) for __rt_exit_ls
+    rtexit.o(.ARM.Collect$$rtexit$$00000000) refers (Special) to rtexit2.o(.ARM.Collect$$rtexit$$00000002) for __rt_exit_prels_1
+    rtexit.o(.ARM.exidx) refers (Special) to rtexit2.o(.ARM.Collect$$rtexit$$00000004) for __rt_exit_exit
+    rtexit.o(.ARM.exidx) refers (Special) to rtexit2.o(.ARM.Collect$$rtexit$$00000003) for __rt_exit_ls
+    rtexit.o(.ARM.exidx) refers (Special) to rtexit2.o(.ARM.Collect$$rtexit$$00000002) for __rt_exit_prels_1
+    rtexit.o(.ARM.exidx) refers to rtexit.o(.ARM.Collect$$rtexit$$00000000) for .ARM.Collect$$rtexit$$00000000
+    libinit2.o(.ARM.Collect$$libinit$$00000010) refers to libinit2.o(.ARM.Collect$$libinit$$0000000F) for .ARM.Collect$$libinit$$0000000F
+    libinit2.o(.ARM.Collect$$libinit$$00000012) refers to libinit2.o(.ARM.Collect$$libinit$$0000000F) for .ARM.Collect$$libinit$$0000000F
+    libinit2.o(.ARM.Collect$$libinit$$00000014) refers to libinit2.o(.ARM.Collect$$libinit$$0000000F) for .ARM.Collect$$libinit$$0000000F
+    libinit2.o(.ARM.Collect$$libinit$$00000016) refers to libinit2.o(.ARM.Collect$$libinit$$0000000F) for .ARM.Collect$$libinit$$0000000F
+    libinit2.o(.ARM.Collect$$libinit$$00000018) refers to libinit2.o(.ARM.Collect$$libinit$$0000000F) for .ARM.Collect$$libinit$$0000000F
+    libinit2.o(.ARM.Collect$$libinit$$00000026) refers to argv_veneer.o(.emb_text) for __ARM_argv_veneer
+    libinit2.o(.ARM.Collect$$libinit$$00000027) refers to argv_veneer.o(.emb_text) for __ARM_argv_veneer
+    rtexit2.o(.ARM.Collect$$rtexit$$00000003) refers to libshutdown.o(.ARM.Collect$$libshutdown$$00000000) for __rt_lib_shutdown
+    rtexit2.o(.ARM.Collect$$rtexit$$00000004) refers to sys_exit.o(.text) for _sys_exit
+    rtexit2.o(.ARM.exidx) refers to rtexit2.o(.ARM.Collect$$rtexit$$00000001) for .ARM.Collect$$rtexit$$00000001
+    rtexit2.o(.ARM.exidx) refers to rtexit2.o(.ARM.Collect$$rtexit$$00000003) for .ARM.Collect$$rtexit$$00000003
+    rtexit2.o(.ARM.exidx) refers to rtexit2.o(.ARM.Collect$$rtexit$$00000004) for .ARM.Collect$$rtexit$$00000004
+    argv_veneer.o(.emb_text) refers to no_argv.o(.text) for __ARM_get_argv
+    sys_exit.o(.text) refers (Special) to use_no_semi.o(.text) for __I$use$semihosting
+    sys_exit.o(.text) refers (Special) to indicate_semi.o(.text) for __semihosting_library_function
+    _get_argv_nomalloc.o(.text) refers (Special) to hrguard.o(.text) for __heap_region$guard
+    _get_argv_nomalloc.o(.text) refers to defsig_rtmem_outer.o(.text) for __rt_SIGRTMEM
+    _get_argv_nomalloc.o(.text) refers to sys_command.o(.text) for _sys_command_string
+    libshutdown.o(.ARM.Collect$$libshutdown$$00000000) refers (Special) to libshutdown2.o(.ARM.Collect$$libshutdown$$00000004) for __rt_lib_shutdown_cpp_1
+    libshutdown.o(.ARM.Collect$$libshutdown$$00000000) refers (Special) to libshutdown2.o(.ARM.Collect$$libshutdown$$00000002) for __rt_lib_shutdown_fini_1
+    libshutdown.o(.ARM.Collect$$libshutdown$$00000000) refers (Special) to libshutdown2.o(.ARM.Collect$$libshutdown$$00000009) for __rt_lib_shutdown_fp_trap_1
+    libshutdown.o(.ARM.Collect$$libshutdown$$00000000) refers (Special) to libshutdown2.o(.ARM.Collect$$libshutdown$$00000011) for __rt_lib_shutdown_heap_1
+    libshutdown.o(.ARM.Collect$$libshutdown$$00000000) refers (Special) to libshutdown2.o(.ARM.Collect$$libshutdown$$00000012) for __rt_lib_shutdown_return
+    libshutdown.o(.ARM.Collect$$libshutdown$$00000000) refers (Special) to libshutdown2.o(.ARM.Collect$$libshutdown$$0000000C) for __rt_lib_shutdown_signal_1
+    libshutdown.o(.ARM.Collect$$libshutdown$$00000000) refers (Special) to libshutdown2.o(.ARM.Collect$$libshutdown$$00000006) for __rt_lib_shutdown_stdio_1
+    libshutdown.o(.ARM.Collect$$libshutdown$$00000000) refers (Special) to libshutdown2.o(.ARM.Collect$$libshutdown$$0000000E) for __rt_lib_shutdown_user_alloc_1
+    sys_command.o(.text) refers (Special) to use_no_semi.o(.text) for __I$use$semihosting
+    sys_command.o(.text) refers (Special) to indicate_semi.o(.text) for __semihosting_library_function
+    defsig_rtmem_outer.o(.text) refers to defsig_rtmem_inner.o(.text) for __rt_SIGRTMEM_inner
+    defsig_rtmem_outer.o(.text) refers to defsig_exit.o(.text) for __sig_exit
+    defsig_rtmem_formal.o(.text) refers to rt_raise.o(.text) for __rt_raise
+    rt_raise.o(.text) refers to __raise.o(.text) for __raise
+    rt_raise.o(.text) refers to sys_exit.o(.text) for _sys_exit
+    defsig_exit.o(.text) refers to sys_exit.o(.text) for _sys_exit
+    defsig_rtmem_inner.o(.text) refers to defsig_general.o(.text) for __default_signal_display
+    __raise.o(.text) refers to defsig.o(CL$$defsig) for __default_signal_handler
+    defsig_general.o(.text) refers to sys_wrch.o(.text) for _ttywrch
+    sys_wrch.o(.text) refers (Special) to use_no_semi.o(.text) for __I$use$semihosting
+    sys_wrch.o(.text) refers (Special) to indicate_semi.o(.text) for __semihosting_library_function
+    defsig.o(CL$$defsig) refers to defsig_rtmem_inner.o(.text) for __rt_SIGRTMEM_inner
+    defsig_abrt_inner.o(.text) refers to defsig_general.o(.text) for __default_signal_display
+    defsig_fpe_inner.o(.text) refers to defsig_general.o(.text) for __default_signal_display
+    defsig_rtred_inner.o(.text) refers to defsig_general.o(.text) for __default_signal_display
+    defsig_stak_inner.o(.text) refers to defsig_general.o(.text) for __default_signal_display
+    defsig_pvfn_inner.o(.text) refers to defsig_general.o(.text) for __default_signal_display
+    defsig_cppl_inner.o(.text) refers to defsig_general.o(.text) for __default_signal_display
+    defsig_segv_inner.o(.text) refers to defsig_general.o(.text) for __default_signal_display
+    defsig_other.o(.text) refers to defsig_general.o(.text) for __default_signal_display
+
+
+==============================================================================
+
+Removing Unused input sections from the image.
+
+    Removing main.o(.rev16_text), (4 bytes).
+    Removing main.o(.revsh_text), (4 bytes).
+    Removing main.o(i.Delay), (14 bytes).
+    Removing main.o(i.cdc_task), (28 bytes).
+    Removing cdc_device.o(i.tud_cdc_configure), (24 bytes).
+    Removing cdc_device.o(i.tud_cdc_n_available), (20 bytes).
+    Removing cdc_device.o(i.tud_cdc_n_connected), (48 bytes).
+    Removing cdc_device.o(i.tud_cdc_n_get_line_coding), (24 bytes).
+    Removing cdc_device.o(i.tud_cdc_n_get_line_state), (20 bytes).
+    Removing cdc_device.o(i.tud_cdc_n_peek), (20 bytes).
+    Removing cdc_device.o(i.tud_cdc_n_read), (36 bytes).
+    Removing cdc_device.o(i.tud_cdc_n_read_flush), (40 bytes).
+    Removing cdc_device.o(i.tud_cdc_n_ready), (52 bytes).
+    Removing cdc_device.o(i.tud_cdc_n_set_wanted_char), (16 bytes).
+    Removing cdc_device.o(i.tud_cdc_n_write), (36 bytes).
+    Removing cdc_device.o(i.tud_cdc_n_write_available), (24 bytes).
+    Removing cdc_device.o(i.tud_cdc_n_write_clear), (24 bytes).
+    Removing cdc_device.o(i.tud_cdc_n_write_flush), (24 bytes).
+    Removing tusb_fifo.o(i.tu_fifo_advance_read_pointer), (18 bytes).
+    Removing tusb_fifo.o(i.tu_fifo_advance_write_pointer), (18 bytes).
+    Removing tusb_fifo.o(i.tu_fifo_correct_read_pointer), (22 bytes).
+    Removing tusb_fifo.o(i.tu_fifo_get_read_info), (122 bytes).
+    Removing tusb_fifo.o(i.tu_fifo_get_write_info), (114 bytes).
+    Removing tusb_fifo.o(i.tu_fifo_overflowed), (36 bytes).
+    Removing tusb_fifo.o(i.tu_fifo_peek), (8 bytes).
+    Removing tusb_fifo.o(i.tu_fifo_peek_n), (18 bytes).
+    Removing usbd.o(i.dcd_connect), (2 bytes).
+    Removing usbd.o(i.dcd_dcache_clean), (4 bytes).
+    Removing usbd.o(i.dcd_dcache_clean_invalidate), (4 bytes).
+    Removing usbd.o(i.dcd_dcache_invalidate), (4 bytes).
+    Removing usbd.o(i.dcd_deinit), (4 bytes).
+    Removing usbd.o(i.dcd_disconnect), (2 bytes).
+    Removing usbd.o(i.dcd_edpt_xfer_fifo), (4 bytes).
+    Removing usbd.o(i.tud_connect), (20 bytes).
+    Removing usbd.o(i.tud_connected), (16 bytes).
+    Removing usbd.o(i.tud_deinit), (124 bytes).
+    Removing usbd.o(i.tud_descriptor_device_qualifier_cb), (4 bytes).
+    Removing usbd.o(i.tud_disconnect), (20 bytes).
+    Removing usbd.o(i.tud_mounted), (16 bytes).
+    Removing usbd.o(i.tud_remote_wakeup), (44 bytes).
+    Removing usbd.o(i.tud_sof_cb_enable), (16 bytes).
+    Removing usbd.o(i.tud_speed_get), (12 bytes).
+    Removing usbd.o(i.tud_suspended), (16 bytes).
+    Removing usbd.o(i.tud_task_event_ready), (40 bytes).
+    Removing usbd.o(i.usbd_defer_func), (80 bytes).
+    Removing usbd.o(i.usbd_edpt_close), (60 bytes).
+    Removing usbd.o(i.usbd_edpt_iso_activate), (4 bytes).
+    Removing usbd.o(i.usbd_edpt_iso_alloc), (4 bytes).
+    Removing usbd.o(i.usbd_edpt_xfer_fifo), (76 bytes).
+    Removing usbd.o(i.usbd_sof_enable), (80 bytes).
+    Removing usbd.o(i.usbd_spin_lock), (32 bytes).
+    Removing usbd.o(i.usbd_spin_unlock), (32 bytes).
+    Removing tusb.o(i.tu_desc_find), (22 bytes).
+    Removing tusb.o(i.tu_desc_find2), (30 bytes).
+    Removing tusb.o(i.tu_desc_find3), (38 bytes).
+    Removing tusb.o(i.tu_desc_get_interface_total_len), (66 bytes).
+    Removing tusb.o(i.tu_edpt_stream_read), (32 bytes).
+    Removing tusb.o(i.tu_edpt_stream_write), (158 bytes).
+    Removing tusb.o(i.tu_edpt_stream_write_available), (50 bytes).
+    Removing tusb.o(i.tusb_app_phys_to_virt), (2 bytes).
+    Removing tusb.o(i.tusb_app_virt_to_phys), (2 bytes).
+    Removing tusb.o(i.tusb_deinit), (48 bytes).
+    Removing tusb.o(i.tusb_inited), (16 bytes).
+    Removing tusb.o(i.tusb_int_handler), (24 bytes).
+    Removing tusb.o(i.tusb_time_delay_ms_api), (22 bytes).
+    Removing tusb_mdr32fxqi.o(.rev16_text), (4 bytes).
+    Removing tusb_mdr32fxqi.o(.revsh_text), (4 bytes).
+    Removing tusb_mdr32fxqi.o(i.board_get_unique_id), (48 bytes).
+    Removing tusb_mdr32fxqi.o(i.dcd_connect), (2 bytes).
+    Removing tusb_mdr32fxqi.o(i.dcd_disconnect), (2 bytes).
+    Removing tusb_mdr32fxqi.o(i.dcd_edpt_close), (2 bytes).
+    Removing tusb_mdr32fxqi.o(i.dcd_remote_wakeup), (2 bytes).
+    Removing tusb_mdr32fxqi.o(i.tusb_time_millis_api), (4 bytes).
+    Removing tusb_mdr32fxqi.o(.data), (4 bytes).
+    Removing msc_device.o(i.mscd_deinit), (4 bytes).
+    Removing msc_device.o(i.proc_async_io_done), (72 bytes).
+    Removing msc_device.o(i.tud_msc_async_io_done), (48 bytes).
+    Removing msc_device.o(i.tud_msc_inquiry2_cb), (4 bytes).
+    Removing msc_device.o(i.tud_msc_is_writable_cb), (4 bytes).
+    Removing msc_device.o(i.tud_msc_start_stop_cb), (4 bytes).
+    Removing system_mdr32f9q2i.o(.rev16_text), (4 bytes).
+    Removing system_mdr32f9q2i.o(.revsh_text), (4 bytes).
+    Removing mdr32fxqi_port.o(.rev16_text), (4 bytes).
+    Removing mdr32fxqi_port.o(.revsh_text), (4 bytes).
+    Removing mdr32fxqi_port.o(i.PORT_DeInit), (20 bytes).
+    Removing mdr32fxqi_port.o(i.PORT_ReadInputData), (4 bytes).
+    Removing mdr32fxqi_port.o(i.PORT_ReadInputDataBit), (14 bytes).
+    Removing mdr32fxqi_port.o(i.PORT_ResetBits), (28 bytes).
+    Removing mdr32fxqi_port.o(i.PORT_SetBits), (28 bytes).
+    Removing mdr32fxqi_port.o(i.PORT_Write), (24 bytes).
+    Removing mdr32fxqi_port.o(i.PORT_WriteBit), (52 bytes).
+    Removing mdr32fxqi_rst_clk.o(.rev16_text), (4 bytes).
+    Removing mdr32fxqi_rst_clk.o(.revsh_text), (4 bytes).
+    Removing mdr32fxqi_rst_clk.o(i.RST_CLK_ADCclkEnable), (12 bytes).
+    Removing mdr32fxqi_rst_clk.o(i.RST_CLK_ADCclkPrescaler), (20 bytes).
+    Removing mdr32fxqi_rst_clk.o(i.RST_CLK_ADCclkSelection), (20 bytes).
+    Removing mdr32fxqi_rst_clk.o(i.RST_CLK_DeInit), (120 bytes).
+    Removing mdr32fxqi_rst_clk.o(i.RST_CLK_GetClocksFreq), (360 bytes).
+    Removing mdr32fxqi_rst_clk.o(i.RST_CLK_HSEclkPrescaler), (20 bytes).
+    Removing mdr32fxqi_rst_clk.o(i.RST_CLK_HSIadjust), (20 bytes).
+    Removing mdr32fxqi_rst_clk.o(i.RST_CLK_HSIclkPrescaler), (20 bytes).
+    Removing mdr32fxqi_rst_clk.o(i.RST_CLK_HSIcmd), (12 bytes).
+    Removing mdr32fxqi_rst_clk.o(i.RST_CLK_HSIstatus), (48 bytes).
+    Removing mdr32fxqi_rst_clk.o(i.RST_CLK_LSEconfig), (44 bytes).
+    Removing mdr32fxqi_rst_clk.o(i.RST_CLK_LSEstatus), (48 bytes).
+    Removing mdr32fxqi_rst_clk.o(i.RST_CLK_LSIadjust), (20 bytes).
+    Removing mdr32fxqi_rst_clk.o(i.RST_CLK_LSIcmd), (12 bytes).
+    Removing mdr32fxqi_rst_clk.o(i.RST_CLK_LSIstatus), (48 bytes).
+    Removing mdr32fxqi_rst_clk.o(i.RST_CLK_RTC_HSEclkEnable), (12 bytes).
+    Removing mdr32fxqi_rst_clk.o(i.RST_CLK_RTC_HSIclkEnable), (12 bytes).
+    Removing mdr32fxqi_rst_clk.o(i.RST_CLK_USB_PLLcmd), (12 bytes).
+    Removing mdr32fxqi_rst_clk.o(i.RST_CLK_USB_PLLconfig), (56 bytes).
+    Removing mdr32fxqi_rst_clk.o(i.RST_CLK_USB_PLLstatus), (48 bytes).
+    Removing mdr32fxqi_rst_clk.o(i.RST_CLK_USB_PLLuse), (12 bytes).
+    Removing mdr32fxqi_rst_clk.o(i.RST_CLK_USBclkEnable), (12 bytes).
+    Removing mdr32fxqi_rst_clk.o(i.RST_CLK_USBclkPrescaler), (12 bytes).
+    Removing mdr32fxqi_rst_clk.o(i.RST_CLK_WarmDeInit), (48 bytes).
+    Removing mdr32fxqi_usb.o(.rev16_text), (4 bytes).
+    Removing mdr32fxqi_usb.o(.revsh_text), (4 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_GetHFN), (12 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_GetHIM), (12 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_GetHIS), (12 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_GetHRXA), (12 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_GetHRXCS), (12 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_GetHRXE), (12 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_GetHRXFC), (12 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_GetHRXFD), (12 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_GetHRXFDC), (12 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_GetHRXP), (12 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_GetHRXS), (12 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_GetHSCR), (12 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_GetHSTM), (12 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_GetHSVR), (32 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_GetHTXA), (12 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_GetHTXC), (12 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_GetHTXE), (12 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_GetHTXFC), (12 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_GetHTXFD), (12 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_GetHTXLC), (12 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_GetHTXSE), (12 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_GetHTXT), (12 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_GetSA), (12 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_GetSC), (12 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_GetSEPxNTS), (16 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_GetSEPxRXFC), (16 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_GetSEPxTXFD), (16 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_GetSEPxTXFDC), (16 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_GetSFN), (12 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_GetSIM), (12 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_GetSLS), (12 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_SetHIM), (20 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_SetHIS), (20 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_SetHRXFC), (12 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_SetHTXA), (12 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_SetHTXC), (20 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_SetHTXE), (12 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_SetHTXFC), (12 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_SetHTXFD), (12 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_SetHTXLC), (20 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_SetHTXSE), (20 bytes).
+    Removing mdr32fxqi_usb.o(i.USB_SetHTXT), (12 bytes).
+
+161 unused section(s) (total 4082 bytes) removed from the image.
+
+==============================================================================
+
+Image Symbol Table
+
+    Local Symbols
+
+    Symbol Name                              Value     Ov Type        Size  Object(Section)
+
+    ../clib/angel/boardlib.s                 0x00000000   Number         0  boardinit3.o ABSOLUTE
+    ../clib/angel/boardlib.s                 0x00000000   Number         0  boardinit2.o ABSOLUTE
+    ../clib/angel/boardlib.s                 0x00000000   Number         0  boardinit1.o ABSOLUTE
+    ../clib/angel/boardlib.s                 0x00000000   Number         0  boardshut.o ABSOLUTE
+    ../clib/angel/dczerorl2.s                0x00000000   Number         0  __dczerorl2.o ABSOLUTE
+    ../clib/angel/handlers.s                 0x00000000   Number         0  __scatter_zi.o ABSOLUTE
+    ../clib/angel/kernel.s                   0x00000000   Number         0  rtexit.o ABSOLUTE
+    ../clib/angel/kernel.s                   0x00000000   Number         0  __rtentry2.o ABSOLUTE
+    ../clib/angel/kernel.s                   0x00000000   Number         0  rtexit2.o ABSOLUTE
+    ../clib/angel/kernel.s                   0x00000000   Number         0  __rtentry4.o ABSOLUTE
+    ../clib/angel/kernel.s                   0x00000000   Number         0  __rtentry.o ABSOLUTE
+    ../clib/angel/rt.s                       0x00000000   Number         0  rt_raise.o ABSOLUTE
+    ../clib/angel/scatter.s                  0x00000000   Number         0  __scatter.o ABSOLUTE
+    ../clib/angel/startup.s                  0x00000000   Number         0  __main.o ABSOLUTE
+    ../clib/angel/sys.s                      0x00000000   Number         0  libspace.o ABSOLUTE
+    ../clib/angel/sys.s                      0x00000000   Number         0  sys_stackheap_outer.o ABSOLUTE
+    ../clib/angel/sys.s                      0x00000000   Number         0  use_no_semi.o ABSOLUTE
+    ../clib/angel/sys.s                      0x00000000   Number         0  indicate_semi.o ABSOLUTE
+    ../clib/angel/sysapp.c                   0x00000000   Number         0  sys_wrch.o ABSOLUTE
+    ../clib/angel/sysapp.c                   0x00000000   Number         0  sys_exit.o ABSOLUTE
+    ../clib/angel/sysapp.c                   0x00000000   Number         0  sys_command.o ABSOLUTE
+    ../clib/armsys.c                         0x00000000   Number         0  argv_veneer.o ABSOLUTE
+    ../clib/armsys.c                         0x00000000   Number         0  argv_veneer.o ABSOLUTE
+    ../clib/armsys.c                         0x00000000   Number         0  _get_argv_nomalloc.o ABSOLUTE
+    ../clib/armsys.c                         0x00000000   Number         0  no_argv.o ABSOLUTE
+    ../clib/heapalloc.c                      0x00000000   Number         0  hrguard.o ABSOLUTE
+    ../clib/heapaux.c                        0x00000000   Number         0  heapauxi.o ABSOLUTE
+    ../clib/libinit.s                        0x00000000   Number         0  libshutdown2.o ABSOLUTE
+    ../clib/libinit.s                        0x00000000   Number         0  libinit2.o ABSOLUTE
+    ../clib/libinit.s                        0x00000000   Number         0  libinit.o ABSOLUTE
+    ../clib/libinit.s                        0x00000000   Number         0  libshutdown.o ABSOLUTE
+    ../clib/memcpset.s                       0x00000000   Number         0  strncpy.o ABSOLUTE
+    ../clib/memcpset.s                       0x00000000   Number         0  rt_memclr_w.o ABSOLUTE
+    ../clib/memcpset.s                       0x00000000   Number         0  rt_memclr.o ABSOLUTE
+    ../clib/memcpset.s                       0x00000000   Number         0  aeabi_memset.o ABSOLUTE
+    ../clib/memcpset.s                       0x00000000   Number         0  rt_memmove_w.o ABSOLUTE
+    ../clib/memcpset.s                       0x00000000   Number         0  rt_memcpy_v6.o ABSOLUTE
+    ../clib/memcpset.s                       0x00000000   Number         0  rt_memcpy_w.o ABSOLUTE
+    ../clib/memcpset.s                       0x00000000   Number         0  rt_memmove_v6.o ABSOLUTE
+    ../clib/signal.c                         0x00000000   Number         0  defsig_rtred_inner.o ABSOLUTE
+    ../clib/signal.c                         0x00000000   Number         0  __raise.o ABSOLUTE
+    ../clib/signal.c                         0x00000000   Number         0  defsig_general.o ABSOLUTE
+    ../clib/signal.c                         0x00000000   Number         0  defsig_segv_inner.o ABSOLUTE
+    ../clib/signal.c                         0x00000000   Number         0  defsig_abrt_inner.o ABSOLUTE
+    ../clib/signal.c                         0x00000000   Number         0  defsig_fpe_inner.o ABSOLUTE
+    ../clib/signal.c                         0x00000000   Number         0  defsig_stak_inner.o ABSOLUTE
+    ../clib/signal.c                         0x00000000   Number         0  defsig_pvfn_inner.o ABSOLUTE
+    ../clib/signal.c                         0x00000000   Number         0  defsig_cppl_inner.o ABSOLUTE
+    ../clib/signal.c                         0x00000000   Number         0  defsig_other.o ABSOLUTE
+    ../clib/signal.c                         0x00000000   Number         0  defsig_exit.o ABSOLUTE
+    ../clib/signal.c                         0x00000000   Number         0  defsig_rtmem_outer.o ABSOLUTE
+    ../clib/signal.c                         0x00000000   Number         0  defsig_rtmem_formal.o ABSOLUTE
+    ../clib/signal.c                         0x00000000   Number         0  defsig_rtmem_inner.o ABSOLUTE
+    ../clib/signal.s                         0x00000000   Number         0  defsig.o ABSOLUTE
+    ../clib/stdlib.c                         0x00000000   Number         0  exit.o ABSOLUTE
+    ../clib/string.c                         0x00000000   Number         0  strlen.o ABSOLUTE
+    ../fplib/fpinit.s                        0x00000000   Number         0  fpinit.o ABSOLUTE
+    C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\SPL\MDR32FxQI\src\MDR32FxQI_port.c 0x00000000   Number         0  mdr32fxqi_port.o ABSOLUTE
+    C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\SPL\MDR32FxQI\src\MDR32FxQI_rst_clk.c 0x00000000   Number         0  mdr32fxqi_rst_clk.o ABSOLUTE
+    C:\Users\lampadov.i\KEIL_pack\Milandr\MDR32FxQI\1.3.2\Libraries\SPL\MDR32FxQI\src\MDR32FxQI_usb.c 0x00000000   Number         0  mdr32fxqi_usb.o ABSOLUTE
+    C:\\Users\\lampadov.i\\KEIL_pack\\Milandr\\MDR32FxQI\\1.3.2\\Libraries\\SPL\\MDR32FxQI\\src\\MDR32FxQI_port.c 0x00000000   Number         0  mdr32fxqi_port.o ABSOLUTE
+    C:\\Users\\lampadov.i\\KEIL_pack\\Milandr\\MDR32FxQI\\1.3.2\\Libraries\\SPL\\MDR32FxQI\\src\\MDR32FxQI_rst_clk.c 0x00000000   Number         0  mdr32fxqi_rst_clk.o ABSOLUTE
+    C:\\Users\\lampadov.i\\KEIL_pack\\Milandr\\MDR32FxQI\\1.3.2\\Libraries\\SPL\\MDR32FxQI\\src\\MDR32FxQI_usb.c 0x00000000   Number         0  mdr32fxqi_usb.o ABSOLUTE
+    RTE\Device\MDR32F9Q2I\system_MDR32F9Q2I.c 0x00000000   Number         0  system_mdr32f9q2i.o ABSOLUTE
+    RTE\\Device\\MDR32F9Q2I\\startup_MDR32F9Q2I.S 0x00000000   Number         0  startup_mdr32f9q2i.o ABSOLUTE
+    RTE\\Device\\MDR32F9Q2I\\system_MDR32F9Q2I.c 0x00000000   Number         0  system_mdr32f9q2i.o ABSOLUTE
+    dc.s                                     0x00000000   Number         0  dc.o ABSOLUTE
+    main.c                                   0x00000000   Number         0  main.o ABSOLUTE
+    main.c                                   0x00000000   Number         0  main.o ABSOLUTE
+    src\\tusb_mdr32fxqi.c                    0x00000000   Number         0  tusb_mdr32fxqi.o ABSOLUTE
+    src\class\cdc\cdc_device.c               0x00000000   Number         0  cdc_device.o ABSOLUTE
+    src\class\msc\msc_device.c               0x00000000   Number         0  msc_device.o ABSOLUTE
+    src\common\tusb_fifo.c                   0x00000000   Number         0  tusb_fifo.o ABSOLUTE
+    src\device\usbd.c                        0x00000000   Number         0  usbd.o ABSOLUTE
+    src\device\usbd_control.c                0x00000000   Number         0  usbd_control.o ABSOLUTE
+    src\msc_disk.c                           0x00000000   Number         0  msc_disk.o ABSOLUTE
+    src\tusb.c                               0x00000000   Number         0  tusb.o ABSOLUTE
+    src\tusb_mdr32fxqi.c                     0x00000000   Number         0  tusb_mdr32fxqi.o ABSOLUTE
+    src\typec\usbc.c                         0x00000000   Number         0  usbc.o ABSOLUTE
+    src\usb_descriptors.c                    0x00000000   Number         0  usb_descriptors.o ABSOLUTE
+    RESET                                    0x08000000   Section      192  startup_mdr32f9q2i.o(RESET)
+    !!!main                                  0x080000c0   Section        8  __main.o(!!!main)
+    !!!scatter                               0x080000c8   Section       52  __scatter.o(!!!scatter)
+    !!dczerorl2                              0x080000fc   Section       90  __dczerorl2.o(!!dczerorl2)
+    !!handler_zi                             0x08000158   Section       28  __scatter_zi.o(!!handler_zi)
+    .ARM.Collect$$libinit$$00000000          0x08000174   Section        2  libinit.o(.ARM.Collect$$libinit$$00000000)
+    .ARM.Collect$$libinit$$00000002          0x08000176   Section        0  libinit2.o(.ARM.Collect$$libinit$$00000002)
+    .ARM.Collect$$libinit$$00000004          0x08000176   Section        0  libinit2.o(.ARM.Collect$$libinit$$00000004)
+    .ARM.Collect$$libinit$$0000000A          0x08000176   Section        0  libinit2.o(.ARM.Collect$$libinit$$0000000A)
+    .ARM.Collect$$libinit$$0000000C          0x08000176   Section        0  libinit2.o(.ARM.Collect$$libinit$$0000000C)
+    .ARM.Collect$$libinit$$0000000E          0x08000176   Section        0  libinit2.o(.ARM.Collect$$libinit$$0000000E)
+    .ARM.Collect$$libinit$$00000011          0x08000176   Section        0  libinit2.o(.ARM.Collect$$libinit$$00000011)
+    .ARM.Collect$$libinit$$00000013          0x08000176   Section        0  libinit2.o(.ARM.Collect$$libinit$$00000013)
+    .ARM.Collect$$libinit$$00000015          0x08000176   Section        0  libinit2.o(.ARM.Collect$$libinit$$00000015)
+    .ARM.Collect$$libinit$$00000017          0x08000176   Section        0  libinit2.o(.ARM.Collect$$libinit$$00000017)
+    .ARM.Collect$$libinit$$00000019          0x08000176   Section        0  libinit2.o(.ARM.Collect$$libinit$$00000019)
+    .ARM.Collect$$libinit$$0000001B          0x08000176   Section        0  libinit2.o(.ARM.Collect$$libinit$$0000001B)
+    .ARM.Collect$$libinit$$0000001D          0x08000176   Section        0  libinit2.o(.ARM.Collect$$libinit$$0000001D)
+    .ARM.Collect$$libinit$$0000001F          0x08000176   Section        0  libinit2.o(.ARM.Collect$$libinit$$0000001F)
+    .ARM.Collect$$libinit$$00000021          0x08000176   Section        0  libinit2.o(.ARM.Collect$$libinit$$00000021)
+    .ARM.Collect$$libinit$$00000023          0x08000176   Section        0  libinit2.o(.ARM.Collect$$libinit$$00000023)
+    .ARM.Collect$$libinit$$00000025          0x08000176   Section        0  libinit2.o(.ARM.Collect$$libinit$$00000025)
+    .ARM.Collect$$libinit$$0000002C          0x08000176   Section        0  libinit2.o(.ARM.Collect$$libinit$$0000002C)
+    .ARM.Collect$$libinit$$0000002E          0x08000176   Section        0  libinit2.o(.ARM.Collect$$libinit$$0000002E)
+    .ARM.Collect$$libinit$$00000030          0x08000176   Section        0  libinit2.o(.ARM.Collect$$libinit$$00000030)
+    .ARM.Collect$$libinit$$00000032          0x08000176   Section        0  libinit2.o(.ARM.Collect$$libinit$$00000032)
+    .ARM.Collect$$libinit$$00000033          0x08000176   Section        2  libinit2.o(.ARM.Collect$$libinit$$00000033)
+    .ARM.Collect$$libshutdown$$00000000      0x08000178   Section        2  libshutdown.o(.ARM.Collect$$libshutdown$$00000000)
+    .ARM.Collect$$libshutdown$$00000002      0x0800017a   Section        0  libshutdown2.o(.ARM.Collect$$libshutdown$$00000002)
+    .ARM.Collect$$libshutdown$$00000004      0x0800017a   Section        0  libshutdown2.o(.ARM.Collect$$libshutdown$$00000004)
+    .ARM.Collect$$libshutdown$$00000006      0x0800017a   Section        0  libshutdown2.o(.ARM.Collect$$libshutdown$$00000006)
+    .ARM.Collect$$libshutdown$$00000009      0x0800017a   Section        0  libshutdown2.o(.ARM.Collect$$libshutdown$$00000009)
+    .ARM.Collect$$libshutdown$$0000000C      0x0800017a   Section        0  libshutdown2.o(.ARM.Collect$$libshutdown$$0000000C)
+    .ARM.Collect$$libshutdown$$0000000E      0x0800017a   Section        0  libshutdown2.o(.ARM.Collect$$libshutdown$$0000000E)
+    .ARM.Collect$$libshutdown$$00000011      0x0800017a   Section        0  libshutdown2.o(.ARM.Collect$$libshutdown$$00000011)
+    .ARM.Collect$$libshutdown$$00000012      0x0800017a   Section        2  libshutdown2.o(.ARM.Collect$$libshutdown$$00000012)
+    .ARM.Collect$$rtentry$$00000000          0x0800017c   Section        0  __rtentry.o(.ARM.Collect$$rtentry$$00000000)
+    .ARM.Collect$$rtentry$$00000002          0x0800017c   Section        0  __rtentry2.o(.ARM.Collect$$rtentry$$00000002)
+    .ARM.Collect$$rtentry$$00000004          0x0800017c   Section        6  __rtentry4.o(.ARM.Collect$$rtentry$$00000004)
+    .ARM.Collect$$rtentry$$00000009          0x08000182   Section        0  __rtentry2.o(.ARM.Collect$$rtentry$$00000009)
+    .ARM.Collect$$rtentry$$0000000A          0x08000182   Section        4  __rtentry2.o(.ARM.Collect$$rtentry$$0000000A)
+    .ARM.Collect$$rtentry$$0000000C          0x08000186   Section        0  __rtentry2.o(.ARM.Collect$$rtentry$$0000000C)
+    .ARM.Collect$$rtentry$$0000000D          0x08000186   Section        8  __rtentry2.o(.ARM.Collect$$rtentry$$0000000D)
+    .ARM.Collect$$rtexit$$00000000           0x0800018e   Section        2  rtexit.o(.ARM.Collect$$rtexit$$00000000)
+    .ARM.Collect$$rtexit$$00000002           0x08000190   Section        0  rtexit2.o(.ARM.Collect$$rtexit$$00000002)
+    .ARM.Collect$$rtexit$$00000003           0x08000190   Section        4  rtexit2.o(.ARM.Collect$$rtexit$$00000003)
+    .ARM.Collect$$rtexit$$00000004           0x08000194   Section        6  rtexit2.o(.ARM.Collect$$rtexit$$00000004)
+    .text                                    0x0800019c   Section      104  startup_mdr32f9q2i.o(.text)
+    .text                                    0x08000204   Section        0  strlen.o(.text)
+    .text                                    0x08000242   Section      138  rt_memcpy_v6.o(.text)
+    .text                                    0x080002cc   Section      132  rt_memmove_v6.o(.text)
+    .text                                    0x08000350   Section      100  rt_memcpy_w.o(.text)
+    .text                                    0x080003b4   Section       16  aeabi_memset.o(.text)
+    .text                                    0x080003c4   Section       68  rt_memclr.o(.text)
+    .text                                    0x08000408   Section       78  rt_memclr_w.o(.text)
+    .text                                    0x08000456   Section       86  strncpy.o(.text)
+    .text                                    0x080004ac   Section        0  heapauxi.o(.text)
+    .text                                    0x080004b2   Section      122  rt_memmove_w.o(.text)
+    .text                                    0x0800052c   Section       74  sys_stackheap_outer.o(.text)
+    .text                                    0x08000576   Section        0  exit.o(.text)
+    .text                                    0x08000588   Section        8  libspace.o(.text)
+    .text                                    0x08000590   Section        0  sys_exit.o(.text)
+    .text                                    0x0800059c   Section        2  use_no_semi.o(.text)
+    .text                                    0x0800059e   Section        0  indicate_semi.o(.text)
+    i.PORT_Init                              0x080005a0   Section        0  mdr32fxqi_port.o(i.PORT_Init)
+    i.PORT_StructInit                        0x0800076c   Section        0  mdr32fxqi_port.o(i.PORT_StructInit)
+    i.RST_CLK_CPU_PLLcmd                     0x08000788   Section        0  mdr32fxqi_rst_clk.o(i.RST_CLK_CPU_PLLcmd)
+    i.RST_CLK_CPU_PLLconfig                  0x08000794   Section        0  mdr32fxqi_rst_clk.o(i.RST_CLK_CPU_PLLconfig)
+    i.RST_CLK_CPU_PLLstatus                  0x080007cc   Section        0  mdr32fxqi_rst_clk.o(i.RST_CLK_CPU_PLLstatus)
+    i.RST_CLK_CPU_PLLuse                     0x080007fc   Section        0  mdr32fxqi_rst_clk.o(i.RST_CLK_CPU_PLLuse)
+    i.RST_CLK_CPUclkPrescaler                0x08000808   Section        0  mdr32fxqi_rst_clk.o(i.RST_CLK_CPUclkPrescaler)
+    i.RST_CLK_CPUclkSelection                0x0800081c   Section        0  mdr32fxqi_rst_clk.o(i.RST_CLK_CPUclkSelection)
+    i.RST_CLK_CPUclkSelectionC1              0x08000830   Section        0  mdr32fxqi_rst_clk.o(i.RST_CLK_CPUclkSelectionC1)
+    i.RST_CLK_GetFlagStatus                  0x08000844   Section        0  mdr32fxqi_rst_clk.o(i.RST_CLK_GetFlagStatus)
+    i.RST_CLK_HSEconfig                      0x08000870   Section        0  mdr32fxqi_rst_clk.o(i.RST_CLK_HSEconfig)
+    i.RST_CLK_HSEstatus                      0x0800089c   Section        0  mdr32fxqi_rst_clk.o(i.RST_CLK_HSEstatus)
+    i.RST_CLK_PCLKcmd                        0x080008cc   Section        0  mdr32fxqi_rst_clk.o(i.RST_CLK_PCLKcmd)
+    i.SystemCoreClockUpdate                  0x080008e8   Section        0  system_mdr32f9q2i.o(i.SystemCoreClockUpdate)
+    i.SystemInit                             0x08000958   Section        0  system_mdr32f9q2i.o(i.SystemInit)
+    i.USB_BRGInit                            0x0800098c   Section        0  mdr32fxqi_usb.o(i.USB_BRGInit)
+    i.USB_GetSEPxCTRL                        0x080009b8   Section        0  mdr32fxqi_usb.o(i.USB_GetSEPxCTRL)
+    i.USB_GetSEPxRXFD                        0x080009c8   Section        0  mdr32fxqi_usb.o(i.USB_GetSEPxRXFD)
+    i.USB_GetSEPxRXFDC                       0x080009d8   Section        0  mdr32fxqi_usb.o(i.USB_GetSEPxRXFDC)
+    i.USB_GetSEPxSTS                         0x080009e8   Section        0  mdr32fxqi_usb.o(i.USB_GetSEPxSTS)
+    i.USB_GetSEPxTS                          0x080009f8   Section        0  mdr32fxqi_usb.o(i.USB_GetSEPxTS)
+    i.USB_GetSIS                             0x08000a08   Section        0  mdr32fxqi_usb.o(i.USB_GetSIS)
+    i.USB_IRQHandler                         0x08000a14   Section        0  tusb_mdr32fxqi.o(i.USB_IRQHandler)
+    i.USB_Reset                              0x08000a38   Section        0  mdr32fxqi_usb.o(i.USB_Reset)
+    i.USB_SEPxToggleEPDATASEQ                0x08000a58   Section        0  mdr32fxqi_usb.o(i.USB_SEPxToggleEPDATASEQ)
+    i.USB_SetHSCR                            0x08000a70   Section        0  mdr32fxqi_usb.o(i.USB_SetHSCR)
+    i.USB_SetSA                              0x08000a84   Section        0  mdr32fxqi_usb.o(i.USB_SetSA)
+    i.USB_SetSC                              0x08000a90   Section        0  mdr32fxqi_usb.o(i.USB_SetSC)
+    i.USB_SetSEPxCTRL                        0x08000aa4   Section        0  mdr32fxqi_usb.o(i.USB_SetSEPxCTRL)
+    i.USB_SetSEPxRXFC                        0x08000ac0   Section        0  mdr32fxqi_usb.o(i.USB_SetSEPxRXFC)
+    i.USB_SetSEPxTXFD                        0x08000ad0   Section        0  mdr32fxqi_usb.o(i.USB_SetSEPxTXFD)
+    i.USB_SetSEPxTXFDC                       0x08000ae0   Section        0  mdr32fxqi_usb.o(i.USB_SetSEPxTXFDC)
+    i.USB_SetSIM                             0x08000af0   Section        0  mdr32fxqi_usb.o(i.USB_SetSIM)
+    i.USB_SetSIS                             0x08000b04   Section        0  mdr32fxqi_usb.o(i.USB_SetSIS)
+    i._ff_pull_n                             0x08000b10   Section        0  tusb_fifo.o(i._ff_pull_n)
+    _ff_pull_n                               0x08000b11   Thumb Code    94  tusb_fifo.o(i._ff_pull_n)
+    i._ff_push_n                             0x08000b6e   Section        0  tusb_fifo.o(i._ff_push_n)
+    _ff_push_n                               0x08000b6f   Thumb Code    98  tusb_fifo.o(i._ff_push_n)
+    i._tu_fifo_peek                          0x08000bd0   Section        0  tusb_fifo.o(i._tu_fifo_peek)
+    _tu_fifo_peek                            0x08000bd1   Thumb Code    82  tusb_fifo.o(i._tu_fifo_peek)
+    i._tu_fifo_peek_n                        0x08000c22   Section        0  tusb_fifo.o(i._tu_fifo_peek_n)
+    _tu_fifo_peek_n                          0x08000c23   Thumb Code    86  tusb_fifo.o(i._tu_fifo_peek_n)
+    i._tu_fifo_read_n                        0x08000c78   Section        0  tusb_fifo.o(i._tu_fifo_read_n)
+    _tu_fifo_read_n                          0x08000c79   Thumb Code    36  tusb_fifo.o(i._tu_fifo_read_n)
+    i._tu_fifo_write_n                       0x08000c9c   Section        0  tusb_fifo.o(i._tu_fifo_write_n)
+    _tu_fifo_write_n                         0x08000c9d   Thumb Code   186  tusb_fifo.o(i._tu_fifo_write_n)
+    i.advance_index                          0x08000d56   Section        0  tusb_fifo.o(i.advance_index)
+    advance_index                            0x08000d57   Thumb Code    30  tusb_fifo.o(i.advance_index)
+    i.cdcd_control_xfer_cb                   0x08000d74   Section        0  cdc_device.o(i.cdcd_control_xfer_cb)
+    i.cdcd_deinit                            0x08000e78   Section        0  cdc_device.o(i.cdcd_deinit)
+    i.cdcd_init                              0x08000eac   Section        0  cdc_device.o(i.cdcd_init)
+    i.cdcd_open                              0x08000f40   Section        0  cdc_device.o(i.cdcd_open)
+    i.cdcd_reset                             0x080010f0   Section        0  cdc_device.o(i.cdcd_reset)
+    i.cdcd_xfer_cb                           0x08001138   Section        0  cdc_device.o(i.cdcd_xfer_cb)
+    i.configuration_reset                    0x08001228   Section        0  usbd.o(i.configuration_reset)
+    configuration_reset                      0x08001229   Thumb Code   108  usbd.o(i.configuration_reset)
+    i.data_stage_xact                        0x080012a0   Section        0  usbd_control.o(i.data_stage_xact)
+    data_stage_xact                          0x080012a1   Thumb Code    88  usbd_control.o(i.data_stage_xact)
+    i.dcd_edpt0_status_complete              0x080012fc   Section        0  usbd_control.o(i.dcd_edpt0_status_complete)
+    i.dcd_edpt_clear_stall                   0x08001300   Section        0  tusb_mdr32fxqi.o(i.dcd_edpt_clear_stall)
+    i.dcd_edpt_close_all                     0x08001328   Section        0  tusb_mdr32fxqi.o(i.dcd_edpt_close_all)
+    i.dcd_edpt_open                          0x0800132c   Section        0  tusb_mdr32fxqi.o(i.dcd_edpt_open)
+    i.dcd_edpt_stall                         0x08001354   Section        0  tusb_mdr32fxqi.o(i.dcd_edpt_stall)
+    i.dcd_edpt_xfer                          0x0800137c   Section        0  tusb_mdr32fxqi.o(i.dcd_edpt_xfer)
+    i.dcd_event_handler                      0x080013d8   Section        0  usbd.o(i.dcd_event_handler)
+    i.dcd_init                               0x0800162c   Section        0  tusb_mdr32fxqi.o(i.dcd_init)
+    i.dcd_int_disable                        0x080016b8   Section        0  tusb_mdr32fxqi.o(i.dcd_int_disable)
+    i.dcd_int_enable                         0x080016c4   Section        0  tusb_mdr32fxqi.o(i.dcd_int_enable)
+    i.dcd_int_handler                        0x080016d0   Section        0  tusb_mdr32fxqi.o(i.dcd_int_handler)
+    i.dcd_set_address                        0x080018c4   Section        0  tusb_mdr32fxqi.o(i.dcd_set_address)
+    i.dcd_sof_enable                         0x080018d0   Section        0  tusb_mdr32fxqi.o(i.dcd_sof_enable)
+    i.fail_scsi_op                           0x080018d2   Section        0  msc_device.o(i.fail_scsi_op)
+    fail_scsi_op                             0x080018d3   Thumb Code   100  msc_device.o(i.fail_scsi_op)
+    i.get_class_by_endpoint                  0x08001938   Section        0  tusb_mdr32fxqi.o(i.get_class_by_endpoint)
+    i.handle_ep0_in                          0x08001988   Section        0  tusb_mdr32fxqi.o(i.handle_ep0_in)
+    handle_ep0_in                            0x08001989   Thumb Code    64  tusb_mdr32fxqi.o(i.handle_ep0_in)
+    i.handle_ep0_out                         0x080019cc   Section        0  tusb_mdr32fxqi.o(i.handle_ep0_out)
+    handle_ep0_out                           0x080019cd   Thumb Code    76  tusb_mdr32fxqi.o(i.handle_ep0_out)
+    i.handle_ep_in                           0x08001a1c   Section        0  tusb_mdr32fxqi.o(i.handle_ep_in)
+    handle_ep_in                             0x08001a1d   Thumb Code    72  tusb_mdr32fxqi.o(i.handle_ep_in)
+    i.handle_ep_out                          0x08001a68   Section        0  tusb_mdr32fxqi.o(i.handle_ep_out)
+    handle_ep_out                            0x08001a69   Thumb Code    84  tusb_mdr32fxqi.o(i.handle_ep_out)
+    i.handle_usb_device_reset                0x08001ac0   Section        0  tusb_mdr32fxqi.o(i.handle_usb_device_reset)
+    i.invoke_class_control                   0x08001b38   Section        0  usbd.o(i.invoke_class_control)
+    invoke_class_control                     0x08001b39   Thumb Code    28  usbd.o(i.invoke_class_control)
+    i.main                                   0x08001b54   Section        0  main.o(i.main)
+    i.mscd_control_xfer_cb                   0x08001ba4   Section        0  msc_device.o(i.mscd_control_xfer_cb)
+    i.mscd_init                              0x08001cc8   Section        0  msc_device.o(i.mscd_init)
+    i.mscd_open                              0x08001cd4   Section        0  msc_device.o(i.mscd_open)
+    i.mscd_reset                             0x08001d3c   Section        0  msc_device.o(i.mscd_reset)
+    i.mscd_xfer_cb                           0x08001d48   Section        0  msc_device.o(i.mscd_xfer_cb)
+    i.proc_bot_reset                         0x08001fa8   Section        0  msc_device.o(i.proc_bot_reset)
+    proc_bot_reset                           0x08001fa9   Thumb Code    18  msc_device.o(i.proc_bot_reset)
+    i.proc_builtin_scsi                      0x08001fbc   Section        0  msc_device.o(i.proc_builtin_scsi)
+    proc_builtin_scsi                        0x08001fbd   Thumb Code   620  msc_device.o(i.proc_builtin_scsi)
+    i.proc_read10_cmd                        0x08002230   Section        0  msc_device.o(i.proc_read10_cmd)
+    proc_read10_cmd                          0x08002231   Thumb Code   114  msc_device.o(i.proc_read10_cmd)
+    i.proc_read_io_data                      0x080022a8   Section        0  msc_device.o(i.proc_read_io_data)
+    proc_read_io_data                        0x080022a9   Thumb Code   102  msc_device.o(i.proc_read_io_data)
+    i.proc_stage_status                      0x08002314   Section        0  msc_device.o(i.proc_stage_status)
+    proc_stage_status                        0x08002315   Thumb Code    98  msc_device.o(i.proc_stage_status)
+    i.proc_write10_cmd                       0x0800237c   Section        0  msc_device.o(i.proc_write10_cmd)
+    proc_write10_cmd                         0x0800237d   Thumb Code    68  msc_device.o(i.proc_write10_cmd)
+    i.proc_write10_host_data                 0x080023c4   Section        0  msc_device.o(i.proc_write10_host_data)
+    proc_write10_host_data                   0x080023c5   Thumb Code   108  msc_device.o(i.proc_write10_host_data)
+    i.proc_write_io_data                     0x08002434   Section        0  msc_device.o(i.proc_write_io_data)
+    proc_write_io_data                       0x08002435   Thumb Code   128  msc_device.o(i.proc_write_io_data)
+    i.process_control_request                0x080024b8   Section        0  usbd.o(i.process_control_request)
+    process_control_request                  0x080024b9   Thumb Code   740  usbd.o(i.process_control_request)
+    i.process_get_descriptor                 0x080027ac   Section        0  usbd.o(i.process_get_descriptor)
+    process_get_descriptor                   0x080027ad   Thumb Code   198  usbd.o(i.process_get_descriptor)
+    i.process_set_config                     0x08002874   Section        0  usbd.o(i.process_set_config)
+    process_set_config                       0x08002875   Thumb Code   282  usbd.o(i.process_set_config)
+    i.rdwr10_validate_cmd                    0x080029a0   Section        0  msc_device.o(i.rdwr10_validate_cmd)
+    rdwr10_validate_cmd                      0x080029a1   Thumb Code    96  msc_device.o(i.rdwr10_validate_cmd)
+    i.status_stage_xact                      0x08002a00   Section        0  usbd_control.o(i.status_stage_xact)
+    status_stage_xact                        0x08002a01   Thumb Code    18  usbd_control.o(i.status_stage_xact)
+    i.tu_edpt_bind_driver                    0x08002a12   Section        0  tusb.o(i.tu_edpt_bind_driver)
+    i.tu_edpt_claim                          0x08002a36   Section        0  tusb.o(i.tu_edpt_claim)
+    i.tu_edpt_release                        0x08002a6a   Section        0  tusb.o(i.tu_edpt_release)
+    i.tu_edpt_stream_deinit                  0x08002a8a   Section        0  tusb.o(i.tu_edpt_stream_deinit)
+    i.tu_edpt_stream_init                    0x08002a8e   Section        0  tusb.o(i.tu_edpt_stream_init)
+    i.tu_edpt_stream_read_xfer               0x08002ab8   Section        0  tusb.o(i.tu_edpt_stream_read_xfer)
+    i.tu_edpt_stream_write_xfer              0x08002b80   Section        0  tusb.o(i.tu_edpt_stream_write_xfer)
+    i.tu_edpt_stream_write_zlp_if_needed     0x08002bea   Section        0  tusb.o(i.tu_edpt_stream_write_zlp_if_needed)
+    i.tu_edpt_validate                       0x08002c4c   Section        0  tusb.o(i.tu_edpt_validate)
+    i.tu_fifo_clear                          0x08002cc0   Section        0  tusb_fifo.o(i.tu_fifo_clear)
+    i.tu_fifo_config                         0x08002cca   Section        0  tusb_fifo.o(i.tu_fifo_config)
+    i.tu_fifo_count                          0x08002cf6   Section        0  tusb_fifo.o(i.tu_fifo_count)
+    i.tu_fifo_full                           0x08002d18   Section        0  tusb_fifo.o(i.tu_fifo_full)
+    i.tu_fifo_read                           0x08002d3c   Section        0  tusb_fifo.o(i.tu_fifo_read)
+    i.tu_fifo_read_n                         0x08002d5c   Section        0  tusb_fifo.o(i.tu_fifo_read_n)
+    i.tu_fifo_remaining                      0x08002d62   Section        0  tusb_fifo.o(i.tu_fifo_remaining)
+    i.tu_fifo_set_overwritable               0x08002d88   Section        0  tusb_fifo.o(i.tu_fifo_set_overwritable)
+    i.tu_fifo_write                          0x08002d9e   Section        0  tusb_fifo.o(i.tu_fifo_write)
+    i.tu_fifo_write_n                        0x08002dea   Section        0  tusb_fifo.o(i.tu_fifo_write_n)
+    i.tud_cdc_line_coding_cb                 0x08002df0   Section        0  cdc_device.o(i.tud_cdc_line_coding_cb)
+    i.tud_cdc_line_state_cb                  0x08002df2   Section        0  cdc_device.o(i.tud_cdc_line_state_cb)
+    i.tud_cdc_notify_complete_cb             0x08002df4   Section        0  cdc_device.o(i.tud_cdc_notify_complete_cb)
+    i.tud_cdc_rx_cb                          0x08002df6   Section        0  cdc_device.o(i.tud_cdc_rx_cb)
+    i.tud_cdc_rx_wanted_cb                   0x08002df8   Section        0  cdc_device.o(i.tud_cdc_rx_wanted_cb)
+    i.tud_cdc_send_break_cb                  0x08002dfa   Section        0  cdc_device.o(i.tud_cdc_send_break_cb)
+    i.tud_cdc_tx_complete_cb                 0x08002dfc   Section        0  cdc_device.o(i.tud_cdc_tx_complete_cb)
+    i.tud_control_status                     0x08002e00   Section        0  usbd_control.o(i.tud_control_status)
+    i.tud_control_xfer                       0x08002e1c   Section        0  usbd_control.o(i.tud_control_xfer)
+    i.tud_descriptor_bos_cb                  0x08002e64   Section        0  usbd.o(i.tud_descriptor_bos_cb)
+    i.tud_descriptor_configuration_cb        0x08002e68   Section        0  usb_descriptors.o(i.tud_descriptor_configuration_cb)
+    i.tud_descriptor_device_cb               0x08002e70   Section        0  usb_descriptors.o(i.tud_descriptor_device_cb)
+    i.tud_descriptor_device_qualifier_cb     0x08002e78   Section        0  usb_descriptors.o(i.tud_descriptor_device_qualifier_cb)
+    i.tud_descriptor_other_speed_configuration_cb 0x08002e80   Section        0  usbd.o(i.tud_descriptor_other_speed_configuration_cb)
+    i.tud_descriptor_string_cb               0x08002e84   Section        0  usb_descriptors.o(i.tud_descriptor_string_cb)
+    i.tud_event_hook_cb                      0x08002edc   Section        0  usbd.o(i.tud_event_hook_cb)
+    i.tud_inited                             0x08002ee0   Section        0  usbd.o(i.tud_inited)
+    i.tud_mount_cb                           0x08002ef4   Section        0  usbd.o(i.tud_mount_cb)
+    i.tud_msc_capacity_cb                    0x08002ef6   Section        0  msc_disk.o(i.tud_msc_capacity_cb)
+    i.tud_msc_get_maxlun_cb                  0x08002f00   Section        0  msc_device.o(i.tud_msc_get_maxlun_cb)
+    i.tud_msc_inquiry2_cb                    0x08002f04   Section        0  msc_disk.o(i.tud_msc_inquiry2_cb)
+    i.tud_msc_inquiry_cb                     0x08002f70   Section        0  msc_device.o(i.tud_msc_inquiry_cb)
+    i.tud_msc_is_writable_cb                 0x08002f72   Section        0  msc_disk.o(i.tud_msc_is_writable_cb)
+    i.tud_msc_prevent_allow_medium_removal_cb 0x08002f76   Section        0  msc_device.o(i.tud_msc_prevent_allow_medium_removal_cb)
+    i.tud_msc_read10_cb                      0x08002f7c   Section        0  msc_disk.o(i.tud_msc_read10_cb)
+    i.tud_msc_read10_complete_cb             0x08002fb4   Section        0  msc_device.o(i.tud_msc_read10_complete_cb)
+    i.tud_msc_request_sense_cb               0x08002fb6   Section        0  msc_device.o(i.tud_msc_request_sense_cb)
+    i.tud_msc_scsi_cb                        0x08002fba   Section        0  msc_disk.o(i.tud_msc_scsi_cb)
+    i.tud_msc_scsi_complete_cb               0x08002fcc   Section        0  msc_device.o(i.tud_msc_scsi_complete_cb)
+    i.tud_msc_set_sense                      0x08002fd0   Section        0  msc_device.o(i.tud_msc_set_sense)
+    i.tud_msc_start_stop_cb                  0x08002fe0   Section        0  msc_disk.o(i.tud_msc_start_stop_cb)
+    i.tud_msc_test_unit_ready_cb             0x08002ff4   Section        0  msc_disk.o(i.tud_msc_test_unit_ready_cb)
+    i.tud_msc_write10_cb                     0x08003010   Section        0  msc_disk.o(i.tud_msc_write10_cb)
+    i.tud_msc_write10_complete_cb            0x08003038   Section        0  msc_device.o(i.tud_msc_write10_complete_cb)
+    i.tud_resume_cb                          0x0800303a   Section        0  usbd.o(i.tud_resume_cb)
+    i.tud_rhport_init                        0x0800303c   Section        0  usbd.o(i.tud_rhport_init)
+    i.tud_sof_cb                             0x080030ec   Section        0  usbd.o(i.tud_sof_cb)
+    i.tud_suspend_cb                         0x080030ee   Section        0  usbd.o(i.tud_suspend_cb)
+    i.tud_task_ext                           0x080030f0   Section        0  usbd.o(i.tud_task_ext)
+    i.tud_umount_cb                          0x0800326c   Section        0  usbd.o(i.tud_umount_cb)
+    i.tud_vendor_control_xfer_cb             0x0800326e   Section        0  usbd.o(i.tud_vendor_control_xfer_cb)
+    i.tusb_rhport_init                       0x08003274   Section        0  tusb.o(i.tusb_rhport_init)
+    i.usbd_app_driver_get_cb                 0x080032c4   Section        0  usbd.o(i.usbd_app_driver_get_cb)
+    i.usbd_control_reset                     0x080032cc   Section        0  usbd_control.o(i.usbd_control_reset)
+    i.usbd_control_set_complete_callback     0x080032d8   Section        0  usbd_control.o(i.usbd_control_set_complete_callback)
+    i.usbd_control_set_request               0x080032e4   Section        0  usbd_control.o(i.usbd_control_set_request)
+    i.usbd_control_xfer_cb                   0x080032fc   Section        0  usbd_control.o(i.usbd_control_xfer_cb)
+    i.usbd_edpt_busy                         0x080033a0   Section        0  usbd.o(i.usbd_edpt_busy)
+    i.usbd_edpt_claim                        0x080033bc   Section        0  usbd.o(i.usbd_edpt_claim)
+    i.usbd_edpt_clear_stall                  0x080033d8   Section        0  usbd.o(i.usbd_edpt_clear_stall)
+    i.usbd_edpt_open                         0x0800340c   Section        0  usbd.o(i.usbd_edpt_open)
+    i.usbd_edpt_release                      0x08003448   Section        0  usbd.o(i.usbd_edpt_release)
+    i.usbd_edpt_stall                        0x08003464   Section        0  usbd.o(i.usbd_edpt_stall)
+    i.usbd_edpt_stalled                      0x08003498   Section        0  usbd.o(i.usbd_edpt_stalled)
+    i.usbd_edpt_xfer                         0x080034b4   Section        0  usbd.o(i.usbd_edpt_xfer)
+    i.usbd_int_set                           0x08003500   Section        0  usbd.o(i.usbd_int_set)
+    i.usbd_open_edpt_pair                    0x08003514   Section        0  usbd.o(i.usbd_open_edpt_pair)
+    i.usbd_reset                             0x0800356a   Section        0  usbd.o(i.usbd_reset)
+    usbd_reset                               0x0800356b   Thumb Code    14  usbd.o(i.usbd_reset)
+    .constdata                               0x08003578   Section        2  main.o(.constdata)
+    .constdata                               0x0800357c   Section      108  usbd.o(.constdata)
+    _usbd_driver                             0x0800357c   Data          72  usbd.o(.constdata)
+    .constdata                               0x080035e8   Section        2  tusb.o(.constdata)
+    .constdata                               0x080035ea   Section        2  usb_descriptors.o(.constdata)
+    <Data1>                                  0x080035ea   Data           2  usb_descriptors.o(.constdata)
+    .constdata                               0x080035ec   Section      126  usb_descriptors.o(.constdata)
+    desc_device                              0x080035ec   Data          18  usb_descriptors.o(.constdata)
+    desc_fs_configuration                    0x080035fe   Data          98  usb_descriptors.o(.constdata)
+    .constdata                               0x0800366c   Section        2  tusb_mdr32fxqi.o(.constdata)
+    .constdata                               0x08003670   Section       34  msc_device.o(.constdata)
+    .conststring                             0x08003694   Section       48  usb_descriptors.o(.conststring)
+    .data                                    0x20000000   Section        1  cdc_device.o(.data)
+    _cdcd_cfg                                0x20000000   Data           1  cdc_device.o(.data)
+    .data                                    0x20000004   Section       36  usbd.o(.data)
+    _app_driver_count                        0x20000004   Data           1  usbd.o(.data)
+    _usbd_rhport                             0x20000005   Data           1  usbd.o(.data)
+    _usbd_queued_setup                       0x20000006   Data           1  usbd.o(.data)
+    _app_driver                              0x20000008   Data           4  usbd.o(.data)
+    _usbd_q                                  0x2000000c   Data           4  usbd.o(.data)
+    _usbd_spin                               0x20000010   Data           8  usbd.o(.data)
+    .data                                    0x20000028   Section        2  tusb.o(.data)
+    .data                                    0x2000002c   Section       24  usb_descriptors.o(.data)
+    string_desc_arr                          0x2000002c   Data          24  usb_descriptors.o(.data)
+    .data                                    0x20000044   Section       12  tusb_mdr32fxqi.o(.data)
+    .data                                    0x20000050   Section     8193  msc_disk.o(.data)
+    ejected                                  0x20000050   Data           1  msc_disk.o(.data)
+    msc_disk                                 0x20000051   Data        8192  msc_disk.o(.data)
+    .data                                    0x20002054   Section        4  system_mdr32f9q2i.o(.data)
+    .bss                                     0x20002058   Section      308  cdc_device.o(.bss)
+    _cdcd_itf                                0x20002058   Data         180  cdc_device.o(.bss)
+    _cdcd_epbuf                              0x2000210c   Data         128  cdc_device.o(.bss)
+    .bss                                     0x2000218c   Section       40  usbd.o(.bss)
+    _usbd_dev                                0x2000218c   Data          40  usbd.o(.bss)
+    .bss                                     0x200021b4   Section      192  usbd.o(.bss)
+    .bss                                     0x20002274   Section       84  usbd_control.o(.bss)
+    _ctrl_xfer                               0x20002274   Data          20  usbd_control.o(.bss)
+    _ctrl_epbuf                              0x20002288   Data          64  usbd_control.o(.bss)
+    .bss                                     0x200022c8   Section       66  usb_descriptors.o(.bss)
+    _desc_str                                0x200022c8   Data          66  usb_descriptors.o(.bss)
+    .bss                                     0x2000230c   Section       64  tusb_mdr32fxqi.o(.bss)
+    ep_state                                 0x2000230c   Data          64  tusb_mdr32fxqi.o(.bss)
+    .bss                                     0x2000234c   Section      128  msc_device.o(.bss)
+    _mscd_itf                                0x2000234c   Data          64  msc_device.o(.bss)
+    _mscd_epbuf                              0x2000238c   Data          64  msc_device.o(.bss)
+    .bss                                     0x200023cc   Section       96  libspace.o(.bss)
+    HEAP                                     0x20002430   Section      512  startup_mdr32f9q2i.o(HEAP)
+    Heap_Mem                                 0x20002430   Data         512  startup_mdr32f9q2i.o(HEAP)
+    STACK                                    0x20002630   Section     1024  startup_mdr32f9q2i.o(STACK)
+    Stack_Mem                                0x20002630   Data        1024  startup_mdr32f9q2i.o(STACK)
+    __initial_sp                             0x20002a30   Data           0  startup_mdr32f9q2i.o(STACK)
+
+    Global Symbols
+
+    Symbol Name                              Value     Ov Type        Size  Object(Section)
+
+    BuildAttributes$$THM_ISAv4$P$D$K$B$S$PE$A:L22UL41UL21$X:L11$S22US41US21$IEEE1$IW$USESV6$~STKCKD$USESV7$~SHL$OSPACE$ROPI$EBA8$UX$STANDARDLIB$REQ8$PRES8$EABIv2 0x00000000   Number         0  anon$$obj.o ABSOLUTE
+    __ARM_use_no_argv                        0x00000000   Number         0  main.o ABSOLUTE
+    __ARM_exceptions_init                     - Undefined Weak Reference
+    __alloca_initialize                       - Undefined Weak Reference
+    __arm_fini_                               - Undefined Weak Reference
+    __arm_preinit_                            - Undefined Weak Reference
+    __cpp_initialize__aeabi_                  - Undefined Weak Reference
+    __cxa_finalize                            - Undefined Weak Reference
+    __rt_locale                               - Undefined Weak Reference
+    __sigvec_lookup                           - Undefined Weak Reference
+    _atexit_init                              - Undefined Weak Reference
+    _call_atexit_fns                          - Undefined Weak Reference
+    _clock_init                               - Undefined Weak Reference
+    _fp_trap_init                             - Undefined Weak Reference
+    _fp_trap_shutdown                         - Undefined Weak Reference
+    _get_lc_collate                           - Undefined Weak Reference
+    _get_lc_ctype                             - Undefined Weak Reference
+    _get_lc_monetary                          - Undefined Weak Reference
+    _get_lc_numeric                           - Undefined Weak Reference
+    _get_lc_time                              - Undefined Weak Reference
+    _getenv_init                              - Undefined Weak Reference
+    _handle_redirection                       - Undefined Weak Reference
+    _init_alloc                               - Undefined Weak Reference
+    _init_user_alloc                          - Undefined Weak Reference
+    _initio                                   - Undefined Weak Reference
+    _rand_init                                - Undefined Weak Reference
+    _signal_finish                            - Undefined Weak Reference
+    _signal_init                              - Undefined Weak Reference
+    _terminate_alloc                          - Undefined Weak Reference
+    _terminate_user_alloc                     - Undefined Weak Reference
+    _terminateio                              - Undefined Weak Reference
+    __Vectors_Size                           0x000000c0   Number         0  startup_mdr32f9q2i.o ABSOLUTE
+    __Vectors                                0x08000000   Data           4  startup_mdr32f9q2i.o(RESET)
+    __Vectors_End                            0x080000c0   Data           0  startup_mdr32f9q2i.o(RESET)
+    __main                                   0x080000c1   Thumb Code     8  __main.o(!!!main)
+    __scatterload                            0x080000c9   Thumb Code     0  __scatter.o(!!!scatter)
+    __scatterload_rt2                        0x080000c9   Thumb Code    44  __scatter.o(!!!scatter)
+    __scatterload_rt2_thumb_only             0x080000c9   Thumb Code     0  __scatter.o(!!!scatter)
+    __scatterload_null                       0x080000d7   Thumb Code     0  __scatter.o(!!!scatter)
+    __decompress                             0x080000fd   Thumb Code    90  __dczerorl2.o(!!dczerorl2)
+    __decompress1                            0x080000fd   Thumb Code     0  __dczerorl2.o(!!dczerorl2)
+    __scatterload_zeroinit                   0x08000159   Thumb Code    28  __scatter_zi.o(!!handler_zi)
+    __rt_lib_init                            0x08000175   Thumb Code     0  libinit.o(.ARM.Collect$$libinit$$00000000)
+    __rt_lib_init_alloca_1                   0x08000177   Thumb Code     0  libinit2.o(.ARM.Collect$$libinit$$0000002E)
+    __rt_lib_init_argv_1                     0x08000177   Thumb Code     0  libinit2.o(.ARM.Collect$$libinit$$0000002C)
+    __rt_lib_init_atexit_1                   0x08000177   Thumb Code     0  libinit2.o(.ARM.Collect$$libinit$$0000001B)
+    __rt_lib_init_clock_1                    0x08000177   Thumb Code     0  libinit2.o(.ARM.Collect$$libinit$$00000021)
+    __rt_lib_init_cpp_1                      0x08000177   Thumb Code     0  libinit2.o(.ARM.Collect$$libinit$$00000032)
+    __rt_lib_init_exceptions_1               0x08000177   Thumb Code     0  libinit2.o(.ARM.Collect$$libinit$$00000030)
+    __rt_lib_init_fp_1                       0x08000177   Thumb Code     0  libinit2.o(.ARM.Collect$$libinit$$00000002)
+    __rt_lib_init_fp_trap_1                  0x08000177   Thumb Code     0  libinit2.o(.ARM.Collect$$libinit$$0000001F)
+    __rt_lib_init_getenv_1                   0x08000177   Thumb Code     0  libinit2.o(.ARM.Collect$$libinit$$00000023)
+    __rt_lib_init_heap_1                     0x08000177   Thumb Code     0  libinit2.o(.ARM.Collect$$libinit$$0000000A)
+    __rt_lib_init_lc_collate_1               0x08000177   Thumb Code     0  libinit2.o(.ARM.Collect$$libinit$$00000011)
+    __rt_lib_init_lc_ctype_1                 0x08000177   Thumb Code     0  libinit2.o(.ARM.Collect$$libinit$$00000013)
+    __rt_lib_init_lc_monetary_1              0x08000177   Thumb Code     0  libinit2.o(.ARM.Collect$$libinit$$00000015)
+    __rt_lib_init_lc_numeric_1               0x08000177   Thumb Code     0  libinit2.o(.ARM.Collect$$libinit$$00000017)
+    __rt_lib_init_lc_time_1                  0x08000177   Thumb Code     0  libinit2.o(.ARM.Collect$$libinit$$00000019)
+    __rt_lib_init_preinit_1                  0x08000177   Thumb Code     0  libinit2.o(.ARM.Collect$$libinit$$00000004)
+    __rt_lib_init_rand_1                     0x08000177   Thumb Code     0  libinit2.o(.ARM.Collect$$libinit$$0000000E)
+    __rt_lib_init_return                     0x08000177   Thumb Code     0  libinit2.o(.ARM.Collect$$libinit$$00000033)
+    __rt_lib_init_signal_1                   0x08000177   Thumb Code     0  libinit2.o(.ARM.Collect$$libinit$$0000001D)
+    __rt_lib_init_stdio_1                    0x08000177   Thumb Code     0  libinit2.o(.ARM.Collect$$libinit$$00000025)
+    __rt_lib_init_user_alloc_1               0x08000177   Thumb Code     0  libinit2.o(.ARM.Collect$$libinit$$0000000C)
+    __rt_lib_shutdown                        0x08000179   Thumb Code     0  libshutdown.o(.ARM.Collect$$libshutdown$$00000000)
+    __rt_lib_shutdown_cpp_1                  0x0800017b   Thumb Code     0  libshutdown2.o(.ARM.Collect$$libshutdown$$00000004)
+    __rt_lib_shutdown_fini_1                 0x0800017b   Thumb Code     0  libshutdown2.o(.ARM.Collect$$libshutdown$$00000002)
+    __rt_lib_shutdown_fp_trap_1              0x0800017b   Thumb Code     0  libshutdown2.o(.ARM.Collect$$libshutdown$$00000009)
+    __rt_lib_shutdown_heap_1                 0x0800017b   Thumb Code     0  libshutdown2.o(.ARM.Collect$$libshutdown$$00000011)
+    __rt_lib_shutdown_return                 0x0800017b   Thumb Code     0  libshutdown2.o(.ARM.Collect$$libshutdown$$00000012)
+    __rt_lib_shutdown_signal_1               0x0800017b   Thumb Code     0  libshutdown2.o(.ARM.Collect$$libshutdown$$0000000C)
+    __rt_lib_shutdown_stdio_1                0x0800017b   Thumb Code     0  libshutdown2.o(.ARM.Collect$$libshutdown$$00000006)
+    __rt_lib_shutdown_user_alloc_1           0x0800017b   Thumb Code     0  libshutdown2.o(.ARM.Collect$$libshutdown$$0000000E)
+    __rt_entry                               0x0800017d   Thumb Code     0  __rtentry.o(.ARM.Collect$$rtentry$$00000000)
+    __rt_entry_presh_1                       0x0800017d   Thumb Code     0  __rtentry2.o(.ARM.Collect$$rtentry$$00000002)
+    __rt_entry_sh                            0x0800017d   Thumb Code     0  __rtentry4.o(.ARM.Collect$$rtentry$$00000004)
+    __rt_entry_li                            0x08000183   Thumb Code     0  __rtentry2.o(.ARM.Collect$$rtentry$$0000000A)
+    __rt_entry_postsh_1                      0x08000183   Thumb Code     0  __rtentry2.o(.ARM.Collect$$rtentry$$00000009)
+    __rt_entry_main                          0x08000187   Thumb Code     0  __rtentry2.o(.ARM.Collect$$rtentry$$0000000D)
+    __rt_entry_postli_1                      0x08000187   Thumb Code     0  __rtentry2.o(.ARM.Collect$$rtentry$$0000000C)
+    __rt_exit                                0x0800018f   Thumb Code     0  rtexit.o(.ARM.Collect$$rtexit$$00000000)
+    __rt_exit_ls                             0x08000191   Thumb Code     0  rtexit2.o(.ARM.Collect$$rtexit$$00000003)
+    __rt_exit_prels_1                        0x08000191   Thumb Code     0  rtexit2.o(.ARM.Collect$$rtexit$$00000002)
+    __rt_exit_exit                           0x08000195   Thumb Code     0  rtexit2.o(.ARM.Collect$$rtexit$$00000004)
+    Reset_Handler                            0x0800019d   Thumb Code     8  startup_mdr32f9q2i.o(.text)
+    NMI_Handler                              0x080001a5   Thumb Code     2  startup_mdr32f9q2i.o(.text)
+    HardFault_Handler                        0x080001a7   Thumb Code     2  startup_mdr32f9q2i.o(.text)
+    MemManage_Handler                        0x080001a9   Thumb Code     2  startup_mdr32f9q2i.o(.text)
+    BusFault_Handler                         0x080001ab   Thumb Code     2  startup_mdr32f9q2i.o(.text)
+    UsageFault_Handler                       0x080001ad   Thumb Code     2  startup_mdr32f9q2i.o(.text)
+    SVC_Handler                              0x080001af   Thumb Code     2  startup_mdr32f9q2i.o(.text)
+    DebugMon_Handler                         0x080001b1   Thumb Code     2  startup_mdr32f9q2i.o(.text)
+    PendSV_Handler                           0x080001b3   Thumb Code     2  startup_mdr32f9q2i.o(.text)
+    SysTick_Handler                          0x080001b5   Thumb Code     2  startup_mdr32f9q2i.o(.text)
+    CAN1_IRQHandler                          0x080001b7   Thumb Code     2  startup_mdr32f9q2i.o(.text)
+    CAN2_IRQHandler                          0x080001b9   Thumb Code     2  startup_mdr32f9q2i.o(.text)
+    DMA_IRQHandler                           0x080001bd   Thumb Code     2  startup_mdr32f9q2i.o(.text)
+    UART1_IRQHandler                         0x080001bf   Thumb Code     2  startup_mdr32f9q2i.o(.text)
+    UART2_IRQHandler                         0x080001c1   Thumb Code     2  startup_mdr32f9q2i.o(.text)
+    SSP1_IRQHandler                          0x080001c3   Thumb Code     2  startup_mdr32f9q2i.o(.text)
+    I2C_IRQHandler                           0x080001c5   Thumb Code     2  startup_mdr32f9q2i.o(.text)
+    POWER_IRQHandler                         0x080001c7   Thumb Code     2  startup_mdr32f9q2i.o(.text)
+    WWDG_IRQHandler                          0x080001c9   Thumb Code     2  startup_mdr32f9q2i.o(.text)
+    Timer1_IRQHandler                        0x080001cb   Thumb Code     2  startup_mdr32f9q2i.o(.text)
+    Timer2_IRQHandler                        0x080001cd   Thumb Code     2  startup_mdr32f9q2i.o(.text)
+    Timer3_IRQHandler                        0x080001cf   Thumb Code     2  startup_mdr32f9q2i.o(.text)
+    ADC_IRQHandler                           0x080001d1   Thumb Code     2  startup_mdr32f9q2i.o(.text)
+    COMPARATOR_IRQHandler                    0x080001d3   Thumb Code     2  startup_mdr32f9q2i.o(.text)
+    SSP2_IRQHandler                          0x080001d5   Thumb Code     2  startup_mdr32f9q2i.o(.text)
+    BACKUP_IRQHandler                        0x080001d7   Thumb Code     2  startup_mdr32f9q2i.o(.text)
+    EXT_INT1_IRQHandler                      0x080001d9   Thumb Code     2  startup_mdr32f9q2i.o(.text)
+    EXT_INT2_IRQHandler                      0x080001db   Thumb Code     2  startup_mdr32f9q2i.o(.text)
+    EXT_INT3_IRQHandler                      0x080001dd   Thumb Code     2  startup_mdr32f9q2i.o(.text)
+    EXT_INT4_IRQHandler                      0x080001df   Thumb Code     2  startup_mdr32f9q2i.o(.text)
+    __user_initial_stackheap                 0x080001e1   Thumb Code     0  startup_mdr32f9q2i.o(.text)
+    strlen                                   0x08000205   Thumb Code    62  strlen.o(.text)
+    __aeabi_memcpy                           0x08000243   Thumb Code     0  rt_memcpy_v6.o(.text)
+    __rt_memcpy                              0x08000243   Thumb Code   138  rt_memcpy_v6.o(.text)
+    _memcpy_lastbytes                        0x080002a9   Thumb Code     0  rt_memcpy_v6.o(.text)
+    __aeabi_memmove                          0x080002cd   Thumb Code     0  rt_memmove_v6.o(.text)
+    __rt_memmove                             0x080002cd   Thumb Code   132  rt_memmove_v6.o(.text)
+    __memmove_lastfew                        0x0800032d   Thumb Code     0  rt_memmove_v6.o(.text)
+    __aeabi_memcpy4                          0x08000351   Thumb Code     0  rt_memcpy_w.o(.text)
+    __aeabi_memcpy8                          0x08000351   Thumb Code     0  rt_memcpy_w.o(.text)
+    __rt_memcpy_w                            0x08000351   Thumb Code   100  rt_memcpy_w.o(.text)
+    _memcpy_lastbytes_aligned                0x08000399   Thumb Code     0  rt_memcpy_w.o(.text)
+    __aeabi_memset                           0x080003b5   Thumb Code    16  aeabi_memset.o(.text)
+    __aeabi_memclr                           0x080003c5   Thumb Code     0  rt_memclr.o(.text)
+    __rt_memclr                              0x080003c5   Thumb Code    68  rt_memclr.o(.text)
+    _memset                                  0x080003c9   Thumb Code     0  rt_memclr.o(.text)
+    __aeabi_memclr4                          0x08000409   Thumb Code     0  rt_memclr_w.o(.text)
+    __aeabi_memclr8                          0x08000409   Thumb Code     0  rt_memclr_w.o(.text)
+    __rt_memclr_w                            0x08000409   Thumb Code    78  rt_memclr_w.o(.text)
+    _memset_w                                0x0800040d   Thumb Code     0  rt_memclr_w.o(.text)
+    strncpy                                  0x08000457   Thumb Code    86  strncpy.o(.text)
+    __use_two_region_memory                  0x080004ad   Thumb Code     2  heapauxi.o(.text)
+    __rt_heap_escrow$2region                 0x080004af   Thumb Code     2  heapauxi.o(.text)
+    __rt_heap_expand$2region                 0x080004b1   Thumb Code     2  heapauxi.o(.text)
+    __aeabi_memmove4                         0x080004b3   Thumb Code     0  rt_memmove_w.o(.text)
+    __aeabi_memmove8                         0x080004b3   Thumb Code     0  rt_memmove_w.o(.text)
+    __rt_memmove_w                           0x080004b3   Thumb Code   122  rt_memmove_w.o(.text)
+    __memmove_aligned                        0x080004d9   Thumb Code     0  rt_memmove_w.o(.text)
+    __memmove_lastfew_aligned                0x08000511   Thumb Code     0  rt_memmove_w.o(.text)
+    __user_setup_stackheap                   0x0800052d   Thumb Code    74  sys_stackheap_outer.o(.text)
+    exit                                     0x08000577   Thumb Code    18  exit.o(.text)
+    __user_libspace                          0x08000589   Thumb Code     8  libspace.o(.text)
+    __user_perproc_libspace                  0x08000589   Thumb Code     0  libspace.o(.text)
+    __user_perthread_libspace                0x08000589   Thumb Code     0  libspace.o(.text)
+    _sys_exit                                0x08000591   Thumb Code     8  sys_exit.o(.text)
+    __I$use$semihosting                      0x0800059d   Thumb Code     0  use_no_semi.o(.text)
+    __use_no_semihosting_swi                 0x0800059d   Thumb Code     2  use_no_semi.o(.text)
+    __semihosting_library_function           0x0800059f   Thumb Code     0  indicate_semi.o(.text)
+    PORT_Init                                0x080005a1   Thumb Code   456  mdr32fxqi_port.o(i.PORT_Init)
+    PORT_StructInit                          0x0800076d   Thumb Code    28  mdr32fxqi_port.o(i.PORT_StructInit)
+    RST_CLK_CPU_PLLcmd                       0x08000789   Thumb Code     6  mdr32fxqi_rst_clk.o(i.RST_CLK_CPU_PLLcmd)
+    RST_CLK_CPU_PLLconfig                    0x08000795   Thumb Code    46  mdr32fxqi_rst_clk.o(i.RST_CLK_CPU_PLLconfig)
+    RST_CLK_CPU_PLLstatus                    0x080007cd   Thumb Code    48  mdr32fxqi_rst_clk.o(i.RST_CLK_CPU_PLLstatus)
+    RST_CLK_CPU_PLLuse                       0x080007fd   Thumb Code     6  mdr32fxqi_rst_clk.o(i.RST_CLK_CPU_PLLuse)
+    RST_CLK_CPUclkPrescaler                  0x08000809   Thumb Code    16  mdr32fxqi_rst_clk.o(i.RST_CLK_CPUclkPrescaler)
+    RST_CLK_CPUclkSelection                  0x0800081d   Thumb Code    14  mdr32fxqi_rst_clk.o(i.RST_CLK_CPUclkSelection)
+    RST_CLK_CPUclkSelectionC1                0x08000831   Thumb Code    14  mdr32fxqi_rst_clk.o(i.RST_CLK_CPUclkSelectionC1)
+    RST_CLK_GetFlagStatus                    0x08000845   Thumb Code    36  mdr32fxqi_rst_clk.o(i.RST_CLK_GetFlagStatus)
+    RST_CLK_HSEconfig                        0x08000871   Thumb Code    38  mdr32fxqi_rst_clk.o(i.RST_CLK_HSEconfig)
+    RST_CLK_HSEstatus                        0x0800089d   Thumb Code    48  mdr32fxqi_rst_clk.o(i.RST_CLK_HSEstatus)
+    RST_CLK_PCLKcmd                          0x080008cd   Thumb Code    22  mdr32fxqi_rst_clk.o(i.RST_CLK_PCLKcmd)
+    SystemCoreClockUpdate                    0x080008e9   Thumb Code    96  system_mdr32f9q2i.o(i.SystemCoreClockUpdate)
+    SystemInit                               0x08000959   Thumb Code    38  system_mdr32f9q2i.o(i.SystemInit)
+    USB_BRGInit                              0x0800098d   Thumb Code    40  mdr32fxqi_usb.o(i.USB_BRGInit)
+    USB_GetSEPxCTRL                          0x080009b9   Thumb Code    12  mdr32fxqi_usb.o(i.USB_GetSEPxCTRL)
+    USB_GetSEPxRXFD                          0x080009c9   Thumb Code    12  mdr32fxqi_usb.o(i.USB_GetSEPxRXFD)
+    USB_GetSEPxRXFDC                         0x080009d9   Thumb Code    12  mdr32fxqi_usb.o(i.USB_GetSEPxRXFDC)
+    USB_GetSEPxSTS                           0x080009e9   Thumb Code    12  mdr32fxqi_usb.o(i.USB_GetSEPxSTS)
+    USB_GetSEPxTS                            0x080009f9   Thumb Code    12  mdr32fxqi_usb.o(i.USB_GetSEPxTS)
+    USB_GetSIS                               0x08000a09   Thumb Code     6  mdr32fxqi_usb.o(i.USB_GetSIS)
+    USB_IRQHandler                           0x08000a15   Thumb Code    32  tusb_mdr32fxqi.o(i.USB_IRQHandler)
+    USB_Reset                                0x08000a39   Thumb Code    32  mdr32fxqi_usb.o(i.USB_Reset)
+    USB_SEPxToggleEPDATASEQ                  0x08000a59   Thumb Code    20  mdr32fxqi_usb.o(i.USB_SEPxToggleEPDATASEQ)
+    USB_SetHSCR                              0x08000a71   Thumb Code    16  mdr32fxqi_usb.o(i.USB_SetHSCR)
+    USB_SetSA                                0x08000a85   Thumb Code     6  mdr32fxqi_usb.o(i.USB_SetSA)
+    USB_SetSC                                0x08000a91   Thumb Code    16  mdr32fxqi_usb.o(i.USB_SetSC)
+    USB_SetSEPxCTRL                          0x08000aa5   Thumb Code    24  mdr32fxqi_usb.o(i.USB_SetSEPxCTRL)
+    USB_SetSEPxRXFC                          0x08000ac1   Thumb Code    12  mdr32fxqi_usb.o(i.USB_SetSEPxRXFC)
+    USB_SetSEPxTXFD                          0x08000ad1   Thumb Code    12  mdr32fxqi_usb.o(i.USB_SetSEPxTXFD)
+    USB_SetSEPxTXFDC                         0x08000ae1   Thumb Code    12  mdr32fxqi_usb.o(i.USB_SetSEPxTXFDC)
+    USB_SetSIM                               0x08000af1   Thumb Code    16  mdr32fxqi_usb.o(i.USB_SetSIM)
+    USB_SetSIS                               0x08000b05   Thumb Code     6  mdr32fxqi_usb.o(i.USB_SetSIS)
+    cdcd_control_xfer_cb                     0x08000d75   Thumb Code   250  cdc_device.o(i.cdcd_control_xfer_cb)
+    cdcd_deinit                              0x08000e79   Thumb Code    46  cdc_device.o(i.cdcd_deinit)
+    cdcd_init                                0x08000ead   Thumb Code   138  cdc_device.o(i.cdcd_init)
+    cdcd_open                                0x08000f41   Thumb Code   424  cdc_device.o(i.cdcd_open)
+    cdcd_reset                               0x080010f1   Thumb Code    62  cdc_device.o(i.cdcd_reset)
+    cdcd_xfer_cb                             0x08001139   Thumb Code   236  cdc_device.o(i.cdcd_xfer_cb)
+    dcd_edpt0_status_complete                0x080012fd   Thumb Code     2  usbd_control.o(i.dcd_edpt0_status_complete)
+    dcd_edpt_clear_stall                     0x08001301   Thumb Code    34  tusb_mdr32fxqi.o(i.dcd_edpt_clear_stall)
+    dcd_edpt_close_all                       0x08001329   Thumb Code     2  tusb_mdr32fxqi.o(i.dcd_edpt_close_all)
+    dcd_edpt_open                            0x0800132d   Thumb Code    36  tusb_mdr32fxqi.o(i.dcd_edpt_open)
+    dcd_edpt_stall                           0x08001355   Thumb Code    34  tusb_mdr32fxqi.o(i.dcd_edpt_stall)
+    dcd_edpt_xfer                            0x0800137d   Thumb Code    86  tusb_mdr32fxqi.o(i.dcd_edpt_xfer)
+    dcd_event_handler                        0x080013d9   Thumb Code   584  usbd.o(i.dcd_event_handler)
+    dcd_init                                 0x0800162d   Thumb Code   132  tusb_mdr32fxqi.o(i.dcd_init)
+    dcd_int_disable                          0x080016b9   Thumb Code     8  tusb_mdr32fxqi.o(i.dcd_int_disable)
+    dcd_int_enable                           0x080016c5   Thumb Code     8  tusb_mdr32fxqi.o(i.dcd_int_enable)
+    dcd_int_handler                          0x080016d1   Thumb Code   492  tusb_mdr32fxqi.o(i.dcd_int_handler)
+    dcd_set_address                          0x080018c5   Thumb Code     6  tusb_mdr32fxqi.o(i.dcd_set_address)
+    dcd_sof_enable                           0x080018d1   Thumb Code     2  tusb_mdr32fxqi.o(i.dcd_sof_enable)
+    get_class_by_endpoint                    0x08001939   Thumb Code    72  tusb_mdr32fxqi.o(i.get_class_by_endpoint)
+    handle_usb_device_reset                  0x08001ac1   Thumb Code   108  tusb_mdr32fxqi.o(i.handle_usb_device_reset)
+    main                                     0x08001b55   Thumb Code    72  main.o(i.main)
+    mscd_control_xfer_cb                     0x08001ba5   Thumb Code   288  msc_device.o(i.mscd_control_xfer_cb)
+    mscd_init                                0x08001cc9   Thumb Code     8  msc_device.o(i.mscd_init)
+    mscd_open                                0x08001cd5   Thumb Code   100  msc_device.o(i.mscd_open)
+    mscd_reset                               0x08001d3d   Thumb Code     8  msc_device.o(i.mscd_reset)
+    mscd_xfer_cb                             0x08001d49   Thumb Code   596  msc_device.o(i.mscd_xfer_cb)
+    tu_edpt_bind_driver                      0x08002a13   Thumb Code    36  tusb.o(i.tu_edpt_bind_driver)
+    tu_edpt_claim                            0x08002a37   Thumb Code    52  tusb.o(i.tu_edpt_claim)
+    tu_edpt_release                          0x08002a6b   Thumb Code    32  tusb.o(i.tu_edpt_release)
+    tu_edpt_stream_deinit                    0x08002a8b   Thumb Code     4  tusb.o(i.tu_edpt_stream_deinit)
+    tu_edpt_stream_init                      0x08002a8f   Thumb Code    42  tusb.o(i.tu_edpt_stream_init)
+    tu_edpt_stream_read_xfer                 0x08002ab9   Thumb Code   200  tusb.o(i.tu_edpt_stream_read_xfer)
+    tu_edpt_stream_write_xfer                0x08002b81   Thumb Code   106  tusb.o(i.tu_edpt_stream_write_xfer)
+    tu_edpt_stream_write_zlp_if_needed       0x08002beb   Thumb Code    98  tusb.o(i.tu_edpt_stream_write_zlp_if_needed)
+    tu_edpt_validate                         0x08002c4d   Thumb Code   116  tusb.o(i.tu_edpt_validate)
+    tu_fifo_clear                            0x08002cc1   Thumb Code    10  tusb_fifo.o(i.tu_fifo_clear)
+    tu_fifo_config                           0x08002ccb   Thumb Code    44  tusb_fifo.o(i.tu_fifo_config)
+    tu_fifo_count                            0x08002cf7   Thumb Code    34  tusb_fifo.o(i.tu_fifo_count)
+    tu_fifo_full                             0x08002d19   Thumb Code    36  tusb_fifo.o(i.tu_fifo_full)
+    tu_fifo_read                             0x08002d3d   Thumb Code    32  tusb_fifo.o(i.tu_fifo_read)
+    tu_fifo_read_n                           0x08002d5d   Thumb Code     6  tusb_fifo.o(i.tu_fifo_read_n)
+    tu_fifo_remaining                        0x08002d63   Thumb Code    38  tusb_fifo.o(i.tu_fifo_remaining)
+    tu_fifo_set_overwritable                 0x08002d89   Thumb Code    22  tusb_fifo.o(i.tu_fifo_set_overwritable)
+    tu_fifo_write                            0x08002d9f   Thumb Code    76  tusb_fifo.o(i.tu_fifo_write)
+    tu_fifo_write_n                          0x08002deb   Thumb Code     6  tusb_fifo.o(i.tu_fifo_write_n)
+    tud_cdc_line_coding_cb                   0x08002df1   Thumb Code     2  cdc_device.o(i.tud_cdc_line_coding_cb)
+    tud_cdc_line_state_cb                    0x08002df3   Thumb Code     2  cdc_device.o(i.tud_cdc_line_state_cb)
+    tud_cdc_notify_complete_cb               0x08002df5   Thumb Code     2  cdc_device.o(i.tud_cdc_notify_complete_cb)
+    tud_cdc_rx_cb                            0x08002df7   Thumb Code     2  cdc_device.o(i.tud_cdc_rx_cb)
+    tud_cdc_rx_wanted_cb                     0x08002df9   Thumb Code     2  cdc_device.o(i.tud_cdc_rx_wanted_cb)
+    tud_cdc_send_break_cb                    0x08002dfb   Thumb Code     2  cdc_device.o(i.tud_cdc_send_break_cb)
+    tud_cdc_tx_complete_cb                   0x08002dfd   Thumb Code     2  cdc_device.o(i.tud_cdc_tx_complete_cb)
+    tud_control_status                       0x08002e01   Thumb Code    22  usbd_control.o(i.tud_control_status)
+    tud_control_xfer                         0x08002e1d   Thumb Code    66  usbd_control.o(i.tud_control_xfer)
+    tud_descriptor_bos_cb                    0x08002e65   Thumb Code     4  usbd.o(i.tud_descriptor_bos_cb)
+    tud_descriptor_configuration_cb          0x08002e69   Thumb Code     4  usb_descriptors.o(i.tud_descriptor_configuration_cb)
+    tud_descriptor_device_cb                 0x08002e71   Thumb Code     4  usb_descriptors.o(i.tud_descriptor_device_cb)
+    tud_descriptor_device_qualifier_cb       0x08002e79   Thumb Code     4  usb_descriptors.o(i.tud_descriptor_device_qualifier_cb)
+    tud_descriptor_other_speed_configuration_cb 0x08002e81   Thumb Code     4  usbd.o(i.tud_descriptor_other_speed_configuration_cb)
+    tud_descriptor_string_cb                 0x08002e85   Thumb Code    78  usb_descriptors.o(i.tud_descriptor_string_cb)
+    tud_event_hook_cb                        0x08002edd   Thumb Code     2  usbd.o(i.tud_event_hook_cb)
+    tud_inited                               0x08002ee1   Thumb Code    16  usbd.o(i.tud_inited)
+    tud_mount_cb                             0x08002ef5   Thumb Code     2  usbd.o(i.tud_mount_cb)
+    tud_msc_capacity_cb                      0x08002ef7   Thumb Code    10  msc_disk.o(i.tud_msc_capacity_cb)
+    tud_msc_get_maxlun_cb                    0x08002f01   Thumb Code     4  msc_device.o(i.tud_msc_get_maxlun_cb)
+    tud_msc_inquiry2_cb                      0x08002f05   Thumb Code    78  msc_disk.o(i.tud_msc_inquiry2_cb)
+    tud_msc_inquiry_cb                       0x08002f71   Thumb Code     2  msc_device.o(i.tud_msc_inquiry_cb)
+    tud_msc_is_writable_cb                   0x08002f73   Thumb Code     4  msc_disk.o(i.tud_msc_is_writable_cb)
+    tud_msc_prevent_allow_medium_removal_cb  0x08002f77   Thumb Code     4  msc_device.o(i.tud_msc_prevent_allow_medium_removal_cb)
+    tud_msc_read10_cb                        0x08002f7d   Thumb Code    52  msc_disk.o(i.tud_msc_read10_cb)
+    tud_msc_read10_complete_cb               0x08002fb5   Thumb Code     2  msc_device.o(i.tud_msc_read10_complete_cb)
+    tud_msc_request_sense_cb                 0x08002fb7   Thumb Code     4  msc_device.o(i.tud_msc_request_sense_cb)
+    tud_msc_scsi_cb                          0x08002fbb   Thumb Code    18  msc_disk.o(i.tud_msc_scsi_cb)
+    tud_msc_scsi_complete_cb                 0x08002fcd   Thumb Code     2  msc_device.o(i.tud_msc_scsi_complete_cb)
+    tud_msc_set_sense                        0x08002fd1   Thumb Code    12  msc_device.o(i.tud_msc_set_sense)
+    tud_msc_start_stop_cb                    0x08002fe1   Thumb Code    16  msc_disk.o(i.tud_msc_start_stop_cb)
+    tud_msc_test_unit_ready_cb               0x08002ff5   Thumb Code    22  msc_disk.o(i.tud_msc_test_unit_ready_cb)
+    tud_msc_write10_cb                       0x08003011   Thumb Code    34  msc_disk.o(i.tud_msc_write10_cb)
+    tud_msc_write10_complete_cb              0x08003039   Thumb Code     2  msc_device.o(i.tud_msc_write10_complete_cb)
+    tud_resume_cb                            0x0800303b   Thumb Code     2  usbd.o(i.tud_resume_cb)
+    tud_rhport_init                          0x0800303d   Thumb Code   164  usbd.o(i.tud_rhport_init)
+    tud_sof_cb                               0x080030ed   Thumb Code     2  usbd.o(i.tud_sof_cb)
+    tud_suspend_cb                           0x080030ef   Thumb Code     2  usbd.o(i.tud_suspend_cb)
+    tud_task_ext                             0x080030f1   Thumb Code   368  usbd.o(i.tud_task_ext)
+    tud_umount_cb                            0x0800326d   Thumb Code     2  usbd.o(i.tud_umount_cb)
+    tud_vendor_control_xfer_cb               0x0800326f   Thumb Code     4  usbd.o(i.tud_vendor_control_xfer_cb)
+    tusb_rhport_init                         0x08003275   Thumb Code    70  tusb.o(i.tusb_rhport_init)
+    usbd_app_driver_get_cb                   0x080032c5   Thumb Code     8  usbd.o(i.usbd_app_driver_get_cb)
+    usbd_control_reset                       0x080032cd   Thumb Code     8  usbd_control.o(i.usbd_control_reset)
+    usbd_control_set_complete_callback       0x080032d9   Thumb Code     6  usbd_control.o(i.usbd_control_set_complete_callback)
+    usbd_control_set_request                 0x080032e5   Thumb Code    20  usbd_control.o(i.usbd_control_set_request)
+    usbd_control_xfer_cb                     0x080032fd   Thumb Code   160  usbd_control.o(i.usbd_control_xfer_cb)
+    usbd_edpt_busy                           0x080033a1   Thumb Code    22  usbd.o(i.usbd_edpt_busy)
+    usbd_edpt_claim                          0x080033bd   Thumb Code    22  usbd.o(i.usbd_edpt_claim)
+    usbd_edpt_clear_stall                    0x080033d9   Thumb Code    42  usbd.o(i.usbd_edpt_clear_stall)
+    usbd_edpt_open                           0x0800340d   Thumb Code    52  usbd.o(i.usbd_edpt_open)
+    usbd_edpt_release                        0x08003449   Thumb Code    22  usbd.o(i.usbd_edpt_release)
+    usbd_edpt_stall                          0x08003465   Thumb Code    42  usbd.o(i.usbd_edpt_stall)
+    usbd_edpt_stalled                        0x08003499   Thumb Code    22  usbd.o(i.usbd_edpt_stalled)
+    usbd_edpt_xfer                           0x080034b5   Thumb Code    68  usbd.o(i.usbd_edpt_xfer)
+    usbd_int_set                             0x08003501   Thumb Code    16  usbd.o(i.usbd_int_set)
+    usbd_open_edpt_pair                      0x08003515   Thumb Code    86  usbd.o(i.usbd_open_edpt_pair)
+    desc_device_qualifier                    0x08003660   Data          10  usb_descriptors.o(.constdata)
+    Region$$Table$$Base                      0x080036c4   Number         0  anon$$obj.o(Region$$Table)
+    Region$$Table$$Limit                     0x080036e4   Number         0  anon$$obj.o(Region$$Table)
+    _usbd_qdef                               0x20000018   Data          16  usbd.o(.data)
+    _tusb_rhport_role                        0x20000028   Data           2  tusb.o(.data)
+    MSC_endpoint                             0x20000044   Data           1  tusb_mdr32fxqi.o(.data)
+    set_addr                                 0x20000048   Data           4  tusb_mdr32fxqi.o(.data)
+    sis                                      0x2000004c   Data           4  tusb_mdr32fxqi.o(.data)
+    SystemCoreClock                          0x20002054   Data           4  system_mdr32f9q2i.o(.data)
+    _usbd_qdef_buf                           0x200021b4   Data         192  usbd.o(.bss)
+    __libspace_start                         0x200023cc   Data          96  libspace.o(.bss)
+    __temporary_stack_top$libspace           0x2000242c   Data           0  libspace.o(.bss)
+
+
+
+==============================================================================
+
+Memory Map of the image
+
+  Image Entry point : 0x080000c1
+
+  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x0000573c, Max: 0x00020000, ABSOLUTE, COMPRESSED[0x00003834])
+
+    Execution Region ER_IROM1 (Exec base: 0x08000000, Load base: 0x08000000, Size: 0x000036e4, Max: 0x00020000, ABSOLUTE)
+
+    Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
+
+    0x08000000   0x08000000   0x000000c0   Data   RO         1648    RESET               startup_mdr32f9q2i.o
+    0x080000c0   0x080000c0   0x00000008   Code   RO         2372  * !!!main             c_w.l(__main.o)
+    0x080000c8   0x080000c8   0x00000034   Code   RO         2535    !!!scatter          c_w.l(__scatter.o)
+    0x080000fc   0x080000fc   0x0000005a   Code   RO         2533    !!dczerorl2         c_w.l(__dczerorl2.o)
+    0x08000156   0x08000156   0x00000002   PAD
+    0x08000158   0x08000158   0x0000001c   Code   RO         2537    !!handler_zi        c_w.l(__scatter_zi.o)
+    0x08000174   0x08000174   0x00000002   Code   RO         2401    .ARM.Collect$$libinit$$00000000  c_w.l(libinit.o)
+    0x08000176   0x08000176   0x00000000   Code   RO         2408    .ARM.Collect$$libinit$$00000002  c_w.l(libinit2.o)
+    0x08000176   0x08000176   0x00000000   Code   RO         2410    .ARM.Collect$$libinit$$00000004  c_w.l(libinit2.o)
+    0x08000176   0x08000176   0x00000000   Code   RO         2413    .ARM.Collect$$libinit$$0000000A  c_w.l(libinit2.o)
+    0x08000176   0x08000176   0x00000000   Code   RO         2415    .ARM.Collect$$libinit$$0000000C  c_w.l(libinit2.o)
+    0x08000176   0x08000176   0x00000000   Code   RO         2417    .ARM.Collect$$libinit$$0000000E  c_w.l(libinit2.o)
+    0x08000176   0x08000176   0x00000000   Code   RO         2420    .ARM.Collect$$libinit$$00000011  c_w.l(libinit2.o)
+    0x08000176   0x08000176   0x00000000   Code   RO         2422    .ARM.Collect$$libinit$$00000013  c_w.l(libinit2.o)
+    0x08000176   0x08000176   0x00000000   Code   RO         2424    .ARM.Collect$$libinit$$00000015  c_w.l(libinit2.o)
+    0x08000176   0x08000176   0x00000000   Code   RO         2426    .ARM.Collect$$libinit$$00000017  c_w.l(libinit2.o)
+    0x08000176   0x08000176   0x00000000   Code   RO         2428    .ARM.Collect$$libinit$$00000019  c_w.l(libinit2.o)
+    0x08000176   0x08000176   0x00000000   Code   RO         2430    .ARM.Collect$$libinit$$0000001B  c_w.l(libinit2.o)
+    0x08000176   0x08000176   0x00000000   Code   RO         2432    .ARM.Collect$$libinit$$0000001D  c_w.l(libinit2.o)
+    0x08000176   0x08000176   0x00000000   Code   RO         2434    .ARM.Collect$$libinit$$0000001F  c_w.l(libinit2.o)
+    0x08000176   0x08000176   0x00000000   Code   RO         2436    .ARM.Collect$$libinit$$00000021  c_w.l(libinit2.o)
+    0x08000176   0x08000176   0x00000000   Code   RO         2438    .ARM.Collect$$libinit$$00000023  c_w.l(libinit2.o)
+    0x08000176   0x08000176   0x00000000   Code   RO         2440    .ARM.Collect$$libinit$$00000025  c_w.l(libinit2.o)
+    0x08000176   0x08000176   0x00000000   Code   RO         2444    .ARM.Collect$$libinit$$0000002C  c_w.l(libinit2.o)
+    0x08000176   0x08000176   0x00000000   Code   RO         2446    .ARM.Collect$$libinit$$0000002E  c_w.l(libinit2.o)
+    0x08000176   0x08000176   0x00000000   Code   RO         2448    .ARM.Collect$$libinit$$00000030  c_w.l(libinit2.o)
+    0x08000176   0x08000176   0x00000000   Code   RO         2450    .ARM.Collect$$libinit$$00000032  c_w.l(libinit2.o)
+    0x08000176   0x08000176   0x00000002   Code   RO         2451    .ARM.Collect$$libinit$$00000033  c_w.l(libinit2.o)
+    0x08000178   0x08000178   0x00000002   Code   RO         2471    .ARM.Collect$$libshutdown$$00000000  c_w.l(libshutdown.o)
+    0x0800017a   0x0800017a   0x00000000   Code   RO         2484    .ARM.Collect$$libshutdown$$00000002  c_w.l(libshutdown2.o)
+    0x0800017a   0x0800017a   0x00000000   Code   RO         2486    .ARM.Collect$$libshutdown$$00000004  c_w.l(libshutdown2.o)
+    0x0800017a   0x0800017a   0x00000000   Code   RO         2488    .ARM.Collect$$libshutdown$$00000006  c_w.l(libshutdown2.o)
+    0x0800017a   0x0800017a   0x00000000   Code   RO         2491    .ARM.Collect$$libshutdown$$00000009  c_w.l(libshutdown2.o)
+    0x0800017a   0x0800017a   0x00000000   Code   RO         2494    .ARM.Collect$$libshutdown$$0000000C  c_w.l(libshutdown2.o)
+    0x0800017a   0x0800017a   0x00000000   Code   RO         2496    .ARM.Collect$$libshutdown$$0000000E  c_w.l(libshutdown2.o)
+    0x0800017a   0x0800017a   0x00000000   Code   RO         2499    .ARM.Collect$$libshutdown$$00000011  c_w.l(libshutdown2.o)
+    0x0800017a   0x0800017a   0x00000002   Code   RO         2500    .ARM.Collect$$libshutdown$$00000012  c_w.l(libshutdown2.o)
+    0x0800017c   0x0800017c   0x00000000   Code   RO         2374    .ARM.Collect$$rtentry$$00000000  c_w.l(__rtentry.o)
+    0x0800017c   0x0800017c   0x00000000   Code   RO         2378    .ARM.Collect$$rtentry$$00000002  c_w.l(__rtentry2.o)
+    0x0800017c   0x0800017c   0x00000006   Code   RO         2390    .ARM.Collect$$rtentry$$00000004  c_w.l(__rtentry4.o)
+    0x08000182   0x08000182   0x00000000   Code   RO         2380    .ARM.Collect$$rtentry$$00000009  c_w.l(__rtentry2.o)
+    0x08000182   0x08000182   0x00000004   Code   RO         2381    .ARM.Collect$$rtentry$$0000000A  c_w.l(__rtentry2.o)
+    0x08000186   0x08000186   0x00000000   Code   RO         2383    .ARM.Collect$$rtentry$$0000000C  c_w.l(__rtentry2.o)
+    0x08000186   0x08000186   0x00000008   Code   RO         2384    .ARM.Collect$$rtentry$$0000000D  c_w.l(__rtentry2.o)
+    0x0800018e   0x0800018e   0x00000002   Code   RO         2405    .ARM.Collect$$rtexit$$00000000  c_w.l(rtexit.o)
+    0x08000190   0x08000190   0x00000000   Code   RO         2453    .ARM.Collect$$rtexit$$00000002  c_w.l(rtexit2.o)
+    0x08000190   0x08000190   0x00000004   Code   RO         2454    .ARM.Collect$$rtexit$$00000003  c_w.l(rtexit2.o)
+    0x08000194   0x08000194   0x00000006   Code   RO         2455    .ARM.Collect$$rtexit$$00000004  c_w.l(rtexit2.o)
+    0x0800019a   0x0800019a   0x00000002   PAD
+    0x0800019c   0x0800019c   0x00000068   Code   RO         1649    .text               startup_mdr32f9q2i.o
+    0x08000204   0x08000204   0x0000003e   Code   RO         2354    .text               c_w.l(strlen.o)
+    0x08000242   0x08000242   0x0000008a   Code   RO         2356    .text               c_w.l(rt_memcpy_v6.o)
+    0x080002cc   0x080002cc   0x00000084   Code   RO         2358    .text               c_w.l(rt_memmove_v6.o)
+    0x08000350   0x08000350   0x00000064   Code   RO         2360    .text               c_w.l(rt_memcpy_w.o)
+    0x080003b4   0x080003b4   0x00000010   Code   RO         2362    .text               c_w.l(aeabi_memset.o)
+    0x080003c4   0x080003c4   0x00000044   Code   RO         2364    .text               c_w.l(rt_memclr.o)
+    0x08000408   0x08000408   0x0000004e   Code   RO         2366    .text               c_w.l(rt_memclr_w.o)
+    0x08000456   0x08000456   0x00000056   Code   RO         2368    .text               c_w.l(strncpy.o)
+    0x080004ac   0x080004ac   0x00000006   Code   RO         2370    .text               c_w.l(heapauxi.o)
+    0x080004b2   0x080004b2   0x0000007a   Code   RO         2375    .text               c_w.l(rt_memmove_w.o)
+    0x0800052c   0x0800052c   0x0000004a   Code   RO         2392    .text               c_w.l(sys_stackheap_outer.o)
+    0x08000576   0x08000576   0x00000012   Code   RO         2394    .text               c_w.l(exit.o)
+    0x08000588   0x08000588   0x00000008   Code   RO         2402    .text               c_w.l(libspace.o)
+    0x08000590   0x08000590   0x0000000c   Code   RO         2463    .text               c_w.l(sys_exit.o)
+    0x0800059c   0x0800059c   0x00000002   Code   RO         2474    .text               c_w.l(use_no_semi.o)
+    0x0800059e   0x0800059e   0x00000000   Code   RO         2476    .text               c_w.l(indicate_semi.o)
+    0x0800059e   0x0800059e   0x00000002   PAD
+    0x080005a0   0x080005a0   0x000001cc   Code   RO         1689    i.PORT_Init         mdr32fxqi_port.o
+    0x0800076c   0x0800076c   0x0000001c   Code   RO         1694    i.PORT_StructInit   mdr32fxqi_port.o
+    0x08000788   0x08000788   0x0000000c   Code   RO         1759    i.RST_CLK_CPU_PLLcmd  mdr32fxqi_rst_clk.o
+    0x08000794   0x08000794   0x00000038   Code   RO         1760    i.RST_CLK_CPU_PLLconfig  mdr32fxqi_rst_clk.o
+    0x080007cc   0x080007cc   0x00000030   Code   RO         1761    i.RST_CLK_CPU_PLLstatus  mdr32fxqi_rst_clk.o
+    0x080007fc   0x080007fc   0x0000000c   Code   RO         1762    i.RST_CLK_CPU_PLLuse  mdr32fxqi_rst_clk.o
+    0x08000808   0x08000808   0x00000014   Code   RO         1763    i.RST_CLK_CPUclkPrescaler  mdr32fxqi_rst_clk.o
+    0x0800081c   0x0800081c   0x00000014   Code   RO         1764    i.RST_CLK_CPUclkSelection  mdr32fxqi_rst_clk.o
+    0x08000830   0x08000830   0x00000014   Code   RO         1765    i.RST_CLK_CPUclkSelectionC1  mdr32fxqi_rst_clk.o
+    0x08000844   0x08000844   0x0000002c   Code   RO         1768    i.RST_CLK_GetFlagStatus  mdr32fxqi_rst_clk.o
+    0x08000870   0x08000870   0x0000002c   Code   RO         1770    i.RST_CLK_HSEconfig  mdr32fxqi_rst_clk.o
+    0x0800089c   0x0800089c   0x00000030   Code   RO         1771    i.RST_CLK_HSEstatus  mdr32fxqi_rst_clk.o
+    0x080008cc   0x080008cc   0x0000001c   Code   RO         1781    i.RST_CLK_PCLKcmd   mdr32fxqi_rst_clk.o
+    0x080008e8   0x080008e8   0x00000070   Code   RO         1655    i.SystemCoreClockUpdate  system_mdr32f9q2i.o
+    0x08000958   0x08000958   0x00000034   Code   RO         1656    i.SystemInit        system_mdr32f9q2i.o
+    0x0800098c   0x0800098c   0x0000002c   Code   RO         1980    i.USB_BRGInit       mdr32fxqi_usb.o
+    0x080009b8   0x080009b8   0x00000010   Code   RO         2005    i.USB_GetSEPxCTRL   mdr32fxqi_usb.o
+    0x080009c8   0x080009c8   0x00000010   Code   RO         2008    i.USB_GetSEPxRXFD   mdr32fxqi_usb.o
+    0x080009d8   0x080009d8   0x00000010   Code   RO         2009    i.USB_GetSEPxRXFDC  mdr32fxqi_usb.o
+    0x080009e8   0x080009e8   0x00000010   Code   RO         2010    i.USB_GetSEPxSTS    mdr32fxqi_usb.o
+    0x080009f8   0x080009f8   0x00000010   Code   RO         2011    i.USB_GetSEPxTS     mdr32fxqi_usb.o
+    0x08000a08   0x08000a08   0x0000000c   Code   RO         2016    i.USB_GetSIS        mdr32fxqi_usb.o
+    0x08000a14   0x08000a14   0x00000024   Code   RO         1216    i.USB_IRQHandler    tusb_mdr32fxqi.o
+    0x08000a38   0x08000a38   0x00000020   Code   RO         2018    i.USB_Reset         mdr32fxqi_usb.o
+    0x08000a58   0x08000a58   0x00000018   Code   RO         2019    i.USB_SEPxToggleEPDATASEQ  mdr32fxqi_usb.o
+    0x08000a70   0x08000a70   0x00000014   Code   RO         2023    i.USB_SetHSCR       mdr32fxqi_usb.o
+    0x08000a84   0x08000a84   0x0000000c   Code   RO         2032    i.USB_SetSA         mdr32fxqi_usb.o
+    0x08000a90   0x08000a90   0x00000014   Code   RO         2033    i.USB_SetSC         mdr32fxqi_usb.o
+    0x08000aa4   0x08000aa4   0x0000001c   Code   RO         2034    i.USB_SetSEPxCTRL   mdr32fxqi_usb.o
+    0x08000ac0   0x08000ac0   0x00000010   Code   RO         2035    i.USB_SetSEPxRXFC   mdr32fxqi_usb.o
+    0x08000ad0   0x08000ad0   0x00000010   Code   RO         2036    i.USB_SetSEPxTXFD   mdr32fxqi_usb.o
+    0x08000ae0   0x08000ae0   0x00000010   Code   RO         2037    i.USB_SetSEPxTXFDC  mdr32fxqi_usb.o
+    0x08000af0   0x08000af0   0x00000014   Code   RO         2038    i.USB_SetSIM        mdr32fxqi_usb.o
+    0x08000b04   0x08000b04   0x0000000c   Code   RO         2039    i.USB_SetSIS        mdr32fxqi_usb.o
+    0x08000b10   0x08000b10   0x0000005e   Code   RO          335    i._ff_pull_n        tusb_fifo.o
+    0x08000b6e   0x08000b6e   0x00000062   Code   RO          336    i._ff_push_n        tusb_fifo.o
+    0x08000bd0   0x08000bd0   0x00000052   Code   RO          337    i._tu_fifo_peek     tusb_fifo.o
+    0x08000c22   0x08000c22   0x00000056   Code   RO          338    i._tu_fifo_peek_n   tusb_fifo.o
+    0x08000c78   0x08000c78   0x00000024   Code   RO          339    i._tu_fifo_read_n   tusb_fifo.o
+    0x08000c9c   0x08000c9c   0x000000ba   Code   RO          340    i._tu_fifo_write_n  tusb_fifo.o
+    0x08000d56   0x08000d56   0x0000001e   Code   RO          341    i.advance_index     tusb_fifo.o
+    0x08000d74   0x08000d74   0x00000104   Code   RO          136    i.cdcd_control_xfer_cb  cdc_device.o
+    0x08000e78   0x08000e78   0x00000034   Code   RO          137    i.cdcd_deinit       cdc_device.o
+    0x08000eac   0x08000eac   0x00000094   Code   RO          138    i.cdcd_init         cdc_device.o
+    0x08000f40   0x08000f40   0x000001b0   Code   RO          139    i.cdcd_open         cdc_device.o
+    0x080010f0   0x080010f0   0x00000048   Code   RO          140    i.cdcd_reset        cdc_device.o
+    0x08001138   0x08001138   0x000000f0   Code   RO          141    i.cdcd_xfer_cb      cdc_device.o
+    0x08001228   0x08001228   0x00000078   Code   RO          487    i.configuration_reset  usbd.o
+    0x080012a0   0x080012a0   0x0000005c   Code   RO          860    i.data_stage_xact   usbd_control.o
+    0x080012fc   0x080012fc   0x00000002   Code   RO          861    i.dcd_edpt0_status_complete  usbd_control.o
+    0x080012fe   0x080012fe   0x00000002   PAD
+    0x08001300   0x08001300   0x00000028   Code   RO         1220    i.dcd_edpt_clear_stall  tusb_mdr32fxqi.o
+    0x08001328   0x08001328   0x00000002   Code   RO         1222    i.dcd_edpt_close_all  tusb_mdr32fxqi.o
+    0x0800132a   0x0800132a   0x00000002   PAD
+    0x0800132c   0x0800132c   0x00000028   Code   RO         1223    i.dcd_edpt_open     tusb_mdr32fxqi.o
+    0x08001354   0x08001354   0x00000028   Code   RO         1224    i.dcd_edpt_stall    tusb_mdr32fxqi.o
+    0x0800137c   0x0800137c   0x0000005c   Code   RO         1225    i.dcd_edpt_xfer     tusb_mdr32fxqi.o
+    0x080013d8   0x080013d8   0x00000254   Code   RO          495    i.dcd_event_handler  usbd.o
+    0x0800162c   0x0800162c   0x0000008c   Code   RO         1226    i.dcd_init          tusb_mdr32fxqi.o
+    0x080016b8   0x080016b8   0x0000000c   Code   RO         1227    i.dcd_int_disable   tusb_mdr32fxqi.o
+    0x080016c4   0x080016c4   0x0000000c   Code   RO         1228    i.dcd_int_enable    tusb_mdr32fxqi.o
+    0x080016d0   0x080016d0   0x000001f4   Code   RO         1229    i.dcd_int_handler   tusb_mdr32fxqi.o
+    0x080018c4   0x080018c4   0x0000000c   Code   RO         1231    i.dcd_set_address   tusb_mdr32fxqi.o
+    0x080018d0   0x080018d0   0x00000002   Code   RO         1232    i.dcd_sof_enable    tusb_mdr32fxqi.o
+    0x080018d2   0x080018d2   0x00000064   Code   RO         1396    i.fail_scsi_op      msc_device.o
+    0x08001936   0x08001936   0x00000002   PAD
+    0x08001938   0x08001938   0x00000050   Code   RO         1233    i.get_class_by_endpoint  tusb_mdr32fxqi.o
+    0x08001988   0x08001988   0x00000044   Code   RO         1234    i.handle_ep0_in     tusb_mdr32fxqi.o
+    0x080019cc   0x080019cc   0x00000050   Code   RO         1235    i.handle_ep0_out    tusb_mdr32fxqi.o
+    0x08001a1c   0x08001a1c   0x0000004c   Code   RO         1236    i.handle_ep_in      tusb_mdr32fxqi.o
+    0x08001a68   0x08001a68   0x00000058   Code   RO         1237    i.handle_ep_out     tusb_mdr32fxqi.o
+    0x08001ac0   0x08001ac0   0x00000078   Code   RO         1238    i.handle_usb_device_reset  tusb_mdr32fxqi.o
+    0x08001b38   0x08001b38   0x0000001c   Code   RO          496    i.invoke_class_control  usbd.o
+    0x08001b54   0x08001b54   0x00000050   Code   RO            5    i.main              main.o
+    0x08001ba4   0x08001ba4   0x00000124   Code   RO         1397    i.mscd_control_xfer_cb  msc_device.o
+    0x08001cc8   0x08001cc8   0x0000000c   Code   RO         1399    i.mscd_init         msc_device.o
+    0x08001cd4   0x08001cd4   0x00000068   Code   RO         1400    i.mscd_open         msc_device.o
+    0x08001d3c   0x08001d3c   0x0000000c   Code   RO         1401    i.mscd_reset        msc_device.o
+    0x08001d48   0x08001d48   0x00000260   Code   RO         1402    i.mscd_xfer_cb      msc_device.o
+    0x08001fa8   0x08001fa8   0x00000012   Code   RO         1404    i.proc_bot_reset    msc_device.o
+    0x08001fba   0x08001fba   0x00000002   PAD
+    0x08001fbc   0x08001fbc   0x00000274   Code   RO         1405    i.proc_builtin_scsi  msc_device.o
+    0x08002230   0x08002230   0x00000078   Code   RO         1406    i.proc_read10_cmd   msc_device.o
+    0x080022a8   0x080022a8   0x0000006c   Code   RO         1407    i.proc_read_io_data  msc_device.o
+    0x08002314   0x08002314   0x00000068   Code   RO         1408    i.proc_stage_status  msc_device.o
+    0x0800237c   0x0800237c   0x00000048   Code   RO         1409    i.proc_write10_cmd  msc_device.o
+    0x080023c4   0x080023c4   0x00000070   Code   RO         1410    i.proc_write10_host_data  msc_device.o
+    0x08002434   0x08002434   0x00000084   Code   RO         1411    i.proc_write_io_data  msc_device.o
+    0x080024b8   0x080024b8   0x000002f4   Code   RO          497    i.process_control_request  usbd.o
+    0x080027ac   0x080027ac   0x000000c6   Code   RO          498    i.process_get_descriptor  usbd.o
+    0x08002872   0x08002872   0x00000002   PAD
+    0x08002874   0x08002874   0x0000012c   Code   RO          499    i.process_set_config  usbd.o
+    0x080029a0   0x080029a0   0x00000060   Code   RO         1412    i.rdwr10_validate_cmd  msc_device.o
+    0x08002a00   0x08002a00   0x00000012   Code   RO          862    i.status_stage_xact  usbd_control.o
+    0x08002a12   0x08002a12   0x00000024   Code   RO          955    i.tu_edpt_bind_driver  tusb.o
+    0x08002a36   0x08002a36   0x00000034   Code   RO          956    i.tu_edpt_claim     tusb.o
+    0x08002a6a   0x08002a6a   0x00000020   Code   RO          957    i.tu_edpt_release   tusb.o
+    0x08002a8a   0x08002a8a   0x00000004   Code   RO          958    i.tu_edpt_stream_deinit  tusb.o
+    0x08002a8e   0x08002a8e   0x0000002a   Code   RO          959    i.tu_edpt_stream_init  tusb.o
+    0x08002ab8   0x08002ab8   0x000000c8   Code   RO          961    i.tu_edpt_stream_read_xfer  tusb.o
+    0x08002b80   0x08002b80   0x0000006a   Code   RO          964    i.tu_edpt_stream_write_xfer  tusb.o
+    0x08002bea   0x08002bea   0x00000062   Code   RO          965    i.tu_edpt_stream_write_zlp_if_needed  tusb.o
+    0x08002c4c   0x08002c4c   0x00000074   Code   RO          966    i.tu_edpt_validate  tusb.o
+    0x08002cc0   0x08002cc0   0x0000000a   Code   RO          344    i.tu_fifo_clear     tusb_fifo.o
+    0x08002cca   0x08002cca   0x0000002c   Code   RO          345    i.tu_fifo_config    tusb_fifo.o
+    0x08002cf6   0x08002cf6   0x00000022   Code   RO          347    i.tu_fifo_count     tusb_fifo.o
+    0x08002d18   0x08002d18   0x00000024   Code   RO          348    i.tu_fifo_full      tusb_fifo.o
+    0x08002d3c   0x08002d3c   0x00000020   Code   RO          354    i.tu_fifo_read      tusb_fifo.o
+    0x08002d5c   0x08002d5c   0x00000006   Code   RO          355    i.tu_fifo_read_n    tusb_fifo.o
+    0x08002d62   0x08002d62   0x00000026   Code   RO          356    i.tu_fifo_remaining  tusb_fifo.o
+    0x08002d88   0x08002d88   0x00000016   Code   RO          357    i.tu_fifo_set_overwritable  tusb_fifo.o
+    0x08002d9e   0x08002d9e   0x0000004c   Code   RO          358    i.tu_fifo_write     tusb_fifo.o
+    0x08002dea   0x08002dea   0x00000006   Code   RO          359    i.tu_fifo_write_n   tusb_fifo.o
+    0x08002df0   0x08002df0   0x00000002   Code   RO          143    i.tud_cdc_line_coding_cb  cdc_device.o
+    0x08002df2   0x08002df2   0x00000002   Code   RO          144    i.tud_cdc_line_state_cb  cdc_device.o
+    0x08002df4   0x08002df4   0x00000002   Code   RO          158    i.tud_cdc_notify_complete_cb  cdc_device.o
+    0x08002df6   0x08002df6   0x00000002   Code   RO          159    i.tud_cdc_rx_cb     cdc_device.o
+    0x08002df8   0x08002df8   0x00000002   Code   RO          160    i.tud_cdc_rx_wanted_cb  cdc_device.o
+    0x08002dfa   0x08002dfa   0x00000002   Code   RO          161    i.tud_cdc_send_break_cb  cdc_device.o
+    0x08002dfc   0x08002dfc   0x00000002   Code   RO          162    i.tud_cdc_tx_complete_cb  cdc_device.o
+    0x08002dfe   0x08002dfe   0x00000002   PAD
+    0x08002e00   0x08002e00   0x0000001c   Code   RO          863    i.tud_control_status  usbd_control.o
+    0x08002e1c   0x08002e1c   0x00000048   Code   RO          864    i.tud_control_xfer  usbd_control.o
+    0x08002e64   0x08002e64   0x00000004   Code   RO          503    i.tud_descriptor_bos_cb  usbd.o
+    0x08002e68   0x08002e68   0x00000008   Code   RO         1156    i.tud_descriptor_configuration_cb  usb_descriptors.o
+    0x08002e70   0x08002e70   0x00000008   Code   RO         1157    i.tud_descriptor_device_cb  usb_descriptors.o
+    0x08002e78   0x08002e78   0x00000008   Code   RO         1158    i.tud_descriptor_device_qualifier_cb  usb_descriptors.o
+    0x08002e80   0x08002e80   0x00000004   Code   RO          505    i.tud_descriptor_other_speed_configuration_cb  usbd.o
+    0x08002e84   0x08002e84   0x00000058   Code   RO         1159    i.tud_descriptor_string_cb  usb_descriptors.o
+    0x08002edc   0x08002edc   0x00000002   Code   RO          507    i.tud_event_hook_cb  usbd.o
+    0x08002ede   0x08002ede   0x00000002   PAD
+    0x08002ee0   0x08002ee0   0x00000014   Code   RO          508    i.tud_inited        usbd.o
+    0x08002ef4   0x08002ef4   0x00000002   Code   RO          509    i.tud_mount_cb      usbd.o
+    0x08002ef6   0x08002ef6   0x0000000a   Code   RO         1590    i.tud_msc_capacity_cb  msc_disk.o
+    0x08002f00   0x08002f00   0x00000004   Code   RO         1414    i.tud_msc_get_maxlun_cb  msc_device.o
+    0x08002f04   0x08002f04   0x0000006c   Code   RO         1591    i.tud_msc_inquiry2_cb  msc_disk.o
+    0x08002f70   0x08002f70   0x00000002   Code   RO         1416    i.tud_msc_inquiry_cb  msc_device.o
+    0x08002f72   0x08002f72   0x00000004   Code   RO         1592    i.tud_msc_is_writable_cb  msc_disk.o
+    0x08002f76   0x08002f76   0x00000004   Code   RO         1418    i.tud_msc_prevent_allow_medium_removal_cb  msc_device.o
+    0x08002f7a   0x08002f7a   0x00000002   PAD
+    0x08002f7c   0x08002f7c   0x00000038   Code   RO         1593    i.tud_msc_read10_cb  msc_disk.o
+    0x08002fb4   0x08002fb4   0x00000002   Code   RO         1419    i.tud_msc_read10_complete_cb  msc_device.o
+    0x08002fb6   0x08002fb6   0x00000004   Code   RO         1420    i.tud_msc_request_sense_cb  msc_device.o
+    0x08002fba   0x08002fba   0x00000012   Code   RO         1594    i.tud_msc_scsi_cb   msc_disk.o
+    0x08002fcc   0x08002fcc   0x00000002   Code   RO         1421    i.tud_msc_scsi_complete_cb  msc_device.o
+    0x08002fce   0x08002fce   0x00000002   PAD
+    0x08002fd0   0x08002fd0   0x00000010   Code   RO         1422    i.tud_msc_set_sense  msc_device.o
+    0x08002fe0   0x08002fe0   0x00000014   Code   RO         1595    i.tud_msc_start_stop_cb  msc_disk.o
+    0x08002ff4   0x08002ff4   0x0000001c   Code   RO         1596    i.tud_msc_test_unit_ready_cb  msc_disk.o
+    0x08003010   0x08003010   0x00000028   Code   RO         1597    i.tud_msc_write10_cb  msc_disk.o
+    0x08003038   0x08003038   0x00000002   Code   RO         1424    i.tud_msc_write10_complete_cb  msc_device.o
+    0x0800303a   0x0800303a   0x00000002   Code   RO          512    i.tud_resume_cb     usbd.o
+    0x0800303c   0x0800303c   0x000000b0   Code   RO          513    i.tud_rhport_init   usbd.o
+    0x080030ec   0x080030ec   0x00000002   Code   RO          514    i.tud_sof_cb        usbd.o
+    0x080030ee   0x080030ee   0x00000002   Code   RO          517    i.tud_suspend_cb    usbd.o
+    0x080030f0   0x080030f0   0x0000017c   Code   RO          520    i.tud_task_ext      usbd.o
+    0x0800326c   0x0800326c   0x00000002   Code   RO          521    i.tud_umount_cb     usbd.o
+    0x0800326e   0x0800326e   0x00000004   Code   RO          522    i.tud_vendor_control_xfer_cb  usbd.o
+    0x08003272   0x08003272   0x00000002   PAD
+    0x08003274   0x08003274   0x00000050   Code   RO          972    i.tusb_rhport_init  tusb.o
+    0x080032c4   0x080032c4   0x00000008   Code   RO          523    i.usbd_app_driver_get_cb  usbd.o
+    0x080032cc   0x080032cc   0x0000000c   Code   RO          865    i.usbd_control_reset  usbd_control.o
+    0x080032d8   0x080032d8   0x0000000c   Code   RO          866    i.usbd_control_set_complete_callback  usbd_control.o
+    0x080032e4   0x080032e4   0x00000018   Code   RO          867    i.usbd_control_set_request  usbd_control.o
+    0x080032fc   0x080032fc   0x000000a4   Code   RO          868    i.usbd_control_xfer_cb  usbd_control.o
+    0x080033a0   0x080033a0   0x0000001c   Code   RO          525    i.usbd_edpt_busy    usbd.o
+    0x080033bc   0x080033bc   0x0000001c   Code   RO          526    i.usbd_edpt_claim   usbd.o
+    0x080033d8   0x080033d8   0x00000034   Code   RO          527    i.usbd_edpt_clear_stall  usbd.o
+    0x0800340c   0x0800340c   0x0000003c   Code   RO          531    i.usbd_edpt_open    usbd.o
+    0x08003448   0x08003448   0x0000001c   Code   RO          532    i.usbd_edpt_release  usbd.o
+    0x08003464   0x08003464   0x00000034   Code   RO          533    i.usbd_edpt_stall   usbd.o
+    0x08003498   0x08003498   0x0000001c   Code   RO          534    i.usbd_edpt_stalled  usbd.o
+    0x080034b4   0x080034b4   0x0000004c   Code   RO          535    i.usbd_edpt_xfer    usbd.o
+    0x08003500   0x08003500   0x00000014   Code   RO          537    i.usbd_int_set      usbd.o
+    0x08003514   0x08003514   0x00000056   Code   RO          538    i.usbd_open_edpt_pair  usbd.o
+    0x0800356a   0x0800356a   0x0000000e   Code   RO          539    i.usbd_reset        usbd.o
+    0x08003578   0x08003578   0x00000002   Data   RO            6    .constdata          main.o
+    0x0800357a   0x0800357a   0x00000002   PAD
+    0x0800357c   0x0800357c   0x0000006c   Data   RO          545    .constdata          usbd.o
+    0x080035e8   0x080035e8   0x00000002   Data   RO          974    .constdata          tusb.o
+    0x080035ea   0x080035ea   0x00000002   Data   RO         1161    .constdata          usb_descriptors.o
+    0x080035ec   0x080035ec   0x0000007e   Data   RO         1162    .constdata          usb_descriptors.o
+    0x0800366a   0x0800366a   0x00000002   PAD
+    0x0800366c   0x0800366c   0x00000002   Data   RO         1241    .constdata          tusb_mdr32fxqi.o
+    0x0800366e   0x0800366e   0x00000002   PAD
+    0x08003670   0x08003670   0x00000022   Data   RO         1426    .constdata          msc_device.o
+    0x08003692   0x08003692   0x00000002   PAD
+    0x08003694   0x08003694   0x00000030   Data   RO         1163    .conststring        usb_descriptors.o
+    0x080036c4   0x080036c4   0x00000020   Data   RO         2531    Region$$Table       anon$$obj.o
+
+
+    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x080036e4, Size: 0x00002a30, Max: 0x00008000, ABSOLUTE, COMPRESSED[0x00000150])
+
+    Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
+
+    0x20000000   COMPRESSED   0x00000001   Data   RW          164    .data               cdc_device.o
+    0x20000001   COMPRESSED   0x00000003   PAD
+    0x20000004   COMPRESSED   0x00000024   Data   RW          546    .data               usbd.o
+    0x20000028   COMPRESSED   0x00000002   Data   RW          975    .data               tusb.o
+    0x2000002a   COMPRESSED   0x00000002   PAD
+    0x2000002c   COMPRESSED   0x00000018   Data   RW         1164    .data               usb_descriptors.o
+    0x20000044   COMPRESSED   0x0000000c   Data   RW         1242    .data               tusb_mdr32fxqi.o
+    0x20000050   COMPRESSED   0x00002001   Data   RW         1598    .data               msc_disk.o
+    0x20002051   COMPRESSED   0x00000003   PAD
+    0x20002054   COMPRESSED   0x00000004   Data   RW         1657    .data               system_mdr32f9q2i.o
+    0x20002058        -       0x00000134   Zero   RW          163    .bss                cdc_device.o
+    0x2000218c        -       0x00000028   Zero   RW          543    .bss                usbd.o
+    0x200021b4        -       0x000000c0   Zero   RW          544    .bss                usbd.o
+    0x20002274        -       0x00000054   Zero   RW          869    .bss                usbd_control.o
+    0x200022c8        -       0x00000042   Zero   RW         1160    .bss                usb_descriptors.o
+    0x2000230a   COMPRESSED   0x00000002   PAD
+    0x2000230c        -       0x00000040   Zero   RW         1240    .bss                tusb_mdr32fxqi.o
+    0x2000234c        -       0x00000080   Zero   RW         1425    .bss                msc_device.o
+    0x200023cc        -       0x00000060   Zero   RW         2403    .bss                c_w.l(libspace.o)
+    0x2000242c   COMPRESSED   0x00000004   PAD
+    0x20002430        -       0x00000200   Zero   RW         1647    HEAP                startup_mdr32f9q2i.o
+    0x20002630        -       0x00000400   Zero   RW         1646    STACK               startup_mdr32f9q2i.o
+
+
+==============================================================================
+
+Image component sizes
+
+
+      Code (inc. data)   RO Data    RW Data    ZI Data      Debug   Object Name
+
+      1218         48          0          1        308      40951   cdc_device.o
+        80          8          2          0          0     114115   main.o
+       488          4          0          0          0       2826   mdr32fxqi_port.o
+       352         58          0          0          0      10008   mdr32fxqi_rst_clk.o
+       352         74          0          0          0      11510   mdr32fxqi_usb.o
+      2554         70         34          0        128      36983   msc_device.o
+       284         50          0       8193          0       5881   msc_disk.o
+       104         26        192          0       1536       1692   startup_mdr32f9q2i.o
+       164         30          0          4          0       1471   system_mdr32f9q2i.o
+       766         10          2          2          0      34460   tusb.o
+       916          0          0          0          0      20321   tusb_fifo.o
+      1440         92          2         12         64      98936   tusb_mdr32fxqi.o
+       112         22        176         24         66      13105   usb_descriptors.o
+      3078        176        108         36        232      49383   usbd.o
+       424         34          0          0         84      22680   usbd_control.o
+
+    ----------------------------------------------------------------------
+     12352        702        556       8280       2420     464322   Object Totals
+         0          0         32          0          0          0   (incl. Generated)
+        20          0          8          8          2          0   (incl. Padding)
+
+    ----------------------------------------------------------------------
+
+      Code (inc. data)   RO Data    RW Data    ZI Data      Debug   Library Member Name
+
+        90          0          0          0          0          0   __dczerorl2.o
+         8          0          0          0          0         68   __main.o
+         0          0          0          0          0          0   __rtentry.o
+        12          0          0          0          0          0   __rtentry2.o
+         6          0          0          0          0          0   __rtentry4.o
+        52          8          0          0          0          0   __scatter.o
+        28          0          0          0          0          0   __scatter_zi.o
+        16          0          0          0          0         68   aeabi_memset.o
+        18          0          0          0          0         80   exit.o
+         6          0          0          0          0        152   heapauxi.o
+         0          0          0          0          0          0   indicate_semi.o
+         2          0          0          0          0          0   libinit.o
+         2          0          0          0          0          0   libinit2.o
+         2          0          0          0          0          0   libshutdown.o
+         2          0          0          0          0          0   libshutdown2.o
+         8          4          0          0         96         68   libspace.o
+        68          0          0          0          0         68   rt_memclr.o
+        78          0          0          0          0         80   rt_memclr_w.o
+       138          0          0          0          0         68   rt_memcpy_v6.o
+       100          0          0          0          0         80   rt_memcpy_w.o
+       132          0          0          0          0         68   rt_memmove_v6.o
+       122          0          0          0          0         80   rt_memmove_w.o
+         2          0          0          0          0          0   rtexit.o
+        10          0          0          0          0          0   rtexit2.o
+        62          0          0          0          0         76   strlen.o
+        86          0          0          0          0         76   strncpy.o
+        12          4          0          0          0         68   sys_exit.o
+        74          0          0          0          0         80   sys_stackheap_outer.o
+         2          0          0          0          0         68   use_no_semi.o
+
+    ----------------------------------------------------------------------
+      1144         16          0          0        100       1248   Library Totals
+         6          0          0          0          4          0   (incl. Padding)
+
+    ----------------------------------------------------------------------
+
+      Code (inc. data)   RO Data    RW Data    ZI Data      Debug   Library Name
+
+      1138         16          0          0         96       1248   c_w.l
+
+    ----------------------------------------------------------------------
+      1144         16          0          0        100       1248   Library Totals
+
+    ----------------------------------------------------------------------
+
+==============================================================================
+
+
+      Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
+
+     13496        718        556       8280       2520     456518   Grand Totals
+     13496        718        556        336       2520     456518   ELF Image Totals (compressed)
+     13496        718        556        336          0          0   ROM Totals
+
+==============================================================================
+
+    Total RO  Size (Code + RO Data)                14052 (  13.72kB)
+    Total RW  Size (RW Data + ZI Data)             10800 (  10.55kB)
+    Total ROM Size (Code + RO Data + RW Data)      14388 (  14.05kB)
+
+==============================================================================
+
