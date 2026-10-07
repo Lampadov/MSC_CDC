@@ -7,7 +7,6 @@
 typedef struct {
     uint8_t* buffer;
     uint16_t total_len;
-    volatile bool pending; // передача поставлена стеком (dcd_edpt_xfer) и ещё не завершена
     uint8_t  class_ep;
 } ep_state_t;
 
@@ -20,7 +19,6 @@ uint8_t  MSC_endpoint;
 
 uint32_t tusb_time_millis_api(void);
 void     board_get_unique_id(uint8_t* id, uint8_t max_len);
-tusb_class_code_t get_class_by_endpoint(uint8_t ep_addr);
 
 void handle_usb_device_reset(uint8_t rhport)
 {
@@ -33,8 +31,6 @@ void handle_usb_device_reset(uint8_t rhport)
         ep_state[ep][TUSB_DIR_IN].total_len  = 0;
         ep_state[ep][TUSB_DIR_OUT].buffer    = NULL;
         ep_state[ep][TUSB_DIR_OUT].total_len = 0;
-        ep_state[ep][TUSB_DIR_IN].pending    = false;
-        ep_state[ep][TUSB_DIR_OUT].pending   = false;
     }
 	
     for (int ep = 0; ep < 4; ep++) {
@@ -264,7 +260,6 @@ bool dcd_edpt_xfer(uint8_t rhport, uint8_t ep_addr, uint8_t* buffer, uint16_t to
 
     state->buffer    = buffer;
     state->total_len = total_bytes;
-    state->pending   = true;
 
     if (epnum == USB_EP0) {
         if (dir == TUSB_DIR_IN) {
@@ -327,11 +322,14 @@ void dcd_int_handler(uint8_t rhport)
     }
 
     if (sis & USB_SIS_SCRESUME_Set) {
+        USB_SetSIS(USB_SIS_SCRESUME_Set);
+        sis = USB_GetSIS();
         dcd_event_bus_signal(rhport, DCD_EVENT_RESUME, true);
     }
 
     if (sis & USB_SIS_SCNAKSENT_Set) {
-        // флаг уже сброшен в USB_IRQHandler
+        USB_SetSIS(USB_SIS_SCNAKSENT_Set);
+        sis = USB_GetSIS();
     }
 
     if (sis & USB_SIS_SCTDONE_Set) {
@@ -340,12 +338,6 @@ void dcd_int_handler(uint8_t rhport)
         uint32_t ctrl = USB_GetSEPxCTRL(USB_EP0);
         uint32_t ts   = USB_GetSEPxTS(USB_EP0);
         uint32_t sts  = USB_GetSEPxSTS(USB_EP0);
-
-        // Был отправлен STALL: переключаем DATASEQ и снова готовим EP0 (как и для EP1-EP3)
-        if (sts & USB_SEPx_STS_SCSTALLSENT_Set) {
-            USB_SEPxToggleEPDATASEQ(USB_EP0);
-            USB_SetSEPxCTRL(USB_EP0, USB_SEPx_CTRL_EPRDY_Ready);
-        }
 
         if ((USB_GetSEPxCTRL(USB_EP0) & USB_SEPx_CTRL_EPRDY_Ready) == 0) {
             // Обработка SETUP
@@ -412,24 +404,15 @@ void dcd_int_handler(uint8_t rhport)
             if ((ts & USB_SEPx_TS_SCTTYPE_Msk) == USB_SEPx_TS_SCTTYPE_In) {
 
                 if (sts & USB_SEPx_STS_SCACKRXED_Set) {
+                    USB_SetSEPxTXFDC((USB_EP_TypeDef)ep, 1);
                     ep_state_t* state = &ep_state[ep][TUSB_DIR_IN];
-                    // Завершаем только поставленную стеком передачу, ACK без неё игнорируем
-                    if (state->pending) {
-                        state->pending = false;
-                        USB_SetSEPxTXFDC((USB_EP_TypeDef)ep, 1);
-                        dcd_event_xfer_complete(rhport, ep | 0x80, state->total_len, XFER_RESULT_SUCCESS, true);
-                        USB_SEPxToggleEPDATASEQ(ep);
-                    }
+                    dcd_event_xfer_complete(rhport, ep | 0x80, state->total_len, XFER_RESULT_SUCCESS, true);
+                    USB_SEPxToggleEPDATASEQ(ep);
                 }
             }
             // Обработка OUT
             else if ((ts & USB_SEPx_TS_SCTTYPE_Msk) == USB_SEPx_TS_SCTTYPE_Outdata) {
-                ep_state_t* state = &ep_state[ep][TUSB_DIR_OUT];
-                // Читаем данные только если стек поставил приём (иначе state->buffer == NULL)
-                if (state->pending) {
-                    state->pending = false;
-                    handle_ep_out(rhport, ep);
-                }
+                handle_ep_out(rhport, ep);
             }
 
             /* Если класс точки не MSC, то восстановить работу EPRDY этой точки и точки с MSC,
@@ -490,8 +473,7 @@ void USB_IRQHandler(uint8_t rhport)
 {
     (void)rhport;
     sis = USB_GetSIS();
-    // Сбрасываем только те флаги, что прочитали, ДО обработки: событие, пришедшее во время
-    // обработки, не будет потеряно (раньше после обработки сбрасывались все флаги разом)
-    USB_SetSIS(sis);
     dcd_int_handler(rhport);
+    USB_SetSIS(USB_SIS_Msk);
+    sis = USB_GetSIS();
 }
