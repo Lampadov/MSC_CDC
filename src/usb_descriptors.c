@@ -78,8 +78,6 @@ uint8_t const desc_hid_report[] =
 {
 #if HID_MODE == HID_MODE_KEYBOARD
   TUD_HID_REPORT_DESC_KEYBOARD()
-#elif HID_MODE == HID_MODE_ECHO
-  TUD_HID_REPORT_DESC_GENERIC_INOUT(CFG_TUD_HID_EP_BUFSIZE)
 #else
   TUD_HID_REPORT_DESC_MOUSE()
 #endif
@@ -110,27 +108,17 @@ enum
 #define HID_ITF_PROTOCOL_MODE  HID_ITF_PROTOCOL_NONE
 #endif
 
-#define EPNUM_HID       0x82   // EP2 IN  - отчёты к хосту
-#define EPNUM_HID_OUT   0x01   // EP1 OUT - отчёты от хоста (только в режиме ECHO)
+#define EPNUM_HID       0x82   // EP2 IN - отчёты к хосту
 
-#if HID_MODE == HID_MODE_ECHO
-#define CONFIG_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_HID_INOUT_DESC_LEN)
-#else
 #define CONFIG_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_HID_DESC_LEN)
-#endif
 
 uint8_t const desc_configuration[] =
 {
   // Config number, interface count, string index, total length, attribute, power in mA
   TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, CONFIG_TOTAL_LEN, 0x00, 100),
 
-#if HID_MODE == HID_MODE_ECHO
-  // Interface number, string index, protocol, report descriptor len, EP Out & In address, size & polling interval
-  TUD_HID_INOUT_DESCRIPTOR(ITF_NUM_HID, 0, HID_ITF_PROTOCOL_NONE, sizeof(desc_hid_report), EPNUM_HID_OUT, EPNUM_HID, CFG_TUD_HID_EP_BUFSIZE, 1)
-#else
   // Interface number, string index, protocol, report descriptor len, EP In address, size & polling interval
   TUD_HID_DESCRIPTOR(ITF_NUM_HID, 0, HID_ITF_PROTOCOL_MODE, sizeof(desc_hid_report), EPNUM_HID, CFG_TUD_HID_EP_BUFSIZE, 1)
-#endif
 };
 
 uint8_t const desc_device_qualifier[] =
@@ -229,8 +217,6 @@ static char const *string_desc_arr[] =
   "Milandr",                     // 1: Manufacturer
 #if HID_MODE == HID_MODE_KEYBOARD
   "Milandr HID Keyboard",        // 2: Product
-#elif HID_MODE == HID_MODE_ECHO
-  "Milandr HID Echo",            // 2: Product
 #else
   "Milandr HID Mouse",           // 2: Product
 #endif

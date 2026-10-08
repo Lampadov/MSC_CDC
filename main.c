@@ -1,5 +1,3 @@
-#include <string.h>
-
 #include <MDR32FxQI_port.h>
 #include <MDR32FxQI_rst_clk.h>
 
@@ -12,8 +10,6 @@
  *   HID_MODE_MOUSE    SELECT - лева€ кнопка мыши; UP/DOWN/LEFT/RIGHT двигают курсор, пока кнопка
  *                     удержана (непрерывно и с ускорением)
  *   HID_MODE_KEYBOARD SELECT - Enter; UP/DOWN/LEFT/RIGHT - стрелки
- *   HID_MODE_ECHO     тест: всЄ, что хост отправил в отчЄте (64 байта), возвращаетс€ ему назад
- *                     (стресс-тест tools/hid_stress.py)
  *
  * —ветодиоды: VD3 горит, когда хост настроил устройство; VD4 горит, пока нажата люба€ кнопка.
  */
@@ -211,29 +207,6 @@ static void keyboard_send(uint8_t state)
     }
 }
 
-//--------------------------------------------------------------------+
-// –ежим ECHO (тест)
-//--------------------------------------------------------------------+
-#elif HID_MODE == HID_MODE_ECHO
-
-#define ECHO_QUEUE  8                         // сколько прин€тых отчЄтов можно держать в очереди
-
-static uint8_t           echo_buf[ECHO_QUEUE][CFG_TUD_HID_EP_BUFSIZE];
-static uint16_t          echo_len[ECHO_QUEUE];
-static volatile uint8_t  echo_head, echo_tail;
-volatile uint32_t        echo_dropped;        // отчЄты, не поместившиес€ в очередь (дл€ отладки в Keil)
-volatile uint32_t        echo_count;          // сколько отчЄтов возвращено хосту
-
-static void echo_task(void)
-{
-    if (echo_tail != echo_head && tud_hid_ready()) {
-        if (tud_hid_report(0, echo_buf[echo_tail], echo_len[echo_tail])) {
-            echo_tail = (uint8_t)((echo_tail + 1) % ECHO_QUEUE);
-            echo_count++;
-        }
-    }
-}
-
 #endif
 
 //--------------------------------------------------------------------+
@@ -242,9 +215,6 @@ static void echo_task(void)
 
 static void hid_task(void)
 {
-#if HID_MODE == HID_MODE_ECHO
-    echo_task();
-#else
     static uint32_t last_ms;
     uint32_t now = ms_ticks;
     if (now == last_ms) {
@@ -253,11 +223,10 @@ static void hid_task(void)
     last_ms = now;
 
     uint8_t state = buttons_scan();
-  #if HID_MODE == HID_MODE_KEYBOARD
+#if HID_MODE == HID_MODE_KEYBOARD
     keyboard_send(state);
-  #else
+#else
     mouse_send(state, now);
-  #endif
 #endif
 }
 
@@ -274,20 +243,8 @@ void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id,
     (void)report_id;
     (void)report_type;
 
-#if HID_MODE == HID_MODE_ECHO
-    uint8_t next = (uint8_t)((echo_head + 1) % ECHO_QUEUE);
-    if (next == echo_tail) {
-        echo_dropped++;               // очередь полна
-        return;
-    }
-    if (bufsize > CFG_TUD_HID_EP_BUFSIZE) bufsize = CFG_TUD_HID_EP_BUFSIZE;
-    memcpy(echo_buf[echo_head], buffer, bufsize);
-    echo_len[echo_head] = bufsize;
-    echo_head = next;
-#else
     (void)buffer;                     // мыши/клавиатуре отчЄты от хоста не нужны (кроме индикаторов Num/Caps Lock)
     (void)bufsize;
-#endif
 }
 
 // ’ост запросил отчЄт через управл€ющую точку; 0 - нечего отдавать

@@ -27,24 +27,21 @@ extern "C" {
 // Тип HID-устройства: выбирается ОДНИМ макросом HID_MODE
 //   HID_MODE_MOUSE    - мышь: кнопки платы двигают курсор
 //   HID_MODE_KEYBOARD - клавиатура: Enter и стрелки
-//   HID_MODE_ECHO     - тест: устройство возвращает назад 64-байтные отчёты
-//                       (для стресс-теста tools/hid_stress.py)
 // Менять здесь или в Keil: Options for Target -> C/C++ -> Define: HID_MODE=2
 //--------------------------------------------------------------------
 #define HID_MODE_MOUSE     1
 #define HID_MODE_KEYBOARD  2
-#define HID_MODE_ECHO      3
 
 #ifndef HID_MODE
 #define HID_MODE           HID_MODE_MOUSE
 #endif
 
-// Размер буфера конечной точки HID-отчёта: 8 байт для мыши/клавиатуры, 64 для эха
-#if HID_MODE == HID_MODE_ECHO
-#define CFG_TUD_HID_EP_BUFSIZE  64
-#else
-#define CFG_TUD_HID_EP_BUFSIZE  8
+#if (HID_MODE != HID_MODE_MOUSE) && (HID_MODE != HID_MODE_KEYBOARD)
+#error "HID_MODE: допустимы HID_MODE_MOUSE (1) и HID_MODE_KEYBOARD (2)"
 #endif
+
+// Размер буфера конечной точки HID-отчёта (мышь/клавиатура: 8 байт)
+#define CFG_TUD_HID_EP_BUFSIZE  8
 
 #ifdef __cplusplus
 }
