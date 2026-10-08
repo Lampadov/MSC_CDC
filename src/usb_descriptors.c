@@ -36,7 +36,7 @@
  */
 
 #define USB_VID   0xCAFE
-#define USB_PID   0x4011
+#define USB_PID   0x4012
 #define USB_BCD   0x0210     // 2.10: хост запрашивает BOS-дескриптор
 
 // Адрес страницы, которую Chrome предложит открыть при подключении платы.
@@ -47,7 +47,8 @@
 // Коды vendor-запросов (bRequest), которыми хост достаёт дескрипторы WebUSB и MS OS 2.0
 enum {
   VENDOR_REQUEST_WEBUSB    = 1,
-  VENDOR_REQUEST_MICROSOFT = 2
+  VENDOR_REQUEST_MICROSOFT = 2,
+  VENDOR_REQUEST_MS10      = 3     // MS OS 1.0, код сообщается в строке 0xEE
 };
 
 //--------------------------------------------------------------------+
@@ -107,7 +108,7 @@ uint8_t const *tud_descriptor_configuration_cb(uint8_t index) {
 //--------------------------------------------------------------------+
 // BOS Descriptor: сообщает хосту, что устройство поддерживает WebUSB и MS OS 2.0
 //--------------------------------------------------------------------+
-#define MS_OS_20_DESC_LEN  0xB2
+#define MS_OS_20_DESC_LEN  0xA2     // заголовок 10 + compatible ID 20 + свойство реестра 132
 
 #define BOS_TOTAL_LEN  (TUD_BOS_DESC_LEN + TUD_BOS_WEBUSB_DESC_LEN + TUD_BOS_MICROSOFT_OS_DESC_LEN)
 
@@ -135,21 +136,14 @@ static uint8_t const desc_ms_os_20[] = {
     U16_TO_U8S_LE(0x000A), U16_TO_U8S_LE(MS_OS_20_SET_HEADER_DESCRIPTOR), U32_TO_U8S_LE(0x06030000),
     U16_TO_U8S_LE(MS_OS_20_DESC_LEN),
 
-    // Подмножество конфигурации: длина, тип, номер конфигурации, резерв, длина подмножества
-    U16_TO_U8S_LE(0x0008), U16_TO_U8S_LE(MS_OS_20_SUBSET_HEADER_CONFIGURATION), 0, 0,
-    U16_TO_U8S_LE(MS_OS_20_DESC_LEN - 0x0A),
-
-    // Подмножество функции: длина, тип, первый интерфейс, резерв, длина подмножества
-    U16_TO_U8S_LE(0x0008), U16_TO_U8S_LE(MS_OS_20_SUBSET_HEADER_FUNCTION), ITF_NUM_VENDOR, 0,
-    U16_TO_U8S_LE(MS_OS_20_DESC_LEN - 0x0A - 0x08),
-
-    // Compatible ID: драйвер WinUSB
+    // Compatible ID: драйвер WinUSB. Подмножеств конфигурации и функции нет: устройство с одним
+    // интерфейсом Windows не считает составным, и описание действует на всё устройство
     U16_TO_U8S_LE(0x0014), U16_TO_U8S_LE(MS_OS_20_FEATURE_COMPATBLE_ID),
     'W', 'I', 'N', 'U', 'S', 'B', 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 
     // Свойство реестра DeviceInterfaceGUIDs (по нему программы находят устройство)
-    U16_TO_U8S_LE(MS_OS_20_DESC_LEN - 0x0A - 0x08 - 0x08 - 0x14), U16_TO_U8S_LE(MS_OS_20_FEATURE_REG_PROPERTY),
+    U16_TO_U8S_LE(MS_OS_20_DESC_LEN - 0x0A - 0x14), U16_TO_U8S_LE(MS_OS_20_FEATURE_REG_PROPERTY),
     U16_TO_U8S_LE(0x0007), U16_TO_U8S_LE(0x002A),                  // REG_MULTI_SZ, длина имени 42 байта
     'D', 0, 'e', 0, 'v', 0, 'i', 0, 'c', 0, 'e', 0, 'I', 0, 'n', 0, 't', 0, 'e', 0,
     'r', 0, 'f', 0, 'a', 0, 'c', 0, 'e', 0, 'G', 0, 'U', 0, 'I', 0, 'D', 0, 's', 0, 0, 0,
@@ -161,6 +155,36 @@ static uint8_t const desc_ms_os_20[] = {
 };
 
 TU_VERIFY_STATIC(sizeof(desc_ms_os_20) == MS_OS_20_DESC_LEN, "Incorrect size");
+
+//--------------------------------------------------------------------+
+// Microsoft OS 1.0 - запасной путь для тех версий Windows, где MS OS 2.0 не сработала.
+// Хост спрашивает строку 0xEE ("MSFT100" + код запроса), затем по этому коду
+// забирает Compatible ID (wIndex 4) и свойство реестра с GUID (wIndex 5).
+//--------------------------------------------------------------------+
+static uint8_t const desc_ms_os_10_compat[] = {
+    U32_TO_U8S_LE(40), U16_TO_U8S_LE(0x0100), U16_TO_U8S_LE(4),    // длина, версия, тип запроса
+    1, 0, 0, 0, 0, 0, 0, 0,                                        // одна функция
+    ITF_NUM_VENDOR, 1,                                             // первый интерфейс, резерв
+    'W', 'I', 'N', 'U', 'S', 'B', 0x00, 0x00,                      // Compatible ID
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,                // Sub-compatible ID
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+
+static uint8_t const desc_ms_os_10_props[] = {
+    U32_TO_U8S_LE(142), U16_TO_U8S_LE(0x0100), U16_TO_U8S_LE(5),   // длина, версия, тип запроса
+    U16_TO_U8S_LE(1),                                              // одно свойство
+    U32_TO_U8S_LE(132), U32_TO_U8S_LE(1),                          // размер свойства, REG_SZ
+    U16_TO_U8S_LE(40),                                             // длина имени 40 байт
+    'D', 0, 'e', 0, 'v', 0, 'i', 0, 'c', 0, 'e', 0, 'I', 0, 'n', 0, 't', 0, 'e', 0,
+    'r', 0, 'f', 0, 'a', 0, 'c', 0, 'e', 0, 'G', 0, 'U', 0, 'I', 0, 'D', 0, 0, 0,
+    U32_TO_U8S_LE(78),                                             // длина значения 78 байт
+    '{', 0, '9', 0, '7', 0, '5', 0, 'F', 0, '4', 0, '4', 0, 'D', 0, '9', 0, '-', 0,
+    '0', 0, 'D', 0, '0', 0, '8', 0, '-', 0, '4', 0, '3', 0, 'F', 0, 'D', 0, '-', 0,
+    '8', 0, 'B', 0, '3', 0, 'E', 0, '-', 0, '1', 0, '2', 0, '7', 0, 'C', 0, 'A', 0,
+    '8', 0, 'A', 0, 'F', 0, 'F', 0, 'F', 0, '9', 0, 'D', 0, '}', 0, 0, 0
+};
+TU_VERIFY_STATIC(sizeof(desc_ms_os_10_compat) == 40, "Incorrect size");
+TU_VERIFY_STATIC(sizeof(desc_ms_os_10_props) == 142, "Incorrect size");
 
 //--------------------------------------------------------------------+
 // Адрес страницы WebUSB (Landing Page URL)
@@ -195,6 +219,15 @@ bool tud_vendor_control_xfer_cb(uint8_t rhport, uint8_t stage, tusb_control_requ
       }
       return false;
 
+    case VENDOR_REQUEST_MS10:
+      if (request->wIndex == 4) {
+        return tud_control_xfer(rhport, request, (void *) (uintptr_t) desc_ms_os_10_compat, sizeof(desc_ms_os_10_compat));
+      }
+      if (request->wIndex == 5) {
+        return tud_control_xfer(rhport, request, (void *) (uintptr_t) desc_ms_os_10_props, sizeof(desc_ms_os_10_props));
+      }
+      return false;
+
     default:
       return false;
   }
@@ -218,6 +251,11 @@ uint16_t const *tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
   if (index == 0) {
     memcpy(&_desc_str[1], string_desc_arr[0], 2);
     chr_count = 1;
+  } else if (index == 0xEE) {                       // MS OS 1.0: "MSFT100" + код vendor-запроса
+    static const char sig[] = "MSFT100";
+    for (size_t i = 0; i < 7; i++) _desc_str[1 + i] = sig[i];
+    _desc_str[8] = VENDOR_REQUEST_MS10;
+    chr_count    = 8;
   } else {
     if (index >= sizeof(string_desc_arr) / sizeof(string_desc_arr[0])) return NULL;
 
