@@ -3,7 +3,7 @@
  * Auto generated Run-Time-Environment Configuration File
  *      *** Do not modify ! ***
  *
- * Project: 'USB_CDC' 
+ * Project: 'USB_WEBUSB' 
  * Target:  'Target 1' 
  */
 

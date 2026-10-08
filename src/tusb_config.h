@@ -11,15 +11,15 @@
 #define CFG_TUD_ENDPOINT0_SIZE  64
 #define CFG_TUSB_SPEED          OPT_MODE_FULL_SPEED
 
-// Только CDC (COM-порт)
-#define CFG_TUD_CDC             1
+// Только vendor-класс (WebUSB, драйвер WinUSB ставится Windows сам)
+#define CFG_TUD_CDC             0
 #define CFG_TUD_HID             0
 #define CFG_TUD_MIDI            0
-#define CFG_TUD_VENDOR          0
+#define CFG_TUD_VENDOR          1
 
-// Меньшие буферы для экономии памяти
-#define CFG_TUD_CDC_RX_BUFSIZE  64
-#define CFG_TUD_CDC_TX_BUFSIZE  64
+// Размер буферов vendor-класса (WebUSB)
+#define CFG_TUD_VENDOR_RX_BUFSIZE  64
+#define CFG_TUD_VENDOR_TX_BUFSIZE  64
 
 
 #endif

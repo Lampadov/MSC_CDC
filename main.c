@@ -1,47 +1,52 @@
-#include <stdarg.h>
-#include <stdio.h>
-#include <string.h>
-
 #include <MDR32FxQI_port.h>
 #include <MDR32FxQI_rst_clk.h>
 
 #include "tusb.h"
 
 /*
- * Консоль в виртуальном COM-порте. Откройте порт в PuTTY / Tera Term (скорость любая):
- * плата пришлёт приветствие и будет выполнять команды (help - список).
- * Нажатия кнопок платы тоже печатаются в терминале.
+ * WebUSB-демо: плата общается с веб-страницей (web/index.html) прямо из браузера Chrome/Edge,
+ * без драйверов и без установки программ.
  *
- * Команда echo включает прозрачное эхо (нужно для стресс-теста tools/cdc_stress.py);
- * оно действует до закрытия порта.
+ *   плата -> страница  кадр состояния раз в 20 мс: кнопки, светодиоды, значение АЦП, время
+ *   страница -> плата  команда "включить/выключить светодиоды"
+ *
+ * Формат кадров (все числа little-endian):
+ *   плата -> страница  [0x01] [кнопки] [светодиоды] [АЦП, 2 байта] [мс с запуска, 4 байта]
+ *   страница -> плата  [0x01] [светодиоды]
+ * Биты кнопок: 0 SELECT, 1 UP, 2 DOWN, 3 LEFT, 4 RIGHT. Биты светодиодов: 0 VD3, 1 VD4.
  */
+
+// 1 - измерять встроенный датчик температуры АЦП (нужен компонент Drivers -> ADC в Keil RTE),
+// 0 - вместо АЦП выдавать "треугольник" (для проверки USB без АЦП)
+#define USE_ADC       1
+
+#define FRAME_PERIOD_MS  20
+#define DEBOUNCE_MS      5
+
+#define MSG_STATE   0x01
+#define MSG_LEDS    0x01
 
 #define VD3  PORT_Pin_0
 #define VD4  PORT_Pin_1
-
-#define DEBOUNCE_MS  5
-#define LINE_MAX     32
-#define PROMPT       "> "
 
 enum { BTN_SELECT, BTN_UP, BTN_DOWN, BTN_LEFT, BTN_RIGHT, BTN_COUNT };
 
 static const struct {
     MDR_PORT_TypeDef* port;
     uint16_t          pin;
-    const char*       name;
 } buttons[BTN_COUNT] = {
-    {MDR_PORTC, PORT_Pin_2, "SELECT"},
-    {MDR_PORTB, PORT_Pin_5, "UP"},
-    {MDR_PORTE, PORT_Pin_1, "DOWN"},
-    {MDR_PORTE, PORT_Pin_3, "LEFT"},
-    {MDR_PORTB, PORT_Pin_6, "RIGHT"}
+    {MDR_PORTC, PORT_Pin_2},   // SELECT
+    {MDR_PORTB, PORT_Pin_5},   // UP
+    {MDR_PORTE, PORT_Pin_1},   // DOWN
+    {MDR_PORTE, PORT_Pin_3},   // LEFT
+    {MDR_PORTB, PORT_Pin_6}    // RIGHT
 };
 
 extern void     SystemCoreClockUpdate(void);
 extern uint32_t SystemCoreClock;
 
 //--------------------------------------------------------------------+
-// Время и кнопки
+// Время, кнопки, светодиоды
 //--------------------------------------------------------------------+
 static volatile uint32_t ms_ticks;       // миллисекунды с момента запуска
 
@@ -51,6 +56,7 @@ void SysTick_Handler(void)
 }
 
 static uint8_t buttons_state;            // маска нажатых кнопок (бит = номер BTN_xxx)
+static uint8_t leds_state;               // маска включённых светодиодов
 
 // Опрос кнопок раз в миллисекунду с подавлением дребезга
 static void buttons_scan(void)
@@ -68,205 +74,90 @@ static void buttons_scan(void)
     }
 }
 
-//--------------------------------------------------------------------+
-// Вывод в терминал
-//--------------------------------------------------------------------+
-// Если буфер CDC (64 байта) заполнен, ждём, обслуживая USB, пока хост его заберёт.
-static void put(const char* s)
+static void leds_set(uint8_t mask)
 {
-    while (*s && tud_cdc_connected()) {
-        if (tud_cdc_write_char(*s)) {
-            s++;
-        } else {
-            tud_cdc_write_flush();
-            tud_task();
-        }
-    }
-    tud_cdc_write_flush();
-}
-
-static void print(const char* fmt, ...)
-{
-    char    buf[96];
-    va_list args;
-
-    va_start(args, fmt);
-    vsnprintf(buf, sizeof(buf), fmt, args);
-    va_end(args);
-    put(buf);
+    leds_state = mask & 0x03;
+    if (leds_state & 1) PORT_SetBits(MDR_PORTC, VD3); else PORT_ResetBits(MDR_PORTC, VD3);
+    if (leds_state & 2) PORT_SetBits(MDR_PORTC, VD4); else PORT_ResetBits(MDR_PORTC, VD4);
 }
 
 //--------------------------------------------------------------------+
-// Команды
+// АЦП
 //--------------------------------------------------------------------+
-static char line[LINE_MAX];              // вводимая строка
-static int  line_len;
-static bool echo_mode;                   // прозрачное эхо вместо консоли
+#if USE_ADC
+#include <MDR32FxQI_adc.h>
 
-static void cmd_led(const char* n, const char* state)
+static void adc_init(void)
 {
-    uint16_t pin = !n ? 0 : !strcmp(n, "3") ? VD3 : !strcmp(n, "4") ? VD4 : 0;
+    ADC_InitTypeDef  adc;
+    ADCx_InitTypeDef adc1;
 
-    if (pin && state && !strcmp(state, "on")) {
-        PORT_SetBits(MDR_PORTC, pin);
-    } else if (pin && state && !strcmp(state, "off")) {
-        PORT_ResetBits(MDR_PORTC, pin);
-    } else {
-        put("usage: led 3|4 on|off\r\n");
-        return;
-    }
-    print("LED%s %s\r\n", n, state);
+    RST_CLK_PCLKcmd(RST_CLK_PCLK_ADC, ENABLE);
+    ADC_DeInit();
+
+    ADC_StructInit(&adc);                              // общие настройки: включаем датчик температуры
+    adc.ADC_TempSensor           = ADC_TEMP_SENSOR_Enable;
+    adc.ADC_TempSensorAmplifier  = ADC_TEMP_SENSOR_AMPLIFIER_Enable;
+    adc.ADC_TempSensorConversion = ADC_TEMP_SENSOR_CONVERSION_Enable;
+    ADC_Init(&adc);
+
+    ADCx_StructInit(&adc1);                            // АЦП1: одиночное преобразование
+    adc1.ADC_ClockSource    = ADC_CLOCK_SOURCE_CPU;
+    adc1.ADC_SamplingMode   = ADC_SAMPLING_MODE_SINGLE_CONV;
+    adc1.ADC_ChannelNumber  = ADC_CH_TEMP_SENSOR;      // чтобы измерять вход, например, ADC_CH_ADC7
+    adc1.ADC_Prescaler      = ADC_CLK_div_16;
+    adc1.ADC_VRefSource     = ADC_VREF_SOURCE_INTERNAL;
+    adc1.ADC_IntVRefSource  = ADC_INT_VREF_SOURCE_INEXACT;
+    ADC1_Init(&adc1);
+    ADC1_Cmd(ENABLE);
 }
 
-static void cmd_btn(void)
+static uint16_t adc_read(void)
 {
-    for (int i = 0; i < BTN_COUNT; i++) {
-        if (buttons_state & (1u << i)) print("%s ", buttons[i].name);
-    }
-    put(buttons_state ? "pressed\r\n" : "none pressed\r\n");
+    ADC1_Start();
+    for (int i = 0; i < 10000 && ADC1_GetFlagStatus(ADC1_FLAG_END_OF_CONVERSION) == RESET; i++) {}
+    return (uint16_t)(ADC1_GetResult() & 0x0FFF);
 }
 
-static void cmd_uptime(void)
+#else
+
+static void adc_init(void) {}
+
+// Вместо АЦП: "треугольник" 0..4095 с периодом около 8 секунд
+static uint16_t adc_read(void)
 {
-    uint32_t t = ms_ticks;
-
-    print("up %02lu:%02lu:%02lu.%03lu\r\n", (unsigned long)(t / 3600000u), (unsigned long)(t / 60000u % 60u),
-          (unsigned long)(t / 1000u % 60u), (unsigned long)(t % 1000u));
+    uint32_t t = (ms_ticks / 2) % 8192;
+    return (uint16_t)(t < 4096 ? t : 8191 - t);
 }
-
-// Отправляет 64 КБ точек и показывает скорость
-static void cmd_speed(void)
-{
-    uint32_t start = ms_ticks;
-
-    for (int i = 0; i < 1024; i++) {
-        put("................................................................");
-    }
-    uint32_t ms = ms_ticks - start;
-    print("\r\n64 KB in %lu ms = %lu KB/s\r\n", (unsigned long)ms, (unsigned long)(64000u / (ms ? ms : 1)));
-    tud_cdc_read_flush();                // то, что набрали за это время, отбрасываем
-}
-
-static void run_command(char* s)
-{
-    char* arg[3] = {0, 0, 0};
-    int   n = 0;
-
-    while (*s && n < 3) {                // делим строку на слова
-        while (*s == ' ') *s++ = 0;
-        if (*s) {
-            arg[n++] = s;
-            while (*s && *s != ' ') s++;
-        }
-    }
-    if (n == 0) return;
-
-    if (!strcmp(arg[0], "help")) {
-        put("help             this list\r\n"
-            "led N on|off     LED VD3 or VD4 (N = 3 or 4)\r\n"
-            "btn              which buttons are pressed now\r\n"
-            "uptime           time since reset\r\n"
-            "speed            send 64 KB to the PC and measure speed\r\n"
-            "echo             raw echo mode (until the port is closed)\r\n");
-    }
-    else if (!strcmp(arg[0], "led"))    cmd_led(arg[1], arg[2]);
-    else if (!strcmp(arg[0], "btn"))    cmd_btn();
-    else if (!strcmp(arg[0], "uptime")) cmd_uptime();
-    else if (!strcmp(arg[0], "speed"))  cmd_speed();
-    else if (!strcmp(arg[0], "echo"))   { put("ECHO MODE\r\n"); echo_mode = true; }
-    else                                put("unknown command, type help\r\n");
-}
-
-// Один принятый символ: набор строки, Backspace, Enter
-static void console_char(char c)
-{
-    static bool last_was_cr;
-
-    if (c == '\n' && last_was_cr) {      // CR LF считаем одним переводом строки
-        last_was_cr = false;
-        return;
-    }
-    last_was_cr = (c == '\r');
-
-    if (c == '\r' || c == '\n') {
-        put("\r\n");
-        run_command(line);
-        line_len = 0;
-        line[0] = 0;
-        if (!echo_mode) put(PROMPT);
-    } else if ((c == 8 || c == 127) && line_len > 0) {   // Backspace
-        line[--line_len] = 0;
-        put("\b \b");
-    } else if (c >= 32 && c < 127 && line_len < LINE_MAX - 1) {
-        line[line_len++] = c;
-        line[line_len] = 0;
-        print("%c", c);                 // эхо вводимого символа
-    }
-}
+#endif
 
 //--------------------------------------------------------------------+
-// Задачи
+// Обмен со страницей
 //--------------------------------------------------------------------+
-// Печатает нажатия кнопок, вернув приглашение и недописанную команду
-static void buttons_task(void)
+static void send_state(void)
 {
-    static uint8_t  prev;
-    static uint32_t last_ms;
+    uint16_t adc = adc_read();
+    uint32_t ms  = ms_ticks;
+    uint8_t  frame[9] = {
+        MSG_STATE, buttons_state, leds_state,
+        (uint8_t)adc, (uint8_t)(adc >> 8),
+        (uint8_t)ms, (uint8_t)(ms >> 8), (uint8_t)(ms >> 16), (uint8_t)(ms >> 24)
+    };
 
-    if (ms_ticks == last_ms) return;     // опрос раз в миллисекунду
-    last_ms = ms_ticks;
-
-    buttons_scan();
-    uint8_t pressed = buttons_state & (uint8_t)~prev;
-    prev = buttons_state;
-
-    for (int i = 0; i < BTN_COUNT; i++) {
-        if (pressed & (1u << i)) {
-            print("\r\n%s pressed\r\n" PROMPT "%s", buttons[i].name, line);
-        }
+    if (tud_vendor_write_available() >= sizeof(frame)) {   // если страница не читает, кадр пропускаем
+        tud_vendor_write(frame, sizeof(frame));
+        tud_vendor_write_flush();
     }
 }
 
-// Эхо: читаем не больше, чем влезет в TX-буфер, иначе при медленном хосте байты теряются
-static void echo_task(void)
+static void receive_commands(void)
 {
-    uint32_t room = tud_cdc_write_available();
+    uint8_t cmd[2];
 
-    if (room && tud_cdc_available()) {
-        uint8_t  buf[64];
-        uint32_t n = tud_cdc_read(buf, room < sizeof(buf) ? room : sizeof(buf));
-        tud_cdc_write(buf, n);
-        tud_cdc_write_flush();
+    while (tud_vendor_available() >= sizeof(cmd)) {
+        tud_vendor_read(cmd, sizeof(cmd));
+        if (cmd[0] == MSG_LEDS) leds_set(cmd[1]);
     }
-}
-
-static void cdc_task(void)
-{
-    static bool was_connected;
-    bool        connected = tud_cdc_connected();   // терминал открыл порт (DTR)
-
-    if (connected != was_connected) {              // порт открыли или закрыли
-        was_connected = connected;
-        echo_mode = false;
-        line_len = 0;
-        line[0] = 0;
-        tud_cdc_read_flush();
-        if (connected) {
-            // К1986ВЕ9х в UTF-8 (байтами, чтобы не зависеть от кодировки файла)
-            put("\r\nMilandr \xD0\x9A" "1986" "\xD0\x92\xD0\x95" "9" "\xD1\x85"
-                ", TinyUSB CDC\r\nType 'help' for commands.\r\n" PROMPT);
-        }
-    }
-    if (!connected) return;
-
-    if (echo_mode) {
-        echo_task();
-        return;
-    }
-    while (tud_cdc_available()) {
-        console_char((char)tud_cdc_read_char());
-    }
-    buttons_task();
 }
 
 //--------------------------------------------------------------------+
@@ -303,10 +194,25 @@ int main(void)
 
     SystemCoreClockUpdate();             // тактовая частота известна только после tusb_init
     SysTick_Config(SystemCoreClock / 1000);
+    adc_init();                          // АЦП тактируется от ядра: настраиваем после PLL
+
+    uint32_t last_ms = 0, last_frame_ms = 0;
+    uint8_t  sent_buttons = 0;
 
     while (1)
     {
         tud_task();                      // обработка USB-стека
-        cdc_task();
+        receive_commands();
+
+        if (ms_ticks == last_ms) continue;     // дальше - раз в миллисекунду
+        last_ms = ms_ticks;
+        buttons_scan();
+
+        // Кадр уходит по таймеру и сразу при нажатии/отпускании кнопки
+        if (ms_ticks - last_frame_ms >= FRAME_PERIOD_MS || buttons_state != sent_buttons) {
+            last_frame_ms = ms_ticks;
+            sent_buttons  = buttons_state;
+            send_state();
+        }
     }
 }
