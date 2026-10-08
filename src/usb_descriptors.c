@@ -65,7 +65,7 @@ static tusb_desc_device_t const desc_device = {
 
     .idVendor           = USB_VID,
     .idProduct          = USB_PID,
-    .bcdDevice          = 0x0100,
+    .bcdDevice          = 0x0101,   // Windows запоминает отсутствие MS OS 2.0 для VID/PID/bcdDevice: при отладке увеличивайте
 
     .iManufacturer      = 0x01,
     .iProduct           = 0x02,
