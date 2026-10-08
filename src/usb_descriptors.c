@@ -36,11 +36,11 @@
  */
 
 #define USB_VID   0xCAFE
-#define USB_PID   0x4014
+#define USB_PID   0x4015
 
 // 1 - драйвер WinUSB через MS OS 2.0 (BOS, bcdUSB 2.10), подсказка со страницей WebUSB в Chrome;
 // 0 - через MS OS 1.0 (строка 0xEE, bcdUSB 2.00): BOS хост не запрашивает
-#define USE_MS_OS_20  1
+#define USE_MS_OS_20  0
 
 #if USE_MS_OS_20
 #define USB_BCD   0x0210     // 2.10: хост запрашивает BOS-дескриптор
@@ -68,9 +68,9 @@ static tusb_desc_device_t const desc_device = {
     .bDescriptorType    = TUSB_DESC_DEVICE,
     .bcdUSB             = USB_BCD,
 
-    .bDeviceClass       = TUSB_CLASS_MISC,        // 0xEF/0x02/0x01: составное устройство - Windows всегда
-    .bDeviceSubClass    = MISC_SUBCLASS_COMMON,   // грузит usbccgp и применяет подмножество функции
-    .bDeviceProtocol    = MISC_PROTOCOL_IAD,      // из MS OS 2.0 (так устроен и CMSIS-DAP программатор)
+    .bDeviceClass       = 0x00,     // класс задан на уровне интерфейса (одна функция, не составное)
+    .bDeviceSubClass    = 0x00,
+    .bDeviceProtocol    = 0x00,
     .bMaxPacketSize0    = CFG_TUD_ENDPOINT0_SIZE,
 
     .idVendor           = USB_VID,
@@ -259,7 +259,7 @@ bool tud_vendor_control_xfer_cb(uint8_t rhport, uint8_t stage, tusb_control_requ
 static uint8_t const desc_device_qualifier[] = {
     0x0A, 0x06,                          // длина, тип
     U16_TO_U8S_LE(USB_BCD),              // bcdUSB
-    TUSB_CLASS_MISC, MISC_SUBCLASS_COMMON, MISC_PROTOCOL_IAD,
+    0x00, 0x00, 0x00,
     CFG_TUD_ENDPOINT0_SIZE,              // размер пакета EP0
     0x01, 0x00                           // число конфигураций, резерв
 };
