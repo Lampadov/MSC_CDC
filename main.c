@@ -207,7 +207,14 @@ int main(void)
 
         // ОТЛАДКА: пока хост не настроил устройство, светодиоды показывают, что он запрашивал
         // VD4 - хост запросил MS OS 2.0, VD3 - и принял его целиком (подробнее в README)
-        if (!tud_mounted()) leds_set(((usb_trace >> 3) & 1) | (usb_trace & 2));
+        static bool was_mounted;
+        if (!tud_mounted()) {
+            leds_set(((usb_trace >> 3) & 1) | (usb_trace & 2));
+            was_mounted = false;
+        } else if (!was_mounted) {
+            was_mounted = true;
+            leds_set(0);                 // хост настроил устройство - гасим диагностику
+        }
 
         receive_commands();
 
