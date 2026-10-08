@@ -1,132 +1,175 @@
+#include "tusb.h"
+#include <MDR32FxQI_rst_clk.h>
+#include "MDR32FxQI_usb.h"
+#include "device/dcd.h"
+
 /*
- * Порт TinyUSB (device) для USB-контроллера MDR32F9Q2I (К1986ВЕ92QI).
+ * Порт TinyUSB для USB-контроллера MDR32F9Q2I.
  *
- * Как устроен контроллер (то, что важно для понимания порта):
- *  - 4 конечные точки EP0..EP3, у каждой FIFO по 64 байта на приём и на передачу;
- *  - у точки ОДИН бит готовности EPRDY на оба направления. Пока EPRDY = 0, хост получает NAK;
- *  - после транзакции железо само сбрасывает EPRDY и выставляет флаг прерывания SCTDONE;
- *  - регистры TS/STS хранят результат ПОСЛЕДНЕЙ транзакции и сами не очищаются,
- *    поэтому "транзакция была" определяем так: мы взвели EPRDY (ep_armed), а теперь он сброшен;
- *  - если EPRDY = 1, а TX FIFO пуст, на IN-токен контроллер сам отвечает пустым пакетом (ZLP).
+ * Особенности контроллера:
+ *  - у точки один бит EPRDY на оба направления (IN и OUT). Пока EPRDY = 0, хост получает NAK;
+ *  - после транзакции контроллер сам сбрасывает EPRDY и вызывает прерывание SCTDONE;
+ *  - регистры TS/STS не очищаются, в них всегда результат последней транзакции.
+ *    Поэтому транзакция считается прошедшей, только если мы взводили EPRDY (ep_armed),
+ *    а теперь он сброшен;
+ *  - если EPRDY = 1, а TX FIFO пуст, контроллер сам отвечает на IN пустым пакетом (ZLP).
  *
- * Правила порта (одинаковы для любого класса: CDC, MSC, HID, vendor...):
- *  1. EPRDY взводится, только если стек поставил передачу (dcd_edpt_xfer) хотя бы в одну сторону.
- *     Иначе точка отвечает NAK - так работает управление потоком.
- *  2. Стеку сообщаем только о завершении тех передач, которые он сам поставил (pending).
- *  3. OUT-пакет, пришедший раньше, чем стек дал буфер, остаётся в RX FIFO ("припаркован")
- *     и отдаётся при следующем dcd_edpt_xfer(OUT). FIFO при этом не сбрасываем - данные не теряются.
- *  4. Если транзакция завершилась, а прерывание ещё не успело её обработать, её обрабатывает
- *     сам dcd_edpt_xfer - иначе повторное взведение EPRDY "спрятало" бы завершение.
+ * Главное правило порта: EPRDY взводится, только когда стек поставил передачу (dcd_edpt_xfer).
+ * Если OUT-пакет пришёл раньше, чем стек дал буфер, он остаётся в RX FIFO (rx_parked)
+ * и отдаётся стеку при следующем dcd_edpt_xfer.
  */
 
-#include "tusb.h"
-#include "device/dcd.h"
-#include "MDR32FxQI_rst_clk.h"
-#include "MDR32FxQI_usb.h"
+#define EP_COUNT 4    // EP0..EP3
+#define EP_SIZE  64   // размер FIFO
 
-#define EP_COUNT   4    // EP0..EP3
-#define EP_SIZE    64   // размер FIFO точки, байт
-
-#define HW(ep)     ((USB_EP_TypeDef)(ep))
-
-//--------------------------------------------------------------------+
-// Состояние
-//--------------------------------------------------------------------+
-
-// Передача, поставленная стеком в одном направлении
 typedef struct {
-    uint8_t*      buf;
-    uint16_t      len;
-    volatile bool pending;   // поставлена и ещё не завершена
-} xfer_t;
+    uint8_t*      buffer;
+    uint16_t      total_len;
+    volatile bool pending;    // стек поставил передачу, она ещё не завершена
+} ep_state_t;
 
-static xfer_t        xfer[EP_COUNT][2];   // [номер точки][TUSB_DIR_OUT / TUSB_DIR_IN]
-static volatile bool ep_armed[EP_COUNT];  // мы взвели EPRDY, транзакции ещё не было
-static volatile bool rx_parked[EP_COUNT]; // в RX FIFO лежит OUT-пакет, ожидающий буфера
-static uint8_t       new_address;         // адрес, применяемый после статуса SET_ADDRESS
+static ep_state_t    ep_state[EP_COUNT][2]; // [точка][TUSB_DIR_OUT / TUSB_DIR_IN]
+static volatile bool ep_armed[EP_COUNT];    // мы взвели EPRDY и ждём транзакцию
+static volatile bool rx_parked[EP_COUNT];   // в RX FIFO лежит пакет, которому ещё не дали буфер
+static uint32_t      set_addr = 0;
+static uint32_t      sis;
 
-// Счётчики для отладки - удобно смотреть в окне Watch в Keil
-volatile struct {
-    uint32_t zlp_ack;       // хост принял ZLP, который стек не ставил
-    uint32_t rx_parked;     // OUT-пакет пришёл раньше буфера
-    uint32_t rx_delivered;  // припаркованный пакет отдан стеку
-    uint32_t rx_trunc;      // пакет длиннее буфера, хвост отброшен
-    uint32_t svc_in_xfer;   // завершение транзакции обработано внутри dcd_edpt_xfer
-    uint32_t stall_sent;    // отправлен STALL
-} dcd_stat;
+static void handle_ep0(uint8_t rhport);
+static void handle_ep(uint8_t rhport, uint8_t ep);
 
 //--------------------------------------------------------------------+
 // Вспомогательные функции
 //--------------------------------------------------------------------+
 
-// Запрет прерываний с сохранением прежнего состояния (можно вызывать и из прерывания)
-static inline uint32_t irq_lock(void)        { uint32_t m = __get_PRIMASK(); __disable_irq(); return m; }
-static inline void     irq_unlock(uint32_t m) { __set_PRIMASK(m); }
-
-static inline bool ep_ready(uint8_t ep)  { return USB_GetSEPxCTRL(HW(ep)) & USB_SEPx_CTRL_EPRDY_Ready; }
-static inline void tx_flush(uint8_t ep)  { USB_SetSEPxTXFDC(HW(ep), 1); }
-static inline void rx_flush(uint8_t ep)  { USB_SetSEPxRXFC(HW(ep), 1); }
-static inline void toggle_seq(uint8_t ep){ USB_SEPxToggleEPDATASEQ(HW(ep)); }
-
-// Взвести EPRDY: точка готова к следующей транзакции
-static void ep_arm(uint8_t ep)
+// Взвести EPRDY - точка готова к обмену
+static void ep_set_ready(uint8_t ep)
 {
-    USB_SetSEPxCTRL(HW(ep), USB_SEPx_CTRL_EPRDY_Ready);
+    USB_SetSEPxCTRL(ep, USB_SEPx_CTRL_EPRDY_Ready);
     ep_armed[ep] = true;
 }
 
-// Была ли транзакция с момента взведения? Если да - снимаем отметку ep_armed
-static bool ep_take_done(uint8_t ep)
+// Прошла ли транзакция с момента взведения EPRDY
+static bool ep_transaction_done(uint8_t ep)
 {
-    if (!ep_armed[ep] || ep_ready(ep)) {
-        return false;
+    if (ep_armed[ep] && !(USB_GetSEPxCTRL(ep) & USB_SEPx_CTRL_EPRDY_Ready)) {
+        ep_armed[ep] = false;
+        return true;
     }
-    ep_armed[ep] = false;
-    return true;
+    return false;
 }
 
-static void tx_fill(uint8_t ep, const uint8_t* data, uint16_t len)
+// Снять все поставленные передачи точки
+static void ep_clear_state(uint8_t ep)
 {
-    for (uint16_t i = 0; i < len; i++) {
-        USB_SetSEPxTXFD(HW(ep), data[i]);
+    ep_state[ep][TUSB_DIR_IN].pending  = false;
+    ep_state[ep][TUSB_DIR_OUT].pending = false;
+    rx_parked[ep]                      = false;
+}
+
+//--------------------------------------------------------------------+
+// Передача и приём данных
+//--------------------------------------------------------------------+
+
+static void handle_ep0_in(void)
+{
+    ep_state_t* state = &ep_state[0][TUSB_DIR_IN];
+
+    USB_SetSEPxTXFDC(USB_EP0, 1);
+
+    for (uint16_t i = 0; i < state->total_len; i++) {   // total_len = 0 -> уйдёт ZLP
+        USB_SetSEPxTXFD(USB_EP0, state->buffer[i]);
+    }
+
+    ep_set_ready(USB_EP0);
+}
+
+static void handle_ep_in(uint8_t ep)
+{
+    ep_state_t* state = &ep_state[ep][TUSB_DIR_IN];
+
+    // Если точка уже взведена (ждёт OUT), TX FIFO пуст - сбрасывать нечего
+    if (!ep_armed[ep]) {
+        USB_SetSEPxTXFDC(ep, 1);
+    }
+
+    for (uint16_t i = 0; i < state->total_len; i++) {
+        USB_SetSEPxTXFD(ep, state->buffer[i]);
+    }
+
+    // Пока в RX FIFO лежит отложенный пакет, точку не взводим - её взведёт dcd_edpt_xfer(OUT)
+    if (!ep_armed[ep] && !rx_parked[ep]) {
+        ep_set_ready(ep);
     }
 }
 
-// Забрать OUT-пакет из RX FIFO в буфер стека и сообщить о завершении.
-// Копируем не больше, чем просил стек; остаток уходит вместе со сбросом FIFO.
-static void rx_deliver(uint8_t rhport, uint8_t ep)
+// Прочитать OUT-пакет из FIFO в буфер стека (для любой точки, включая EP0)
+static void handle_ep_out(uint8_t rhport, uint8_t ep)
 {
-    xfer_t*  x     = &xfer[ep][TUSB_DIR_OUT];
-    uint32_t count = USB_GetSEPxRXFDC(HW(ep));
-    uint32_t n     = (count < x->len) ? count : x->len;
+    ep_state_t* state = &ep_state[ep][TUSB_DIR_OUT];
 
-    if (count > n) {
-        dcd_stat.rx_trunc++;
+    uint32_t count = USB_GetSEPxRXFDC(ep);
+    if (count > state->total_len) {
+        count = state->total_len;   // не пишем за пределы буфера стека
     }
-    for (uint32_t i = 0; i < n; i++) {
-        x->buf[i] = USB_GetSEPxRXFD(HW(ep));
-    }
-    rx_flush(ep);
 
-    x->pending = false;
-    dcd_event_xfer_complete(rhport, ep, n, XFER_RESULT_SUCCESS, true);
+    for (uint32_t i = 0; i < count; i++) {
+        state->buffer[i] = USB_GetSEPxRXFD(ep);
+    }
+    USB_SetSEPxRXFC(ep, 1);
+
+    state->pending = false;
+    dcd_event_xfer_complete(rhport, ep, count, XFER_RESULT_SUCCESS, true);
 }
 
-// Сбросить программное состояние точки (все поставленные передачи отменяются)
-static void ep_reset_state(uint8_t ep)
+//--------------------------------------------------------------------+
+// Сброс шины
+//--------------------------------------------------------------------+
+
+static void handle_usb_device_reset(uint8_t rhport)
 {
-    xfer[ep][TUSB_DIR_IN].pending  = false;
-    xfer[ep][TUSB_DIR_OUT].pending = false;
-    rx_parked[ep]                  = false;
+    set_addr = 0;
+    USB_SetSA(0);
+
+    for (int ep = 0; ep < EP_COUNT; ep++) {
+        ep_clear_state(ep);
+
+        USB_SetSEPxTXFDC(ep, 1);
+        USB_SetSEPxRXFC(ep, 1);
+
+        USB_SetSEPxCTRL(ep,
+                        USB_SEPx_CTRL_EPEN_Disable |
+                            USB_SEPx_CTRL_EPRDY_NotReady |
+                            USB_SEPx_CTRL_EPDATASEQ_Data0 |
+                            USB_SEPx_CTRL_EPSSTALL_NotReply |
+                            USB_SEPx_CTRL_EPISOEN_Reset);
+
+        USB_SetSEPxCTRL(ep,
+                        USB_SEPx_CTRL_EPEN_Enable |
+                            USB_SEPx_CTRL_EPRDY_Ready |
+                            USB_SEPx_CTRL_EPDATASEQ_Data0 |
+                            USB_SEPx_CTRL_EPSSTALL_NotReply |
+                            USB_SEPx_CTRL_EPISOEN_Reset);
+        ep_armed[ep] = true;
+    }
+
+    dcd_event_bus_reset(rhport, TUSB_SPEED_FULL, true);
 }
 
 //--------------------------------------------------------------------+
 // Инициализация
 //--------------------------------------------------------------------+
 
-// Тактирование: ядро 80 МГц от HSE 8 МГц (x10), USB 48 МГц (HSE x6)
-static void clock_init(void)
+bool dcd_init(uint8_t rhport, const tusb_rhport_init_t* rh_init)
 {
+    (void)rhport;
+    (void)rh_init;
+
+    for (int ep = 0; ep < EP_COUNT; ep++) {
+        ep_clear_state(ep);
+        ep_armed[ep] = false;
+    }
+
+    // Ядро: HSE x10, USB: HSE x6 = 48 МГц (для кварца 8 МГц)
     RST_CLK_HSEconfig(RST_CLK_HSE_ON);
     while (RST_CLK_HSEstatus() == ERROR) {}
     RST_CLK_CPUclkSelectionC1(RST_CLK_CPU_C1srcHSEdiv1);
@@ -141,383 +184,374 @@ static void clock_init(void)
 
     RST_CLK_PCLKcmd(RST_CLK_PCLK_USB, ENABLE);
 
-    USB_Clock_TypeDef usb_clk = {
+    USB_Clock_TypeDef clock_cfg = {
         .USB_USBC1_Source = USB_C1HSEdiv1,
-        .USB_PLLUSBMUL    = USB_PLLUSBMUL6,
+        .USB_PLLUSBMUL    = USB_PLLUSBMUL6
     };
-    USB_BRGInit(&usb_clk);
-}
+    USB_BRGInit(&clock_cfg);
 
-bool dcd_init(uint8_t rhport, const tusb_rhport_init_t* rh_init)
-{
-    (void)rhport;
-    (void)rh_init;
-
-    for (uint8_t ep = 0; ep < EP_COUNT; ep++) {
-        ep_reset_state(ep);
-        ep_armed[ep] = false;
-    }
-
-    clock_init();
     USB_Reset();
 
-    // Режим device, Full Speed 12 Мбит/с, подтяжка D+ (хост видит подключение)
-    USB_SetHSCR(USB_HSCR_HOST_MODE_Device | USB_HSCR_EN_RX_Set |
-                USB_HSCR_EN_TX_Set | USB_HSCR_DP_PULLUP_Set);
-    USB_SetSC(USB_SC_SCGEN_Set | USB_SC_SCFSP_Full | USB_SC_SCFSR_12Mb);
+    USB_SetHSCR(USB_HSCR_HOST_MODE_Device |
+                USB_HSCR_EN_RX_Set |
+                USB_HSCR_EN_TX_Set |
+                USB_HSCR_DP_PULLUP_Set);
 
-    // EP0 включена и ждёт SETUP
-    USB_SetSEPxCTRL(USB_EP0, USB_SEPx_CTRL_EPEN_Enable | USB_SEPx_CTRL_EPRDY_Ready);
+    USB_SetSC(USB_SC_SCGEN_Set |
+              USB_SC_SCFSP_Full |
+              USB_SC_SCFSR_12Mb);
+
+    USB_SetSEPxCTRL(USB_EP0, USB_SEPx_CTRL_EPEN_Enable |
+                                 USB_SEPx_CTRL_EPRDY_Ready);
     ep_armed[0] = true;
 
-    USB_SetSIM(USB_SIM_SCTDONEIE_Set | USB_SIM_SCRESETEVIE_Set);
+    USB_SetSIM(USB_SIM_SCTDONEIE_Set |
+               USB_SIM_SCRESETEVIE_Set);
+
     return true;
 }
 
-void dcd_int_enable(uint8_t rhport)  { (void)rhport; NVIC_EnableIRQ(USB_IRQn); }
-void dcd_int_disable(uint8_t rhport) { (void)rhport; NVIC_DisableIRQ(USB_IRQn); }
+void dcd_int_enable(uint8_t rhport)
+{
+    (void)rhport;
+    NVIC_EnableIRQ(USB_IRQn);
+}
 
-// Адрес нельзя применять сразу: статус SET_ADDRESS идёт ещё на старом адресе.
-// Применяется в ep0_service() после ACK статусного пакета.
+void dcd_int_disable(uint8_t rhport)
+{
+    (void)rhport;
+    NVIC_DisableIRQ(USB_IRQn);
+}
+
+// Адрес применяется после того, как хост подтвердит статус SET_ADDRESS (в handle_ep0)
 void dcd_set_address(uint8_t rhport, uint8_t dev_addr)
 {
     (void)rhport;
-    new_address = dev_addr;
+    set_addr = dev_addr;
 }
 
-// Не поддерживается контроллером / не требуется
-void dcd_remote_wakeup(uint8_t rhport)          { (void)rhport; }
-void dcd_connect(uint8_t rhport)                { (void)rhport; }
-void dcd_disconnect(uint8_t rhport)             { (void)rhport; }
-void dcd_sof_enable(uint8_t rhport, bool enable){ (void)rhport; (void)enable; }
-
-//--------------------------------------------------------------------+
-// Открытие / закрытие / STALL
-//--------------------------------------------------------------------+
-
-bool dcd_edpt_open(uint8_t rhport, tusb_desc_endpoint_t const* desc)
+void dcd_remote_wakeup(uint8_t rhport)
 {
     (void)rhport;
-    uint8_t ep  = tu_edpt_number(desc->bEndpointAddress);
-    uint8_t dir = tu_edpt_dir(desc->bEndpointAddress);
+}
 
-    if (ep >= EP_COUNT) {
+void dcd_connect(uint8_t rhport)
+{
+    (void)rhport;
+}
+
+void dcd_disconnect(uint8_t rhport)
+{
+    (void)rhport;
+}
+
+void dcd_sof_enable(uint8_t rhport, bool enable)
+{
+    (void)rhport;
+    (void)enable;
+}
+
+//--------------------------------------------------------------------+
+// Конечные точки
+//--------------------------------------------------------------------+
+
+bool dcd_edpt_open(uint8_t rhport, tusb_desc_endpoint_t const* ep_desc)
+{
+    (void)rhport;
+
+    uint8_t epnum = tu_edpt_number(ep_desc->bEndpointAddress);
+    uint8_t dir   = tu_edpt_dir(ep_desc->bEndpointAddress);
+
+    if (epnum >= EP_COUNT) {
         return false;
     }
 
-    uint32_t m = irq_lock();
+    uint32_t primask = __get_PRIMASK();
+    __disable_irq();
 
-    USB_SetSEPxCTRL(HW(ep), USB_SEPx_CTRL_EPEN_Enable | USB_SEPx_CTRL_EPDATASEQ_Data0 |
-                            USB_SEPx_CTRL_EPSSTALL_NotReply | USB_SEPx_CTRL_EPISOEN_Reset |
-                            USB_SEPx_CTRL_EPRDY_Ready);
-    rx_flush(ep);
-    tx_flush(ep);
+    USB_SetSEPxCTRL(epnum,
+                    USB_SEPx_CTRL_EPEN_Enable |
+                        USB_SEPx_CTRL_EPRDY_Ready |
+                        USB_SEPx_CTRL_EPDATASEQ_Data0 |
+                        USB_SEPx_CTRL_EPSSTALL_NotReply |
+                        USB_SEPx_CTRL_EPISOEN_Reset);
+    USB_SetSEPxRXFC(epnum, 1);
+    USB_SetSEPxTXFDC(epnum, 1);
 
-    ep_armed[ep]          = true;
-    rx_parked[ep]         = false;
-    xfer[ep][dir].pending = false;
+    ep_armed[epnum]              = true;
+    rx_parked[epnum]             = false;
+    ep_state[epnum][dir].pending = false;
 
-    irq_unlock(m);
+    __set_PRIMASK(primask);
     return true;
 }
 
 void dcd_edpt_close(uint8_t rhport, uint8_t ep_addr)
 {
     (void)rhport;
-    uint8_t ep = tu_edpt_number(ep_addr);
 
-    if (ep < EP_COUNT) {
-        xfer[ep][tu_edpt_dir(ep_addr)].pending = false;
+    uint8_t epnum = tu_edpt_number(ep_addr);
+    if (epnum < EP_COUNT) {
+        ep_state[epnum][tu_edpt_dir(ep_addr)].pending = false;
     }
 }
 
-// Железо не трогаем - dcd_edpt_open() всё равно перенастроит точки
 void dcd_edpt_close_all(uint8_t rhport)
 {
     (void)rhport;
-    for (uint8_t ep = 1; ep < EP_COUNT; ep++) {
-        ep_reset_state(ep);
+
+    // Железо не трогаем - dcd_edpt_open() перенастроит точки
+    for (int ep = 1; ep < EP_COUNT; ep++) {
+        ep_clear_state(ep);
     }
+}
+
+bool dcd_edpt_xfer(uint8_t rhport, uint8_t ep_addr, uint8_t* buffer, uint16_t total_bytes, bool is_isr)
+{
+    (void)is_isr;
+
+    uint8_t epnum = tu_edpt_number(ep_addr);
+    uint8_t dir   = tu_edpt_dir(ep_addr);
+
+    if (epnum >= EP_COUNT) {
+        return false;
+    }
+    if (dir == TUSB_DIR_IN && total_bytes > EP_SIZE) {
+        return false;   // в TX FIFO помещается только один пакет
+    }
+
+    // Запрещаем прерывания, чтобы обработчик USB не вмешался посередине
+    uint32_t primask = __get_PRIMASK();
+    __disable_irq();
+
+    // Транзакция могла уже пройти, а прерывание ещё не успело её обработать.
+    // Обрабатываем её сейчас, иначе после повторного взведения EPRDY она потеряется.
+    if (epnum != USB_EP0 && ep_transaction_done(epnum)) {
+        handle_ep(rhport, epnum);
+    }
+
+    ep_state_t* state = &ep_state[epnum][dir];
+    state->buffer     = buffer;
+    state->total_len  = total_bytes;
+    state->pending    = true;
+
+    if (epnum == USB_EP0) {
+        if (dir == TUSB_DIR_IN) {
+            handle_ep0_in();
+        } else {
+            USB_SetSEPxRXFC(USB_EP0, 1);
+            ep_set_ready(USB_EP0);
+        }
+    } else if (dir == TUSB_DIR_IN) {
+        handle_ep_in(epnum);
+    } else if (rx_parked[epnum]) {
+        // Пакет уже лежит в RX FIFO - отдаём его сразу
+        rx_parked[epnum] = false;
+        handle_ep_out(rhport, epnum);
+
+        // FIFO освободился - теперь может уйти отложенный IN
+        if (ep_state[epnum][TUSB_DIR_IN].pending && !ep_armed[epnum]) {
+            ep_set_ready(epnum);
+        }
+    } else if (!ep_armed[epnum]) {
+        USB_SetSEPxRXFC(epnum, 1);
+        ep_set_ready(epnum);
+    }
+
+    __set_PRIMASK(primask);
+    return true;
 }
 
 void dcd_edpt_stall(uint8_t rhport, uint8_t ep_addr)
 {
     (void)rhport;
-    uint8_t ep = tu_edpt_number(ep_addr);
-    if (ep >= EP_COUNT) {
+
+    uint8_t epnum = tu_edpt_number(ep_addr);
+    if (epnum >= EP_COUNT) {
         return;
     }
 
-    uint32_t m = irq_lock();
+    uint32_t primask = __get_PRIMASK();
+    __disable_irq();
 
-    ep_reset_state(ep);   // TinyUSB требует снять все передачи точки
-    tx_flush(ep);
-    rx_flush(ep);
-    USB_SetSEPxCTRL(HW(ep), USB_SEPx_CTRL_EPSSTALL_Reply | USB_SEPx_CTRL_EPDATASEQ_Data0 |
-                            USB_SEPx_CTRL_EPRDY_Ready);
-    ep_armed[ep] = true;
+    ep_clear_state(epnum);   // TinyUSB требует снять поставленные передачи
 
-    irq_unlock(m);
+    USB_SetSEPxTXFDC(epnum, 1);
+    USB_SetSEPxRXFC(epnum, 1);
+
+    USB_SetSEPxCTRL(epnum,
+                    USB_SEPx_CTRL_EPSSTALL_Reply |
+                        USB_SEPx_CTRL_EPDATASEQ_Data0 |
+                        USB_SEPx_CTRL_EPRDY_Ready);
+    ep_armed[epnum] = true;
+
+    __set_PRIMASK(primask);
 }
 
 void dcd_edpt_clear_stall(uint8_t rhport, uint8_t ep_addr)
 {
     (void)rhport;
-    uint8_t ep = tu_edpt_number(ep_addr);
-    if (ep >= EP_COUNT) {
+
+    uint8_t epnum = tu_edpt_number(ep_addr);
+    if (epnum >= EP_COUNT) {
         return;
     }
 
-    uint32_t m = irq_lock();
+    uint32_t primask = __get_PRIMASK();
+    __disable_irq();
 
-    rx_parked[ep] = false;
-    tx_flush(ep);
-    rx_flush(ep);
-    USB_SetSEPxCTRL(HW(ep), USB_SEPx_CTRL_EPSSTALL_NotReply | USB_SEPx_CTRL_EPDATASEQ_Data0 |
-                            USB_SEPx_CTRL_EPRDY_Ready);
-    ep_armed[ep] = true;
+    rx_parked[epnum] = false;
 
-    irq_unlock(m);
+    USB_SetSEPxTXFDC(epnum, 1);
+    USB_SetSEPxRXFC(epnum, 1);
+
+    USB_SetSEPxCTRL(epnum,
+                    USB_SEPx_CTRL_EPSSTALL_NotReply |
+                        USB_SEPx_CTRL_EPDATASEQ_Data0 |
+                        USB_SEPx_CTRL_EPRDY_Ready);
+    ep_armed[epnum] = true;
+
+    __set_PRIMASK(primask);
 }
 
 //--------------------------------------------------------------------+
 // Обработка завершённых транзакций
 //--------------------------------------------------------------------+
 
-// EP1..EP3. Вызывается из прерывания и из dcd_edpt_xfer (прерывания запрещены)
-static void ep_service(uint8_t rhport, uint8_t ep)
+static void handle_ep0(uint8_t rhport)
 {
-    if (!ep_take_done(ep)) {
-        return;   // транзакции не было
-    }
+    uint32_t ts  = USB_GetSEPxTS(USB_EP0);
+    uint32_t sts = USB_GetSEPxSTS(USB_EP0);
 
-    uint32_t sts  = USB_GetSEPxSTS(HW(ep));
-    uint32_t type = USB_GetSEPxTS(HW(ep)) & USB_SEPx_TS_SCTTYPE_Msk;
-    xfer_t*  in   = &xfer[ep][TUSB_DIR_IN];
-    xfer_t*  out  = &xfer[ep][TUSB_DIR_OUT];
-
+    // Отправлен STALL
     if (sts & USB_SEPx_STS_SCSTALLSENT_Set) {
-        // Хосту ушёл STALL: снимаем передачи и возвращаем точку в работу
-        dcd_stat.stall_sent++;
-        in->pending  = false;
-        out->pending = false;
-        toggle_seq(ep);
-        ep_arm(ep);
-        return;
+        USB_SEPxToggleEPDATASEQ(USB_EP0);
     }
 
-    if (type == USB_SEPx_TS_SCTTYPE_In && (sts & USB_SEPx_STS_SCACKRXED_Set)) {
-        // Хост подтвердил IN-пакет
-        tx_flush(ep);
-        toggle_seq(ep);
-        if (in->pending) {
-            in->pending = false;
-            dcd_event_xfer_complete(rhport, ep | TUSB_DIR_IN_MASK, in->len, XFER_RESULT_SUCCESS, true);
-        } else {
-            dcd_stat.zlp_ack++;   // это был ZLP, отправленный контроллером самостоятельно
-        }
-    } else if (type == USB_SEPx_TS_SCTTYPE_Outdata) {
-        // Пришёл OUT-пакет
-        if (out->pending) {
-            rx_deliver(rhport, ep);
-        } else {
-            rx_parked[ep] = true;   // буфера нет - оставляем пакет в FIFO
-            dcd_stat.rx_parked++;
-        }
-    }
+    // Обработка SETUP
+    else if ((ts & USB_SEPx_TS_SCTTYPE_Msk) == USB_SEPx_TS_SCTTYPE_Setup) {
 
-    // Взводим снова, только если стеку ещё есть что делать и RX FIFO свободен
-    if (!rx_parked[ep] && (in->pending || out->pending)) {
-        ep_arm(ep);
-    }
-}
-
-// EP0 (control)
-static void ep0_service(uint8_t rhport)
-{
-    if (!ep_take_done(0)) {
-        return;
-    }
-
-    uint32_t sts  = USB_GetSEPxSTS(USB_EP0);
-    uint32_t type = USB_GetSEPxTS(USB_EP0) & USB_SEPx_TS_SCTTYPE_Msk;
-
-    if (sts & USB_SEPx_STS_SCSTALLSENT_Set) {
-        dcd_stat.stall_sent++;
-        toggle_seq(0);
-    } else if (type == USB_SEPx_TS_SCTTYPE_Setup) {
-        // SETUP всегда DATA0, ответ на него начинается с DATA1
-        USB_SetSEPxCTRL(USB_EP0, USB_SEPx_CTRL_EPDATASEQ_Data0);
+        USB_SetSEPxCTRL(USB_EP0, USB_SEPx_CTRL_EPDATASEQ_Data0); // Явная установка DATA0
 
         uint8_t setup[8];
         for (int i = 0; i < 8; i++) {
             setup[i] = USB_GetSEPxRXFD(USB_EP0);
         }
-        rx_flush(0);
-        toggle_seq(0);
+
+        USB_SetSEPxRXFC(USB_EP0, 1);
+        USB_SEPxToggleEPDATASEQ(USB_EP0);
         dcd_event_setup_received(rhport, setup, true);
 
-        // Ответ на SETUP должен лечь в FIFO до взведения EP0 ниже,
-        // иначе на первый IN-токен контроллер отправит пустой пакет
+        // Ответ на SETUP должен попасть в FIFO до взведения EP0 ниже,
+        // иначе на первый IN контроллер отправит пустой пакет
         tud_task();
-    } else if (type == USB_SEPx_TS_SCTTYPE_In && (sts & USB_SEPx_STS_SCACKRXED_Set)) {
-        dcd_event_xfer_complete(rhport, TUSB_DIR_IN_MASK, xfer[0][TUSB_DIR_IN].len, XFER_RESULT_SUCCESS, true);
-        tx_flush(0);
-        if (new_address) {
-            USB_SetSA(new_address);   // статус SET_ADDRESS отправлен - можно менять адрес
-            new_address = 0;
-        }
-        toggle_seq(0);
-    } else if (type == USB_SEPx_TS_SCTTYPE_Outdata) {
-        rx_deliver(rhport, 0);
     }
 
-    // EP0 всегда взведена: она должна принять следующий SETUP
-    ep_arm(0);
+    // Обработка IN
+    else if ((ts & USB_SEPx_TS_SCTTYPE_Msk) == USB_SEPx_TS_SCTTYPE_In) {
+
+        if (sts & USB_SEPx_STS_SCACKRXED_Set) {
+            dcd_event_xfer_complete(rhport, 0x80, ep_state[0][TUSB_DIR_IN].total_len, XFER_RESULT_SUCCESS, true);
+            USB_SetSEPxTXFDC(USB_EP0, 1);
+
+            if (set_addr) {
+                USB_SetSA(set_addr);
+                set_addr = 0;
+            }
+            USB_SEPxToggleEPDATASEQ(USB_EP0);
+        }
+    }
+
+    // Обработка OUT
+    else if ((ts & USB_SEPx_TS_SCTTYPE_Msk) == USB_SEPx_TS_SCTTYPE_Outdata) {
+        handle_ep_out(rhport, USB_EP0);
+    }
+
+    // EP0 всегда взведена - она должна принять следующий SETUP
+    ep_set_ready(USB_EP0);
 }
 
-//--------------------------------------------------------------------+
-// Постановка передачи
-//--------------------------------------------------------------------+
-
-static void ep0_xfer(uint8_t dir, uint8_t* buf, uint16_t len)
+static void handle_ep(uint8_t rhport, uint8_t ep)
 {
-    xfer[0][dir].buf = buf;
-    xfer[0][dir].len = len;
+    ep_state_t* in  = &ep_state[ep][TUSB_DIR_IN];
+    ep_state_t* out = &ep_state[ep][TUSB_DIR_OUT];
 
-    if (dir == TUSB_DIR_IN) {
-        tx_flush(0);
-        tx_fill(0, buf, len);   // len = 0 -> уйдёт ZLP
-    } else {
-        rx_flush(0);
-    }
-    ep_arm(0);
-}
+    uint32_t ts  = USB_GetSEPxTS(ep);
+    uint32_t sts = USB_GetSEPxSTS(ep);
 
-static void epx_xfer(uint8_t rhport, uint8_t ep, uint8_t dir, uint8_t* buf, uint16_t len)
-{
-    // Транзакция могла завершиться, а прерывание ещё не успело - обрабатываем её здесь (правило 4)
-    if (ep_armed[ep] && !ep_ready(ep)) {
-        dcd_stat.svc_in_xfer++;
-        ep_service(rhport, ep);
-    }
-
-    xfer_t* x  = &xfer[ep][dir];
-    x->buf     = buf;
-    x->len     = len;
-    x->pending = true;
-
-    if (dir == TUSB_DIR_IN) {
-        // Если точка уже взведена (ждёт OUT), TX FIFO и так пуст
-        if (!ep_armed[ep]) {
-            tx_flush(ep);
-        }
-        tx_fill(ep, buf, len);
-
-        // При припаркованном OUT точку взведёт следующий dcd_edpt_xfer(OUT)
-        if (!ep_armed[ep] && !rx_parked[ep]) {
-            ep_arm(ep);
-        }
+    // Отправлен STALL: снимаем передачи и возвращаем точку в работу
+    if (sts & USB_SEPx_STS_SCSTALLSENT_Set) {
+        in->pending  = false;
+        out->pending = false;
+        USB_SEPxToggleEPDATASEQ(ep);
+        ep_set_ready(ep);
         return;
     }
 
-    if (rx_parked[ep]) {
-        // Пакет уже ждёт в RX FIFO - отдаём сразу (правило 3)
-        rx_parked[ep] = false;
-        dcd_stat.rx_delivered++;
-        rx_deliver(rhport, ep);
+    // Обработка IN
+    if ((ts & USB_SEPx_TS_SCTTYPE_Msk) == USB_SEPx_TS_SCTTYPE_In) {
 
-        // FIFO освободился - может стартовать отложенный IN
-        if (xfer[ep][TUSB_DIR_IN].pending && !ep_armed[ep]) {
-            ep_arm(ep);
+        if (sts & USB_SEPx_STS_SCACKRXED_Set) {
+            USB_SetSEPxTXFDC(ep, 1);
+            USB_SEPxToggleEPDATASEQ(ep);
+
+            if (in->pending) {
+                in->pending = false;
+                dcd_event_xfer_complete(rhport, ep | 0x80, in->total_len, XFER_RESULT_SUCCESS, true);
+            }
+            // Иначе это был ZLP, который контроллер отправил сам - стеку не сообщаем
         }
-    } else if (!ep_armed[ep]) {
-        rx_flush(ep);
-        ep_arm(ep);
+    }
+
+    // Обработка OUT
+    else if ((ts & USB_SEPx_TS_SCTTYPE_Msk) == USB_SEPx_TS_SCTTYPE_Outdata) {
+
+        if (out->pending) {
+            handle_ep_out(rhport, ep);
+        } else {
+            rx_parked[ep] = true;   // буфера ещё нет - пакет ждёт в FIFO до dcd_edpt_xfer
+        }
+    }
+
+    // Снова взводим точку, только если у стека остались поставленные передачи
+    if (!rx_parked[ep] && (in->pending || out->pending)) {
+        ep_set_ready(ep);
     }
 }
-
-bool dcd_edpt_xfer(uint8_t rhport, uint8_t ep_addr, uint8_t* buffer, uint16_t total_bytes, bool is_isr)
-{
-    (void)is_isr;   // защита от гонок - запретом прерываний, работает в любом контексте
-    uint8_t ep  = tu_edpt_number(ep_addr);
-    uint8_t dir = tu_edpt_dir(ep_addr);
-
-    if (ep >= EP_COUNT) {
-        return false;
-    }
-    if (dir == TUSB_DIR_IN && total_bytes > EP_SIZE) {
-        return false;   // больше одного пакета в TX FIFO не помещается
-    }
-
-    uint32_t m = irq_lock();
-    if (ep == 0) {
-        ep0_xfer(dir, buffer, total_bytes);
-    } else {
-        epx_xfer(rhport, ep, dir, buffer, total_bytes);
-    }
-    irq_unlock(m);
-
-    return true;
-}
-
-//--------------------------------------------------------------------+
-// Прерывание
-//--------------------------------------------------------------------+
-
-static void bus_reset(uint8_t rhport)
-{
-    new_address = 0;
-    USB_SetSA(0);
-
-    for (uint8_t ep = 0; ep < EP_COUNT; ep++) {
-        ep_reset_state(ep);
-        tx_flush(ep);
-        rx_flush(ep);
-
-        // Выключить и снова включить точку: DATA0, без STALL, готова
-        USB_SetSEPxCTRL(HW(ep), USB_SEPx_CTRL_EPEN_Disable | USB_SEPx_CTRL_EPRDY_NotReady |
-                                USB_SEPx_CTRL_EPDATASEQ_Data0 | USB_SEPx_CTRL_EPSSTALL_NotReply |
-                                USB_SEPx_CTRL_EPISOEN_Reset);
-        USB_SetSEPxCTRL(HW(ep), USB_SEPx_CTRL_EPEN_Enable | USB_SEPx_CTRL_EPRDY_Ready |
-                                USB_SEPx_CTRL_EPDATASEQ_Data0 | USB_SEPx_CTRL_EPSSTALL_NotReply |
-                                USB_SEPx_CTRL_EPISOEN_Reset);
-        ep_armed[ep] = true;
-    }
-
-    dcd_event_bus_reset(rhport, TUSB_SPEED_FULL, true);
-}
-
-static uint32_t sis;   // флаги прерывания, прочитанные в USB_IRQHandler
 
 void dcd_int_handler(uint8_t rhport)
 {
     if (sis & USB_SIS_SCRESETEV_Set) {
-        bus_reset(rhport);
+        handle_usb_device_reset(rhport);
         return;
     }
+
     if (sis & USB_SIS_SCRESUME_Set) {
         dcd_event_bus_signal(rhport, DCD_EVENT_RESUME, true);
     }
+
     if (sis & USB_SIS_SCTDONE_Set) {
-        // Флаг SCTDONE один на все точки - проверяем каждую
-        ep0_service(rhport);
-        for (uint8_t ep = 1; ep < EP_COUNT; ep++) {
-            ep_service(rhport, ep);
+        // SCTDONE общий для всех точек - проверяем каждую
+        if (ep_transaction_done(USB_EP0)) {
+            handle_ep0(rhport);
+        }
+
+        for (int ep = 1; ep < EP_COUNT; ep++) {
+            if (ep_transaction_done(ep)) {
+                handle_ep(rhport, ep);
+            }
         }
     }
 }
 
 void USB_IRQHandler(void)
 {
-    // Сбрасываем прочитанные флаги ДО обработки: событие, пришедшее во время
-    // обработки, снова поднимет флаг и не потеряется
     sis = USB_GetSIS();
-    USB_SetSIS(sis);
+    USB_SetSIS(sis);   // сбрасываем флаги до обработки, чтобы не пропустить новые
     dcd_int_handler(0);
 }
 
-// Без RTOS TinyUSB требует эту функцию от приложения. Таймауты стеку не нужны - возвращаем 0
+// Без RTOS TinyUSB требует эту функцию от приложения
 uint32_t tusb_time_millis_api(void)
 {
     return 0;
