@@ -1,4 +1,4 @@
-// Страница для платы К1986ВЕ9х: связь по WebUSB и несколько «приколов» на её кнопках и светодиодах.
+// Страница для платы К1986ВЕ9х: светодиоды, кнопки, датчик температуры и змейка по WebUSB.
 //
 // Формат кадров (little-endian), см. main.c в прошивке:
 //   плата -> страница  [0x01][кнопки][светодиоды][АЦП: 2 байта][мс с запуска: 4 байта]  (9 байт)
@@ -17,52 +17,11 @@ function parseFrame(view) {
     buttons: view.getUint8(1),
     leds: view.getUint8(2),
     adc: view.getUint16(3, true),
-    uptimeMs: view.getUint32(5, true),
   };
 }
 
 function ledsCommand(mask) {
   return new Uint8Array([0x01, mask & 0x03]);
-}
-
-// ---------- азбука Морзе: текст -> список «горит / не горит» с длительностями ----------
-const MORSE = {
-  'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.', 'G': '--.', 'H': '....', 'I': '..',
-  'J': '.---', 'K': '-.-', 'L': '.-..', 'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.',
-  'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-', 'Y': '-.--', 'Z': '--..',
-  'А': '.-', 'Б': '-...', 'В': '.--', 'Г': '--.', 'Д': '-..', 'Е': '.', 'Ё': '.', 'Ж': '...-', 'З': '--..',
-  'И': '..', 'Й': '.---', 'К': '-.-', 'Л': '.-..', 'М': '--', 'Н': '-.', 'О': '---', 'П': '.--.', 'Р': '.-.',
-  'С': '...', 'Т': '-', 'У': '..-', 'Ф': '..-.', 'Х': '....', 'Ц': '-.-.', 'Ч': '---.', 'Ш': '----',
-  'Щ': '--.-', 'Ъ': '-..-', 'Ь': '-..-', 'Ы': '-.--', 'Э': '..-..', 'Ю': '..--', 'Я': '.-.-',
-  '0': '-----', '1': '.----', '2': '..---', '3': '...--', '4': '....-', '5': '.....',
-  '6': '-....', '7': '--...', '8': '---..', '9': '----.',
-};
-
-// Слова разделяются пробелом, буквы идут через `letterGap`; символы вне таблицы пропускаются
-function morseWords(text) {
-  return text.toUpperCase().split(/\s+/)
-    .map((word) => [...word].map((ch) => MORSE[ch]).filter(Boolean))
-    .filter((letters) => letters.length > 0);
-}
-
-function morseText(text) {
-  return morseWords(text).map((letters) => letters.join(' ')).join('  /  ');
-}
-
-// Точка = 1 единица, тире = 3, пауза в букве = 1, между буквами = 3, между словами = 7
-function morseSteps(text, unit = 150) {
-  const steps = [];
-  morseWords(text).forEach((letters, w) => {
-    if (w > 0) steps.push({ on: false, ms: 7 * unit });
-    letters.forEach((code, l) => {
-      if (l > 0) steps.push({ on: false, ms: 3 * unit });
-      [...code].forEach((sign, s) => {
-        if (s > 0) steps.push({ on: false, ms: unit });
-        steps.push({ on: true, ms: (sign === '.' ? 1 : 3) * unit });
-      });
-    });
-  });
-  return steps;
 }
 
 // ---------- змейка: чистая логика без рисования ----------
@@ -105,14 +64,13 @@ function stepGame(game, wantedDir) {
   return 'eat';
 }
 
-if (typeof module !== 'undefined') {
-  module.exports = { parseFrame, ledsCommand, morseText, morseSteps, newGame, stepGame, MORSE };
-}
+if (typeof module !== 'undefined') module.exports = { parseFrame, ledsCommand, newGame, stepGame };
 
 // ---------- остальной код работает только в браузере ----------
 if (typeof document !== 'undefined') (function () {
   const $ = (id) => document.getElementById(id);
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  const ORANGE = '#f08300', ORANGE_LIGHT = '#f6b160', TEXT = '#2a2623';
 
   if (!navigator.usb) {
     $('nosupport').style.display = 'block';
@@ -137,7 +95,7 @@ if (typeof document !== 'undefined') (function () {
     if (device.configuration === null) await device.selectConfiguration(1);
     await device.claimInterface(0);
     sentLeds = -1;
-    setStatus('подключено: ' + (device.productName || 'плата'), true);
+    setStatus('подключено', true);
     readLoop();
   }
 
@@ -145,7 +103,6 @@ if (typeof document !== 'undefined') (function () {
     if (!device) return;
     const d = device;
     device = null;
-    stopEffects();
     try { await d.close(); } catch (e) { /* уже отключена */ }
     setStatus('не подключено', false);
   }
@@ -170,7 +127,6 @@ if (typeof document !== 'undefined') (function () {
 
   // Светодиоды: отправляем последнее пожелание, промежуточные при частой смене пропускаем
   let wantedLeds = 0, sentLeds = -1, sending = false;
-  let rttMask = null, rttStart = 0;
 
   async function setLeds(mask) {
     wantedLeds = mask & 3;
@@ -179,8 +135,6 @@ if (typeof document !== 'undefined') (function () {
     try {
       while (device && sentLeds !== wantedLeds) {
         sentLeds = wantedLeds;
-        rttMask = sentLeds;
-        rttStart = performance.now();
         await device.transferOut(EP_OUT, ledsCommand(sentLeds));
       }
     } catch (e) {
@@ -190,100 +144,64 @@ if (typeof document !== 'undefined') (function () {
     }
   }
 
-  // Короткая вспышка, если сейчас не идёт эффект
-  async function pulse(mask, ms) {
-    if (fxRunning) return;
-    await setLeds(mask);
+  // Короткая вспышка светодиода; те, что были включены, остаются включёнными
+  async function flash(mask, ms) {
+    setLeds(boardLeds | mask);
     await sleep(ms);
-    if (!fxRunning) await setLeds(0);
+    setLeds(boardLeds & ~mask);
   }
 
-  // ===== разбор кадра: плата, показания, нажатия =====
-  const baseline = { sum: 0, count: 0, value: 0 };
-  let frames = 0, lastFpsTime = performance.now();
-  const log = [];                                   // отсчёты АЦП для графика и CSV
+  // ===== кадр от платы =====
+  const history = [];                               // отсчёты АЦП для графика
+  const HISTORY = 500;                              // около 10 секунд
 
   function onFrame(f) {
     for (let i = 0; i < 5; i++) $('k' + i).classList.toggle('down', !!(f.buttons & (1 << i)));
 
     boardLeds = f.leds;
-    for (let i = 0; i < 2; i++) $('led' + i).classList.toggle('on', !!(f.leds & (1 << i)));
-    if (rttMask !== null && f.leds === rttMask) {
-      $('rtt').textContent = Math.round(performance.now() - rttStart) + ' мс';
-      rttMask = null;
-    }
+    for (let i = 0; i < 2; i++) $('led' + i).setAttribute('aria-pressed', String(!!(f.leds & (1 << i))));
 
-    showAdc(f);
-
-    const pressed = f.buttons & ~prevButtons;
-    prevButtons = f.buttons;
-    for (let i = 0; i < 5; i++) if (pressed & (1 << i)) onPress(i);
-
-    frames++;
-    const now = performance.now();
-    if (now - lastFpsTime >= 1000) {
-      $('fps').textContent = Math.round(frames * 1000 / (now - lastFpsTime));
-      frames = 0; lastFpsTime = now;
-    }
-    const s = Math.floor(f.uptimeMs / 1000);
-    $('uptime').textContent = Math.floor(s / 60) + ' мин ' + (s % 60) + ' с';
-  }
-
-  function showAdc(f) {
-    if (baseline.count < 25) {                      // первые отсчёты считаем «комнатной» температурой
-      baseline.sum += f.adc;
-      baseline.value = baseline.sum / ++baseline.count;
-    }
-    const dev = Math.round(f.adc - baseline.value);
     $('adc').textContent = f.adc;
-    $('dev').textContent = (dev > 0 ? '+' : dev < 0 ? '−' : '') + Math.abs(dev);
-    $('heat').style.opacity = Math.min(1, Math.abs(dev) / 40);   // чип светится при отклонении
+    history.push(f.adc);
+    if (history.length > HISTORY) history.shift();
 
-    log.push({ t: f.uptimeMs, adc: f.adc });
-    if (log.length > 5000) log.shift();
+    const pressed = f.buttons & ~prevButtons;       // кнопки, нажатые с прошлого кадра
+    prevButtons = f.buttons;
+    for (let i = 0; i < 5; i++) if (pressed & (1 << i)) gameButton(i);
   }
 
-  // ===== вкладки =====
-  const tabs = ['game', 'piano', 'lights', 'chart'];
-  let activeTab = 'game';
+  [0, 1].forEach((i) => { $('led' + i).onclick = () => setLeds(boardLeds ^ (1 << i)); });
 
-  tabs.forEach((name) => {
-    $('tab-' + name).onclick = () => {
-      activeTab = name;
-      tabs.forEach((t) => {
-        $('tab-' + t).setAttribute('aria-selected', String(t === name));
-        $('panel-' + t).hidden = t !== name;
+  // ===== график температуры =====
+  const chart = $('chart'), c2d = chart.getContext('2d');
+
+  function drawChart() {
+    const w = chart.width, h = chart.height;
+    c2d.clearRect(0, 0, w, h);
+    if (history.length > 1) {
+      let min = Math.min(...history), max = Math.max(...history);
+      if (max - min < 8) { const c = (max + min) / 2; min = c - 4; max = c + 4; }   // не растягивать шум на весь график
+      c2d.strokeStyle = ORANGE; c2d.lineWidth = 3; c2d.lineJoin = 'round'; c2d.beginPath();
+      history.forEach((v, i) => {
+        const x = i * w / (HISTORY - 1), y = h - 8 - (v - min) / (max - min) * (h - 16);
+        i ? c2d.lineTo(x, y) : c2d.moveTo(x, y);
       });
-    };
-  });
-
-  // Нажатие кнопки платы: что оно значит, зависит от открытой вкладки
-  function onPress(button) {
-    if (activeTab === 'game') gameButton(button);
-    if (activeTab === 'piano') playNote(button);
+      c2d.stroke();
+    }
+    requestAnimationFrame(drawChart);
   }
-
-  // ===== светодиоды на плате в SVG: клик включает и выключает =====
-  function toggleLed(i) {
-    stopEffects();
-    setLeds(boardLeds ^ (1 << i));
-  }
-  [0, 1].forEach((i) => {
-    const led = $('led' + i);
-    led.onclick = () => toggleLed(i);
-    led.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleLed(i); } };
-  });
+  drawChart();
 
   // ===== змейка =====
   const GRID_W = 20, GRID_H = 14, CELL = 28, TICK_MS = 140;
-  const canvasGame = $('game'), g2d = canvasGame.getContext('2d');
+  const canvas = $('game'), g2d = canvas.getContext('2d');
   let game = newGame(GRID_W, GRID_H);
-  let gameState = 'idle';                           // idle, running, paused, over
-  let wantedDir = null, gameTimer = null;
-  let best = 0;
+  let state = 'idle';                               // idle, running, paused, over
+  let wantedDir = null, timer = null, best = 0;
   try { best = Number(localStorage.getItem('snakeBest')) || 0; } catch (e) { /* без хранилища */ }
   $('best').textContent = best;
 
+  // Кнопки платы и стрелки клавиатуры управляют одним и тем же
   function gameButton(button) {
     const dirs = { [BTN.UP]: 'up', [BTN.DOWN]: 'down', [BTN.LEFT]: 'left', [BTN.RIGHT]: 'right' };
     if (dirs[button]) wantedDir = dirs[button];
@@ -291,184 +209,70 @@ if (typeof document !== 'undefined') (function () {
   }
 
   function toggleGame() {
-    if (gameState === 'running') {
-      gameState = 'paused';
-      clearInterval(gameTimer);
+    if (state === 'running') {
+      state = 'paused';
+      clearInterval(timer);
     } else {
-      if (gameState === 'idle' || gameState === 'over') {
+      if (state === 'idle' || state === 'over') {
         game = newGame(GRID_W, GRID_H);
         wantedDir = null;
         $('score').textContent = 0;
       }
-      gameState = 'running';
-      gameTimer = setInterval(gameTick, TICK_MS);
+      state = 'running';
+      timer = setInterval(tick, TICK_MS);
     }
-    drawGame();
+    draw();
   }
 
-  function gameTick() {
+  function tick() {
     const result = stepGame(game, wantedDir);
     if (result === 'eat') {
       $('score').textContent = game.score;
-      pulse(2, 120);                                // яблоко - VD4
+      flash(2, 120);                                // яблоко: VD4
     } else if (result === 'die') {
-      gameState = 'over';
-      clearInterval(gameTimer);
+      state = 'over';
+      clearInterval(timer);
       if (game.score > best) {
         best = game.score;
         $('best').textContent = best;
         try { localStorage.setItem('snakeBest', String(best)); } catch (e) { /* без хранилища */ }
       }
-      pulse(1, 500);                                // проигрыш - VD3
+      flash(1, 500);                                // проигрыш: VD3
     }
-    drawGame();
+    draw();
   }
 
-  function drawGame() {
-    g2d.fillStyle = '#0d2a23';
-    g2d.fillRect(0, 0, canvasGame.width, canvasGame.height);
-    g2d.fillStyle = '#1d4a3d';
-    for (let y = 0; y < GRID_H; y++) for (let x = 0; x < GRID_W; x++) g2d.fillRect(x * CELL + 13, y * CELL + 13, 2, 2);
+  function draw() {
+    g2d.fillStyle = '#fff';
+    g2d.fillRect(0, 0, canvas.width, canvas.height);
 
-    g2d.fillStyle = '#ff7a5c';                      // яблоко
+    g2d.fillStyle = TEXT;                           // яблоко
     g2d.beginPath();
-    g2d.arc(game.food.x * CELL + CELL / 2, game.food.y * CELL + CELL / 2, CELL / 2 - 5, 0, 7);
+    g2d.arc(game.food.x * CELL + CELL / 2, game.food.y * CELL + CELL / 2, CELL / 2 - 6, 0, 7);
     g2d.fill();
 
-    game.body.forEach((p, i) => {                   // змейка: голова ярче хвоста
-      g2d.fillStyle = i === 0 ? '#f2b83b' : '#c48f24';
+    game.body.forEach((p, i) => {                   // змейка: голова темнее хвоста
+      g2d.fillStyle = i === 0 ? ORANGE : ORANGE_LIGHT;
       g2d.fillRect(p.x * CELL + 2, p.y * CELL + 2, CELL - 4, CELL - 4);
     });
 
-    const messages = { idle: 'SELECT или щелчок - начать', paused: 'Пауза', over: 'Игра окончена. SELECT - ещё раз' };
-    if (messages[gameState]) {
-      g2d.fillStyle = 'rgba(11, 38, 32, .75)';
-      g2d.fillRect(0, canvasGame.height / 2 - 30, canvasGame.width, 60);
-      g2d.fillStyle = '#e8efe4';
-      g2d.font = '22px Bahnschrift, "Segoe UI", sans-serif';
+    const messages = { idle: 'SELECT или щелчок: старт', paused: 'Пауза', over: 'Игра окончена. SELECT: ещё раз' };
+    if (messages[state]) {
+      g2d.fillStyle = 'rgba(255, 255, 255, .85)';
+      g2d.fillRect(0, canvas.height / 2 - 28, canvas.width, 56);
+      g2d.fillStyle = TEXT;
+      g2d.font = '600 20px "Segoe UI", system-ui, sans-serif';
       g2d.textAlign = 'center';
-      g2d.fillText(messages[gameState], canvasGame.width / 2, canvasGame.height / 2 + 8);
+      g2d.fillText(messages[state], canvas.width / 2, canvas.height / 2 + 7);
     }
   }
 
-  canvasGame.onclick = toggleGame;                  // без платы тоже можно играть: щелчок и стрелки
+  canvas.onclick = toggleGame;                      // без платы тоже можно играть: щелчок и стрелки
   document.addEventListener('keydown', (e) => {
     const arrows = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right' };
-    if (activeTab === 'game' && arrows[e.key]) { wantedDir = arrows[e.key]; e.preventDefault(); }
+    if (arrows[e.key]) { wantedDir = arrows[e.key]; e.preventDefault(); }
   });
-  drawGame();
-
-  // ===== пианино =====
-  const NOTES = [                                   // порядок на экране: LEFT, DOWN, SELECT, UP, RIGHT
-    { button: BTN.LEFT,   name: 'До',   hz: 261.63 },
-    { button: BTN.DOWN,   name: 'Ре',   hz: 293.66 },
-    { button: BTN.SELECT, name: 'Ми',   hz: 329.63 },
-    { button: BTN.UP,     name: 'Соль', hz: 392.0 },
-    { button: BTN.RIGHT,  name: 'Ля',   hz: 440.0 },
-  ];
-  let audio = null;
-
-  NOTES.forEach((n, i) => {
-    const key = document.createElement('span');
-    key.id = 'note' + n.button;
-    key.innerHTML = n.name + '<small>' + Object.keys(BTN)[n.button] + '</small>';
-    key.onclick = () => playNote(n.button);         // можно играть и мышкой
-    $('notes').appendChild(key);
-  });
-
-  function playNote(button) {
-    const note = NOTES.find((n) => n.button === button);
-    const key = $('note' + button);
-    key.classList.add('down');
-    setTimeout(() => key.classList.remove('down'), 200);
-    pulse(NOTES.indexOf(note) % 2 === 0 ? 1 : 2, 150);        // светодиоды мигают в такт
-
-    if (!$('sound').checked) return;
-    audio = audio || new (window.AudioContext || window.webkitAudioContext)();
-    const osc = audio.createOscillator(), gain = audio.createGain();
-    osc.type = 'triangle';
-    osc.frequency.value = note.hz;
-    gain.gain.setValueAtTime(0.25, audio.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + 0.5);
-    osc.connect(gain).connect(audio.destination);
-    osc.start();
-    osc.stop(audio.currentTime + 0.5);
-  }
-
-  // ===== световые эффекты и азбука Морзе =====
-  let fxId = 0, fxRunning = false;
-
-  function stopEffects() {
-    fxId++;
-    fxRunning = false;
-  }
-
-  // Повторять кадры (маски светодиодов) с заданным шагом, пока эффект не остановят
-  async function loopEffect(masks, stepMs) {
-    const my = ++fxId;
-    fxRunning = true;
-    for (let i = 0; fxId === my && device; i++) {
-      await setLeds(masks[i % masks.length]);
-      await sleep(stepMs);
-    }
-  }
-
-  async function playMorse() {
-    const text = $('morse-text').value;
-    $('morse-code').textContent = morseText(text) || 'В тексте нет букв и цифр для азбуки Морзе';
-    const my = ++fxId;
-    fxRunning = true;
-    for (const step of morseSteps(text)) {
-      if (fxId !== my || !device) return;
-      await setLeds(step.on ? 1 : 0);
-      await sleep(step.ms);
-    }
-    if (fxId === my) { fxRunning = false; setLeds(0); }
-  }
-
-  $('fx-run').onclick    = () => loopEffect([1, 2], 120);
-  $('fx-blink').onclick  = () => loopEffect([3, 0], 300);
-  $('fx-beacon').onclick = () => loopEffect([3, 0, 3, 0, 0, 0, 0, 0, 0, 0], 100);
-  $('fx-stop').onclick   = () => { stopEffects(); setLeds(0); };
-  $('morse-send').onclick = playMorse;
-
-  // ===== график АЦП =====
-  const HISTORY = 500;                              // отсчётов на графике: около 10 секунд
-  const canvas = $('chart'), ctx = canvas.getContext('2d');
-
-  function drawChart() {
-    const w = canvas.width, h = canvas.height;
-    ctx.clearRect(0, 0, w, h);
-    ctx.strokeStyle = '#1d4a3d'; ctx.lineWidth = 1;
-    for (let i = 1; i < 4; i++) { ctx.beginPath(); ctx.moveTo(0, h * i / 4); ctx.lineTo(w, h * i / 4); ctx.stroke(); }
-
-    const shown = log.slice(-HISTORY).map((p) => p.adc);
-    if (shown.length > 1) {
-      let min = Math.min(...shown), max = Math.max(...shown);
-      $('amin').textContent = min;
-      $('amax').textContent = max;
-      if (max - min < 8) { const c = (max + min) / 2; min = c - 4; max = c + 4; }   // не растягивать шум на весь график
-      ctx.fillStyle = '#8fb0a3'; ctx.font = '12px Bahnschrift, system-ui';
-      ctx.fillText(Math.round(max), 6, 14); ctx.fillText(Math.round(min), 6, h - 6);
-      ctx.strokeStyle = '#f2b83b'; ctx.lineWidth = 2; ctx.beginPath();
-      shown.forEach((v, i) => {
-        const x = i * w / (HISTORY - 1), y = h - 20 - (v - min) / (max - min) * (h - 40);
-        i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
-      });
-      ctx.stroke();
-    }
-    requestAnimationFrame(drawChart);
-  }
-  drawChart();
-
-  $('csv').onclick = () => {
-    const text = 'мс с запуска платы;код АЦП\n' + log.map((p) => p.t + ';' + p.adc).join('\n');
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(new Blob(['﻿' + text], { type: 'text/csv' }));
-    link.download = 'adc.csv';
-    link.click();
-    URL.revokeObjectURL(link.href);
-  };
+  draw();
 
   // ===== подключение и отключение =====
   $('connect').onclick = async () => {

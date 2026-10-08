@@ -3,88 +3,69 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Миландр К1986ВЕ9х на связи</title>
+<title>Миландр К1986ВЕ9х</title>
 <style>
   :root {
-    --pcb: #12332b;       /* текстолит */
-    --pcb-deep: #0b2620;  /* фон страницы */
-    --silk: #e8efe4;      /* шелкография: основной текст */
-    --muted: #8fb0a3;
-    --line: #2c5a4d;
-    --gold: #f2b83b;      /* всё, что включено */
-    --alert: #ff7a5c;
+    --orange: #f08300;      /* корпоративный оранжевый */
+    --orange-soft: #fff1de;
+    --text: #2a2623;
+    --muted: #7a736c;
+    --line: #e7e1da;
+    --bg: #fbfaf8;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--pcb-deep); color: var(--silk);
-         font: 16px/1.5 Bahnschrift, "DIN Alternate", "Segoe UI", system-ui, sans-serif; }
-  main { max-width: 980px; margin: 0 auto; padding: 28px 16px 56px; }
-  :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 16px/1.5 "Segoe UI", system-ui, -apple-system, sans-serif; }
+  main { max-width: 720px; margin: 0 auto; padding: 32px 20px 64px; }
+  :focus-visible { outline: 2px solid var(--orange); outline-offset: 3px; }
 
-  header { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-  h1 { margin: 0; font-size: 30px; line-height: 1.15; font-weight: 600; letter-spacing: .01em; }
-  h1 small { display: block; margin-top: 4px; font-size: 15px; font-weight: 400; color: var(--muted); }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+           padding-bottom: 20px; border-bottom: 3px solid var(--orange); }
+  h1 { margin: 0; font-size: 24px; font-weight: 600; }
+  h1 small { display: block; font-size: 14px; font-weight: 400; color: var(--muted); }
   .connect { display: flex; align-items: center; gap: 14px; }
-  .status { color: var(--muted); display: inline-flex; align-items: center; gap: 8px; }
-  .status i { width: 10px; height: 10px; border-radius: 50%; background: var(--alert); }
-  .status.on i { background: var(--gold); box-shadow: 0 0 10px var(--gold); }
-  button { font: inherit; color: var(--silk); background: transparent; border: 1px solid var(--line);
-           border-radius: 6px; padding: 8px 16px; cursor: pointer; }
-  button:hover { border-color: var(--gold); }
-  button.primary { background: var(--gold); border-color: var(--gold); color: #261a00; font-weight: 600; }
-  #nosupport { display: none; margin-top: 18px; padding: 12px 16px; border: 1px solid var(--alert); border-radius: 6px; }
+  .status { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 14px; }
+  .status i { width: 9px; height: 9px; border-radius: 50%; background: #c9c2ba; }
+  .status.on i { background: var(--orange); }
+  button { font: inherit; color: var(--text); background: #fff; border: 1px solid var(--line);
+           border-radius: 8px; padding: 8px 18px; cursor: pointer; }
+  button:hover { border-color: var(--orange); }
+  button.primary { background: var(--orange); border-color: var(--orange); color: #fff; font-weight: 600; }
+  #nosupport { display: none; margin-top: 20px; padding: 12px 16px; background: var(--orange-soft); border-radius: 8px; }
 
-  /* плата и показания */
-  .hero { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 28px; margin-top: 26px; align-items: center; }
-  @media (max-width: 760px) { .hero { grid-template-columns: 1fr; } }
-  svg.board { width: 100%; height: auto; display: block; }
-  .readouts { margin: 0; display: grid; gap: 14px; }
-  .readouts div { border-top: 1px solid var(--line); padding-top: 8px; }
-  .readouts dt { color: var(--muted); font-size: 14px; }
-  .readouts dd { margin: 0; font-size: 26px; font-variant-numeric: tabular-nums; }
-  .readouts dd small { font-size: 14px; color: var(--muted); }
+  section { margin-top: 40px; }
+  h2 { margin: 0 0 16px; font-size: 16px; font-weight: 600; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media (max-width: 560px) { .two { grid-template-columns: 1fr; } }
+  .hint { margin: 12px 0 0; color: var(--muted); font-size: 14px; }
 
-  /* детали платы */
-  .pcb { fill: var(--pcb); stroke: var(--line); stroke-width: 2; }
-  .hole { fill: var(--pcb-deep); stroke: var(--line); stroke-width: 2; }
-  .trace { stroke: var(--line); stroke-width: 3; fill: none; }
-  .chip { fill: #1b1f1d; stroke: #3a4540; stroke-width: 2; }
-  .silk { fill: var(--silk); font-size: 13px; }
-  .usb { fill: #aab5b0; }
-  .key rect, .key circle { fill: #0f2a23; stroke: var(--silk); stroke-width: 2; transition: fill .05s; }
-  .key text { fill: var(--silk); font-size: 11px; text-anchor: middle; pointer-events: none; }
-  .key.down rect, .key.down circle { fill: var(--gold); }
-  .key.down text { fill: #261a00; }
-  .led { cursor: pointer; }
-  .led circle.lamp { fill: #3a2a05; stroke: var(--silk); stroke-width: 2; }
-  .led:focus { outline: none; }
-  .led:focus-visible circle.lamp { stroke: var(--gold); stroke-width: 4; }
-  .led.on circle.lamp { fill: var(--gold); filter: drop-shadow(0 0 10px var(--gold)); }
-  #heat { opacity: 0; }
+  /* светодиоды */
+  .leds { display: flex; gap: 20px; }
+  .led { width: 76px; height: 76px; border-radius: 50%; padding: 0; font-weight: 600; color: var(--muted); }
+  .led[aria-pressed="true"] { background: var(--orange); border-color: var(--orange); color: #fff;
+                              box-shadow: 0 0 0 6px var(--orange-soft); }
 
-  /* вкладки */
-  .tabs { display: flex; gap: 6px; margin-top: 34px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
-  .tabs button { border: 0; border-bottom: 3px solid transparent; border-radius: 0; padding: 10px 16px; color: var(--muted); }
-  .tabs button[aria-selected="true"] { color: var(--silk); border-bottom-color: var(--gold); }
-  .panel { padding: 22px 0 0; }
-  .panel[hidden] { display: none; }
-  .panel p { margin: 0 0 12px; color: var(--muted); max-width: 64ch; }
-  canvas { width: 100%; display: block; background: #0d2a23; border: 1px solid var(--line); border-radius: 6px; }
-  #game { max-width: 560px; margin: 0 auto; }
-  .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
-  .row b { font-variant-numeric: tabular-nums; }
-  input[type="text"] { font: inherit; color: var(--silk); background: #0d2a23; border: 1px solid var(--line);
-                       border-radius: 6px; padding: 8px 12px; min-width: 240px; }
-  .keys { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
-  .keys span { border: 1px solid var(--line); border-radius: 6px; padding: 6px 12px; min-width: 96px; text-align: center; }
-  .keys span.down { background: var(--gold); border-color: var(--gold); color: #261a00; }
-  .keys small { display: block; color: inherit; opacity: .7; }
-  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  /* кнопки платы */
+  .dpad { display: grid; grid-template-columns: repeat(3, 68px); grid-template-rows: repeat(3, 44px); gap: 6px; }
+  .key { display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--muted);
+         border: 1px solid var(--line); border-radius: 10px; background: #fff; transition: background .06s; }
+  .key.down { background: var(--orange); border-color: var(--orange); color: #fff; font-weight: 600; }
+
+  /* температура */
+  .temp { display: flex; align-items: baseline; gap: 10px; }
+  .temp b { font-size: 44px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
+  .temp span { color: var(--muted); }
+  canvas { display: block; width: 100%; }
+  #chart { height: 110px; margin-top: 14px; }
+  #game { max-width: 560px; border: 1px solid var(--line); border-radius: 10px; cursor: pointer; }
+  .score { display: flex; gap: 20px; margin-top: 10px; color: var(--muted); }
+  .score b { color: var(--text); font-variant-numeric: tabular-nums; }
 </style>
 </head>
 <body>
 <main>
   <header>
-    <h1>Миландр К1986ВЕ9х на связи<small>Плата общается со страницей по USB, драйвер не нужен</small></h1>
+    <h1>Миландр К1986ВЕ9х<small>Связь платы со страницей по USB, без драйверов</small></h1>
     <div class="connect">
       <span class="status" id="status"><i></i><span id="statusText">не подключено</span></span>
       <button class="primary" id="connect">Подключить плату</button>
@@ -93,85 +74,39 @@
 
   <div id="nosupport">Браузер не поддерживает WebUSB. Откройте страницу в Chrome или Edge по адресу <code>http://localhost</code> или по <code>https</code>.</div>
 
-  <div class="hero">
-    <svg class="board" viewBox="0 0 640 380" role="img" aria-label="Плата: кнопки и светодиоды повторяют состояние реальной платы">
-      <rect class="pcb" x="6" y="6" width="628" height="368" rx="22"/>
-      <circle class="hole" cx="36" cy="36" r="10"/><circle class="hole" cx="604" cy="36" r="10"/>
-      <circle class="hole" cx="36" cy="344" r="10"/><circle class="hole" cx="604" cy="344" r="10"/>
-      <rect class="usb" x="6" y="140" width="62" height="100" rx="6"/>
-      <text class="silk" x="80" y="196">USB</text>
-      <path class="trace" d="M68 160 H150 V120 H200 M68 220 H150 V260 H200"/>
-      <path class="trace" d="M360 150 H440 V90 H520 M360 230 H400 V300 H430"/>
+  <div class="two">
+    <section>
+      <h2>Светодиоды</h2>
+      <div class="leds">
+        <button class="led" id="led0" aria-pressed="false" aria-label="Светодиод VD3">VD3</button>
+        <button class="led" id="led1" aria-pressed="false" aria-label="Светодиод VD4">VD4</button>
+      </div>
+      <p class="hint">Нажмите, чтобы включить или выключить.</p>
+    </section>
 
-      <defs><radialGradient id="glow"><stop offset="0%" stop-color="#ff7a5c"/><stop offset="100%" stop-color="#ff7a5c" stop-opacity="0"/></radialGradient></defs>
-      <circle id="heat" cx="280" cy="190" r="135" fill="url(#glow)"/>
-      <rect class="chip" x="200" y="110" width="160" height="160" rx="8"/>
-      <circle cx="218" cy="128" r="5" fill="#3a4540"/>
-      <text class="silk" x="280" y="186" text-anchor="middle">К1986ВЕ9х</text>
-      <text class="silk" x="280" y="208" text-anchor="middle" opacity=".6">Миландр</text>
-
-      <g class="led" id="led0" tabindex="0" role="button" aria-label="Светодиод VD3">
-        <circle class="lamp" cx="480" cy="52" r="20"/><text class="silk" x="480" y="94" text-anchor="middle">VD3</text>
-      </g>
-      <g class="led" id="led1" tabindex="0" role="button" aria-label="Светодиод VD4">
-        <circle class="lamp" cx="560" cy="52" r="20"/><text class="silk" x="560" y="94" text-anchor="middle">VD4</text>
-      </g>
-
-      <g class="key" id="k1"><rect x="500" y="130" width="52" height="40" rx="8"/><text x="526" y="155">UP</text></g>
-      <g class="key" id="k3"><rect x="436" y="190" width="56" height="40" rx="8"/><text x="464" y="215">LEFT</text></g>
-      <g class="key" id="k0"><circle cx="526" cy="210" r="25"/><text x="526" y="214">SELECT</text></g>
-      <g class="key" id="k4"><rect x="560" y="190" width="56" height="40" rx="8"/><text x="588" y="215">RIGHT</text></g>
-      <g class="key" id="k2"><rect x="500" y="250" width="52" height="40" rx="8"/><text x="526" y="275">DOWN</text></g>
-      <text class="silk" x="526" y="338" text-anchor="middle" opacity=".6">Нажимайте кнопки на плате</text>
-    </svg>
-
-    <dl class="readouts">
-      <div><dt>Датчик температуры (код АЦП)</dt><dd id="adc">–</dd></div>
-      <div><dt>Отклонение от первых отсчётов</dt><dd id="dev">–</dd></div>
-      <div><dt>Отклик платы на светодиод</dt><dd id="rtt">–</dd></div>
-      <div><dt>Кадров в секунду / время работы</dt><dd><span id="fps">–</span> <small id="uptime"></small></dd></div>
-    </dl>
+    <section>
+      <h2>Кнопки</h2>
+      <div class="dpad">
+        <div></div><div class="key" id="k1">UP</div><div></div>
+        <div class="key" id="k3">LEFT</div><div class="key" id="k0">SELECT</div><div class="key" id="k4">RIGHT</div>
+        <div></div><div class="key" id="k2">DOWN</div><div></div>
+      </div>
+    </section>
   </div>
 
-  <div class="tabs" role="tablist">
-    <button role="tab" id="tab-game"  aria-selected="true"  aria-controls="panel-game">Змейка</button>
-    <button role="tab" id="tab-piano" aria-selected="false" aria-controls="panel-piano">Пианино</button>
-    <button role="tab" id="tab-lights" aria-selected="false" aria-controls="panel-lights">Огни и азбука Морзе</button>
-    <button role="tab" id="tab-chart" aria-selected="false" aria-controls="panel-chart">График АЦП</button>
-  </div>
+  <section>
+    <h2>Температура</h2>
+    <div class="temp"><b id="adc">–</b><span>код АЦП, встроенный датчик</span></div>
+    <canvas id="chart" width="1440" height="220"></canvas>
+    <p class="hint">Коснитесь микроконтроллера пальцем: значение изменится.</p>
+  </section>
 
-  <div class="panel" id="panel-game" role="tabpanel">
-    <p>Управляйте змейкой кнопками платы (стрелки на клавиатуре тоже работают). SELECT начинает игру и ставит её на паузу. Яблоко зажигает VD4, проигрыш зажигает VD3.</p>
+  <section>
+    <h2>Змейка</h2>
     <canvas id="game" width="560" height="392"></canvas>
-    <div class="row"><span>Счёт: <b id="score">0</b></span><span>Рекорд: <b id="best">0</b></span></div>
-  </div>
-
-  <div class="panel" id="panel-piano" role="tabpanel" hidden>
-    <p>Каждая кнопка платы играет ноту, а светодиоды мигают в такт.</p>
-    <label class="row"><input type="checkbox" id="sound" checked> Звук включён</label>
-    <div class="keys" id="notes"></div>
-  </div>
-
-  <div class="panel" id="panel-lights" role="tabpanel" hidden>
-    <p>Эффекты работают на светодиодах платы. Страница каждые несколько десятков миллисекунд отправляет плате команду.</p>
-    <div class="row">
-      <button id="fx-run">Бегущий огонь</button>
-      <button id="fx-blink">Мигание</button>
-      <button id="fx-beacon">Маяк</button>
-      <button id="fx-stop">Остановить</button>
-    </div>
-    <div class="row">
-      <input type="text" id="morse-text" value="Миландр" aria-label="Текст для азбуки Морзе">
-      <button id="morse-send">Передать светодиодом VD3</button>
-    </div>
-    <p class="row" id="morse-code" style="color:var(--muted)"></p>
-  </div>
-
-  <div class="panel" id="panel-chart" role="tabpanel" hidden>
-    <p>Коснитесь пальцем или подышите на микроконтроллер: код АЦП изменится, чип на плате засветится, а график покажет отсчёты за последние 10 секунд.</p>
-    <canvas id="chart" width="940" height="260"></canvas>
-    <div class="row"><button id="csv">Скачать отсчёты (CSV)</button><span>Минимум: <b id="amin">–</b></span><span>Максимум: <b id="amax">–</b></span></div>
-  </div>
+    <div class="score"><span>Счёт: <b id="score">0</b></span><span>Рекорд: <b id="best">0</b></span></div>
+    <p class="hint">Управляйте кнопками платы или стрелками. SELECT или щелчок: старт и пауза. Яблоко зажигает VD4, проигрыш зажигает VD3.</p>
+  </section>
 </main>
 <script src="app.js"></script>
 </body>
