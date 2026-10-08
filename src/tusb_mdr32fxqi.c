@@ -15,6 +15,8 @@
  *  - если EPRDY = 1, а TX FIFO пуст, контроллер сам отвечает на IN пустым пакетом (ZLP).
  *
  * Главное правило порта: EPRDY взводится, только когда стек поставил передачу (dcd_edpt_xfer).
+ * Поэтому после сброса шины, dcd_edpt_open и clear_stall точки EP1..EP3 остаются в NAK.
+ * STALL держится (повторным взведением с флагом STALL), пока стек не вызовет clear_stall.
  * Если OUT-пакет пришёл раньше, чем стек дал буфер, он остаётся в RX FIFO (rx_parked)
  * и отдаётся стеку при следующем dcd_edpt_xfer.
  */
@@ -31,6 +33,7 @@ typedef struct {
 static ep_state_t    ep_state[EP_COUNT][2]; // [точка][TUSB_DIR_OUT / TUSB_DIR_IN]
 static volatile bool ep_armed[EP_COUNT];    // мы взвели EPRDY и ждём транзакцию
 static volatile bool rx_parked[EP_COUNT];   // в RX FIFO лежит пакет, которому ещё не дали буфер
+static volatile bool ep_halted[EP_COUNT];   // точка в состоянии STALL до clear_stall
 static uint32_t      set_addr = 0;
 static uint32_t      sis;
 
@@ -143,13 +146,16 @@ static void handle_usb_device_reset(uint8_t rhport)
                             USB_SEPx_CTRL_EPSSTALL_NotReply |
                             USB_SEPx_CTRL_EPISOEN_Reset);
 
+        // Готова только EP0 (ждёт SETUP). Остальные отвечают NAK, пока стек не поставит передачу:
+        // точка с EPRDY=1 и пустым FIFO отвечает на IN пустым пакетом (ZLP), а для MSC это ошибка
+        ep_halted[ep] = false;
+        ep_armed[ep]  = (ep == USB_EP0);
         USB_SetSEPxCTRL(ep,
                         USB_SEPx_CTRL_EPEN_Enable |
-                            USB_SEPx_CTRL_EPRDY_Ready |
+                            (ep == USB_EP0 ? USB_SEPx_CTRL_EPRDY_Ready : USB_SEPx_CTRL_EPRDY_NotReady) |
                             USB_SEPx_CTRL_EPDATASEQ_Data0 |
                             USB_SEPx_CTRL_EPSSTALL_NotReply |
                             USB_SEPx_CTRL_EPISOEN_Reset);
-        ep_armed[ep] = true;
     }
 
     dcd_event_bus_reset(rhport, TUSB_SPEED_FULL, true);
@@ -166,7 +172,8 @@ bool dcd_init(uint8_t rhport, const tusb_rhport_init_t* rh_init)
 
     for (int ep = 0; ep < EP_COUNT; ep++) {
         ep_clear_state(ep);
-        ep_armed[ep] = false;
+        ep_armed[ep]  = false;
+        ep_halted[ep] = false;
     }
 
     // Ядро: HSE x10, USB: HSE x6 = 48 МГц (для кварца 8 МГц)
@@ -269,16 +276,18 @@ bool dcd_edpt_open(uint8_t rhport, tusb_desc_endpoint_t const* ep_desc)
     uint32_t primask = __get_PRIMASK();
     __disable_irq();
 
+    // Точка включена, но в NAK: EPRDY взведёт dcd_edpt_xfer, когда у стека будут данные или буфер
     USB_SetSEPxCTRL(epnum,
                     USB_SEPx_CTRL_EPEN_Enable |
-                        USB_SEPx_CTRL_EPRDY_Ready |
+                        USB_SEPx_CTRL_EPRDY_NotReady |
                         USB_SEPx_CTRL_EPDATASEQ_Data0 |
                         USB_SEPx_CTRL_EPSSTALL_NotReply |
                         USB_SEPx_CTRL_EPISOEN_Reset);
     USB_SetSEPxRXFC(epnum, 1);
     USB_SetSEPxTXFDC(epnum, 1);
 
-    ep_armed[epnum]              = true;
+    ep_armed[epnum]              = false;
+    ep_halted[epnum]             = false;
     rx_parked[epnum]             = false;
     ep_state[epnum][dir].pending = false;
 
@@ -383,7 +392,8 @@ void dcd_edpt_stall(uint8_t rhport, uint8_t ep_addr)
                     USB_SEPx_CTRL_EPSSTALL_Reply |
                         USB_SEPx_CTRL_EPDATASEQ_Data0 |
                         USB_SEPx_CTRL_EPRDY_Ready);
-    ep_armed[epnum] = true;
+    ep_armed[epnum]  = true;
+    ep_halted[epnum] = (epnum != USB_EP0);   // EP0 выходит из STALL сама по новому SETUP
 
     __set_PRIMASK(primask);
 }
@@ -400,16 +410,18 @@ void dcd_edpt_clear_stall(uint8_t rhport, uint8_t ep_addr)
     uint32_t primask = __get_PRIMASK();
     __disable_irq();
 
-    rx_parked[epnum] = false;
+    rx_parked[epnum]  = false;
+    ep_halted[epnum]  = false;
 
     USB_SetSEPxTXFDC(epnum, 1);
     USB_SetSEPxRXFC(epnum, 1);
 
+    // После снятия STALL точка в NAK, пока стек не поставит передачу (обычно сразу следом)
     USB_SetSEPxCTRL(epnum,
                     USB_SEPx_CTRL_EPSSTALL_NotReply |
                         USB_SEPx_CTRL_EPDATASEQ_Data0 |
-                        USB_SEPx_CTRL_EPRDY_Ready);
-    ep_armed[epnum] = true;
+                        USB_SEPx_CTRL_EPRDY_NotReady);
+    ep_armed[epnum] = false;
 
     __set_PRIMASK(primask);
 }
@@ -479,12 +491,17 @@ static void handle_ep(uint8_t rhport, uint8_t ep)
     uint32_t ts  = USB_GetSEPxTS(ep);
     uint32_t sts = USB_GetSEPxSTS(ep);
 
-    // Отправлен STALL: снимаем передачи и возвращаем точку в работу
+    // Отправлен STALL: точка остаётся в STALL до clear_stall - взводим её снова с флагом STALL
     if (sts & USB_SEPx_STS_SCSTALLSENT_Set) {
         in->pending  = false;
         out->pending = false;
-        USB_SEPxToggleEPDATASEQ(ep);
-        ep_set_ready(ep);
+        if (ep_halted[ep]) {
+            USB_SetSEPxCTRL(ep,
+                            USB_SEPx_CTRL_EPSSTALL_Reply |
+                                USB_SEPx_CTRL_EPDATASEQ_Data0 |
+                                USB_SEPx_CTRL_EPRDY_Ready);
+            ep_armed[ep] = true;
+        }
         return;
     }
 
