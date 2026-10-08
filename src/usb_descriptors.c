@@ -36,8 +36,17 @@
  */
 
 #define USB_VID   0xCAFE
-#define USB_PID   0x4012
+#define USB_PID   0x4013
+
+// 1 - драйвер WinUSB через MS OS 2.0 (BOS, bcdUSB 2.10), подсказка со страницей WebUSB в Chrome;
+// 0 - через MS OS 1.0 (строка 0xEE, bcdUSB 2.00): BOS хост не запрашивает
+#define USE_MS_OS_20  0
+
+#if USE_MS_OS_20
 #define USB_BCD   0x0210     // 2.10: хост запрашивает BOS-дескриптор
+#else
+#define USB_BCD   0x0200
+#endif
 
 // Адрес страницы, которую Chrome предложит открыть при подключении платы.
 // Для http допустим только localhost; для боевой страницы нужен https (scheme = 1).
