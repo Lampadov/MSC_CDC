@@ -23,225 +23,197 @@
  *
  */
 
+#include <ctype.h>
+#include <string.h>
+
 #include "tusb.h"
 
-#if CFG_TUD_MSC
+/*
+ * RAM-диск 8 КБ с файловой системой FAT12. На нём два файла:
+ *   README.TXT - описание проекта
+ *   LED.TXT    - управление светодиодом VD3: запишите в файл 1 (или on) - светодиод горит,
+ *                0 (или off) - гаснет
+ *
+ * Раскладка секторов (512 байт, один сектор на кластер):
+ *   0 загрузочный сектор | 1 таблица FAT | 2 корневой каталог | 3.. данные файлов
+ */
 
-// whether host does safe-eject
-static bool ejected = false;
-
-// Some MCU doesn't have enough 8KB SRAM to store the whole disk
-// We will use Flash as read-only disk with board that has
-// CFG_EXAMPLE_MSC_READONLY defined
-
-#define README_CONTENTS \
-"This is TinyUSB MassStorage Class demo.\r\n\r\n\
-If you find any bugs or get any questions, write to us at support@milandr.ru"
+// Светодиод включается в main.c
+void led_set(bool on);
 
 enum {
-  DISK_BLOCK_NUM = 16,// 8KB is the smallest size that windows allow to mount
+  DISK_BLOCK_NUM  = 16,    // меньше 8 КБ Windows не монтирует
   DISK_BLOCK_SIZE = 512
 };
 
-static
-#ifdef CFG_EXAMPLE_MSC_READONLY
-const
-#endif
-uint8_t msc_disk[DISK_BLOCK_NUM][DISK_BLOCK_SIZE] = {
-  //------------- Block0: Boot Sector -------------//
-  // byte_per_sector    = DISK_BLOCK_SIZE; fat12_sector_num_16  = DISK_BLOCK_NUM;
-  // sector_per_cluster = 1; reserved_sectors = 1;
-  // fat_num            = 1; fat12_root_entry_num = 16;
-  // sector_per_fat     = 1; sector_per_track = 1; head_num = 1; hidden_sectors = 0;
-  // drive_number       = 0x80; media_type = 0xf8; extended_boot_signature = 0x29;
-  // filesystem_type    = "FAT12   "; volume_serial_number = 0x1234; volume_label = "TinyUSB MSC";
-  // FAT magic code at offset 510-511
-  {
-      0xEB, 0x3C, 0x90, 0x4D, 0x53, 0x44, 0x4F, 0x53, 0x35, 0x2E, 0x30, 0x00, 0x02, 0x01, 0x01, 0x00,
-      0x01, 0x10, 0x00, 0x10, 0x00, 0xF8, 0x01, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x80, 0x00, 0x29, 0x34, 0x12, 0x00, 0x00, 'M', 'i', 'l', 'a', 'n',
-      'd', 'r', ' ', 'M', 'S', 'C', 0x46, 0x41, 0x54, 0x31, 0x32, 0x20, 0x20, 0x20, 0x00, 0x00,
-
-      // Zero up to 2 last bytes of FAT magic code
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x55, 0xAA
-  },
-
-  //------------- Block1: FAT12 Table -------------//
-  {
-      0xF8, 0xFF, 0xFF, 0xFF, 0x0F// first 2 entries must be F8FF, third entry is cluster end of readme file
-  },
-
-  //------------- Block2: Root Directory -------------//
-  {
-      // first entry is volume label
-      'M', 'i', 'l', 'a', 'n', 'd', 'r', ' ', 'M', 'S', 'C', 0x08, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x4F, 0x6D, 0x65, 0x43, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      // second entry is readme file
-      'R', 'E', 'A', 'D', 'M', 'E', ' ', ' ', 'T', 'X', 'T', 0x20, 0x00, 0xC6, 0x52, 0x6D,
-      0x65, 0x43, 0x65, 0x43, 0x00, 0x00, 0x88, 0x6D, 0x65, 0x43, 0x02, 0x00,
-      sizeof(README_CONTENTS) - 1, 0x00, 0x00, 0x00// readme's files size (4 Bytes)
-  },
-
-  //------------- Block3: Readme Content -------------//
-  {README_CONTENTS}
+enum {
+  SECTOR_BOOT = 0,
+  SECTOR_FAT  = 1,
+  SECTOR_ROOT = 2,
+  SECTOR_DATA = 3          // здесь лежит кластер 2 (кластеры нумеруются с 2)
 };
 
-// Invoked when received SCSI_CMD_INQUIRY, v2 with full inquiry response
-// Some inquiry_resp's fields are already filled with default values, application can update them
-// Return length of inquiry response, typically sizeof(scsi_inquiry_resp_t) (36 bytes), can be longer if included vendor data.
-uint32_t tud_msc_inquiry2_cb(uint8_t lun, scsi_inquiry_resp_t *inquiry_resp, uint32_t bufsize) {
-  (void) lun;
-  (void) bufsize;
-  const char vid[] = "Milandr";
-  const char pid[] = "Mass Storage";
-  const char rev[] = "1.0";
+// "\xEF\xBB\xBF" - метка UTF-8, чтобы Блокнот правильно показал кириллицу в названии.
+// К1986ВЕ9х записано байтами UTF-8, чтобы текст не зависел от кодировки этого файла.
+#define README_TEXT \
+  "\xEF\xBB\xBF" \
+  "Milandr \xD0\x9A" "1986" "\xD0\x92\xD0\x95" "9" "\xD1\x85" " - USB flash drive demo (TinyUSB).\r\n" \
+  "\r\n" \
+  "This disk lives in the RAM of the microcontroller.\r\n" \
+  "\r\n" \
+  "Try it: open LED.TXT, replace 0 with 1 and save the file.\r\n" \
+  "The LED VD3 on the board turns on. Write 0 to turn it off.\r\n" \
+  "\r\n" \
+  "Questions: support@milandr.ru\r\n"
 
-  (void) strncpy((char*) inquiry_resp->vendor_id, vid, 8);
-  (void) strncpy((char*) inquiry_resp->product_id, pid, 16);
-  (void) strncpy((char*) inquiry_resp->product_rev, rev, 4);
+#define LED_TEXT  "0"
 
-  return sizeof(scsi_inquiry_resp_t); // 36 bytes
+static uint8_t msc_disk[DISK_BLOCK_NUM][DISK_BLOCK_SIZE];
+static bool    ejected;
+
+//--------------------------------------------------------------------+
+// Создание образа диска
+//--------------------------------------------------------------------+
+// Загрузочный сектор: параметры FAT12 (16 секторов по 512 байт, один сектор на кластер,
+// 1 копия FAT на 1 сектор, 16 записей в корневом каталоге), метка тома "Milandr MSC"
+static const uint8_t boot_sector[62] = {
+  0xEB, 0x3C, 0x90, 'M', 'S', 'D', 'O', 'S', '5', '.', '0',  // переход, имя изготовителя
+  0x00, 0x02,        // байт в секторе: 512
+  0x01,              // секторов в кластере
+  0x01, 0x00,        // зарезервировано секторов (загрузочный)
+  0x01,              // копий FAT
+  0x10, 0x00,        // записей в корневом каталоге
+  0x10, 0x00,        // всего секторов: 16
+  0xF8,              // тип носителя
+  0x01, 0x00,        // секторов в FAT
+  0x01, 0x00,        // секторов на дорожку
+  0x01, 0x00,        // головок
+  0x00, 0x00, 0x00, 0x00,   // скрытых секторов
+  0x00, 0x00, 0x00, 0x00,   // всего секторов (32-битное поле, не используется)
+  0x80, 0x00, 0x29,  // номер диска, расширенная сигнатура
+  0x34, 0x12, 0x00, 0x00,   // серийный номер тома
+  'M', 'i', 'l', 'a', 'n', 'd', 'r', ' ', 'M', 'S', 'C',   // метка тома
+  'F', 'A', 'T', '1', '2', ' ', ' ', ' '                   // тип файловой системы
+};
+
+// Запись в корневом каталоге (32 байта): имя 8+3, атрибут, дата, первый кластер, размер
+static void add_file(int index, const char* name83, int cluster, const char* text, int size)
+{
+  uint8_t* e = &msc_disk[SECTOR_ROOT][index * 32];
+
+  memcpy(e, name83, 11);
+  e[11] = 0x20;                              // атрибут "архивный" (обычный файл)
+  e[24] = 0x21; e[25] = 0x5A;                // дата 01.01.2025
+  e[26] = (uint8_t)cluster;                  // первый кластер
+  e[28] = (uint8_t)size;                     // размер файла в байтах
+  e[29] = (uint8_t)(size >> 8);
+  memcpy(msc_disk[SECTOR_DATA + cluster - 2], text, size);
 }
 
-// Invoked when received Test Unit Ready command.
-// return true allowing host to read/write this LUN e.g SD card inserted
-bool tud_msc_test_unit_ready_cb(uint8_t lun) {
-  (void) lun;
+void msc_disk_init(void)
+{
+  memcpy(msc_disk[SECTOR_BOOT], boot_sector, sizeof(boot_sector));
+  msc_disk[SECTOR_BOOT][510] = 0x55;         // сигнатура загрузочного сектора
+  msc_disk[SECTOR_BOOT][511] = 0xAA;
 
-  // RAM disk is ready until ejected
+  // FAT12: элементы 0 и 1 служебные, файлы занимают по одному кластеру (2 и 3) = конец цепочки
+  static const uint8_t fat[] = { 0xF8, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+  memcpy(msc_disk[SECTOR_FAT], fat, sizeof(fat));
+
+  memcpy(msc_disk[SECTOR_ROOT], "Milandr MSC\x08", 12);   // запись 0 - метка тома
+  add_file(1, "README  TXT", 2, README_TEXT, sizeof(README_TEXT) - 1);
+  add_file(2, "LED     TXT", 3, LED_TEXT, sizeof(LED_TEXT) - 1);
+}
+
+//--------------------------------------------------------------------+
+// LED.TXT: после каждой записи на диск находим файл в каталоге и читаем из него команду.
+// Так работает и перенос файла на другой кластер, который иногда делает Windows.
+//--------------------------------------------------------------------+
+static void led_update(void)
+{
+  for (int i = 0; i < 16; i++) {
+    const uint8_t* e = &msc_disk[SECTOR_ROOT][i * 32];
+    if (memcmp(e, "LED     TXT", 11) != 0) continue;
+
+    int cluster = e[26] | (e[27] << 8);
+    int size    = e[28];                       // файл с командой короткий
+    int sector  = SECTOR_DATA + cluster - 2;
+    if (size == 0 || cluster < 2 || sector >= DISK_BLOCK_NUM) return;
+
+    const uint8_t* p = msc_disk[sector];
+    while (*p == 0xEF || *p == 0xBB || *p == 0xBF || isspace(*p)) p++;   // пропускаем метку UTF-8 и пробелы
+
+    int c = tolower(p[0]);
+    if (c == '1' || (c == 'o' && tolower(p[1]) == 'n'))       led_set(true);    // 1 или on
+    else if (c == '0' || (c == 'o' && tolower(p[1]) == 'f'))  led_set(false);   // 0 или off
+    return;
+  }
+}
+
+//--------------------------------------------------------------------+
+// Обратные вызовы MSC
+//--------------------------------------------------------------------+
+uint32_t tud_msc_inquiry2_cb(uint8_t lun, scsi_inquiry_resp_t* inquiry_resp, uint32_t bufsize)
+{
+  (void)lun; (void)bufsize;
+  strncpy((char*)inquiry_resp->vendor_id, "Milandr", 8);
+  strncpy((char*)inquiry_resp->product_id, "Mass Storage", 16);
+  strncpy((char*)inquiry_resp->product_rev, "1.0", 4);
+  return sizeof(scsi_inquiry_resp_t);
+}
+
+// Диск готов, пока его не извлекли
+bool tud_msc_test_unit_ready_cb(uint8_t lun)
+{
   if (ejected) {
-    // Additional Sense 3A-00 is NOT_FOUND
-    return tud_msc_set_sense(lun, SCSI_SENSE_NOT_READY, 0x3a, 0x00);
+    return tud_msc_set_sense(lun, SCSI_SENSE_NOT_READY, 0x3a, 0x00);   // носитель не найден
   }
-
   return true;
 }
 
-// Invoked when received SCSI_CMD_READ_CAPACITY_10 and SCSI_CMD_READ_FORMAT_CAPACITY to determine the disk size
-// Application update block count and block size
-void tud_msc_capacity_cb(uint8_t lun, uint32_t *block_count, uint16_t *block_size) {
-  (void) lun;
+void tud_msc_capacity_cb(uint8_t lun, uint32_t* block_count, uint16_t* block_size)
+{
+  (void)lun;
   *block_count = DISK_BLOCK_NUM;
-  *block_size = DISK_BLOCK_SIZE;
+  *block_size  = DISK_BLOCK_SIZE;
 }
 
-// Invoked when received Start Stop Unit command
-// - Start = 0 : stopped power mode, if load_eject = 1 : unload disk storage
-// - Start = 1 : active mode, if load_eject = 1 : load disk storage
-bool tud_msc_start_stop_cb(uint8_t lun, uint8_t power_condition, bool start, bool load_eject) {
-  (void) lun;
-  (void) power_condition;
-
-  if (load_eject) {
-    if (start) {
-      // load disk storage
-    } else {
-      // unload disk storage
-      ejected = true;
-    }
-  }
-
+bool tud_msc_start_stop_cb(uint8_t lun, uint8_t power_condition, bool start, bool load_eject)
+{
+  (void)lun; (void)power_condition;
+  if (load_eject && !start) ejected = true;          // "Безопасное извлечение"
   return true;
 }
 
-// Callback invoked when received READ10 command.
-// Copy disk's data to buffer (up to bufsize) and return number of copied bytes.
-int32_t tud_msc_read10_cb(uint8_t lun, uint32_t lba, uint32_t offset, void *buffer, uint32_t bufsize) {
-  (void) lun;
+int32_t tud_msc_read10_cb(uint8_t lun, uint32_t lba, uint32_t offset, void* buffer, uint32_t bufsize)
+{
+  (void)lun;
+  if (lba * DISK_BLOCK_SIZE + offset + bufsize > sizeof(msc_disk)) return -1;
 
-  // out of ramdisk
-  if (lba >= DISK_BLOCK_NUM) {
-    return -1;
-  }
-
-  // Check for overflow of offset + bufsize
-  if (lba * DISK_BLOCK_SIZE + offset + bufsize > DISK_BLOCK_NUM * DISK_BLOCK_SIZE) {
-    return -1;
-  }
-
-  uint8_t const *addr = msc_disk[lba] + offset;
-  (void) memcpy(buffer, addr, bufsize);
-
-  return (int32_t) bufsize;
+  memcpy(buffer, msc_disk[lba] + offset, bufsize);
+  return (int32_t)bufsize;
 }
 
-bool tud_msc_is_writable_cb(uint8_t lun) {
-  (void) lun;
-
-  #ifdef CFG_EXAMPLE_MSC_READONLY
-  return false;
-  #else
+bool tud_msc_is_writable_cb(uint8_t lun)
+{
+  (void)lun;
   return true;
-  #endif
 }
 
-// Callback invoked when received WRITE10 command.
-// Process data in buffer to disk's storage and return number of written bytes
-int32_t tud_msc_write10_cb(uint8_t lun, uint32_t lba, uint32_t offset, uint8_t *buffer, uint32_t bufsize) {
-  (void) lun;
+int32_t tud_msc_write10_cb(uint8_t lun, uint32_t lba, uint32_t offset, uint8_t* buffer, uint32_t bufsize)
+{
+  (void)lun;
+  if (lba * DISK_BLOCK_SIZE + offset + bufsize > sizeof(msc_disk)) return -1;
 
-  // out of ramdisk
-  if (lba >= DISK_BLOCK_NUM) {
-    return -1;
-  }
-
-  #ifndef CFG_EXAMPLE_MSC_READONLY
-  uint8_t *addr = msc_disk[lba] + offset;
-  (void) memcpy(addr, buffer, bufsize);
-  #else
-  (void) lba;
-  (void) offset;
-  (void) buffer;
-  #endif
-
-  return (int32_t) bufsize;
+  memcpy(msc_disk[lba] + offset, buffer, bufsize);
+  led_update();                                      // вдруг изменился LED.TXT
+  return (int32_t)bufsize;
 }
 
-// Callback invoked when received an SCSI command not in built-in list below
-// - READ_CAPACITY10, READ_FORMAT_CAPACITY, INQUIRY, MODE_SENSE6, REQUEST_SENSE
-// - READ10 and WRITE10 has their own callbacks
-int32_t tud_msc_scsi_cb(uint8_t lun, uint8_t const scsi_cmd[16], void *buffer, uint16_t bufsize) {
-  (void) lun;
-  (void) scsi_cmd;
-  (void) buffer;
-  (void) bufsize;
-
-  // currently no other commands is supported
-
-  // Set Sense = Invalid Command Operation
-  (void) tud_msc_set_sense(lun, SCSI_SENSE_ILLEGAL_REQUEST, 0x20, 0x00);
-
-  return -1; // stall/failed command request;
+// Остальные SCSI-команды не поддерживаются
+int32_t tud_msc_scsi_cb(uint8_t lun, uint8_t const scsi_cmd[16], void* buffer, uint16_t bufsize)
+{
+  (void)scsi_cmd; (void)buffer; (void)bufsize;
+  tud_msc_set_sense(lun, SCSI_SENSE_ILLEGAL_REQUEST, 0x20, 0x00);   // неверная команда
+  return -1;
 }
-
-#endif
