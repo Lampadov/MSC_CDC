@@ -278,7 +278,10 @@ static void cdc_task(void)
         was_connected = connected;
         console_reset();
         tud_cdc_read_flush();
-        if (connected) put("\r\nMilandr MDR32F9Q2I, TinyUSB CDC\r\nType 'help' for commands.\r\n" PROMPT);
+        if (connected) put("\r\nMilandr "
+            // К1986ВЕ9х в UTF-8 (байтами, чтобы не зависеть от кодировки файла)
+            "\xD0\x9A" "1986" "\xD0\x92\xD0\x95" "9" "\xD1\x85"
+            ", TinyUSB CDC\r\nType 'help' for commands.\r\n" PROMPT);
     }
     if (!connected) return;
 
