@@ -206,8 +206,8 @@ int main(void)
         tud_task();                      // обработка USB-стека
 
         // ОТЛАДКА: пока хост не настроил устройство, светодиоды показывают, что он запрашивал
-        // VD3 - прочитал BOS, VD4 - запросил MS OS 2.0 (подробнее в README)
-        if (!tud_mounted()) leds_set(usb_trace);
+        // VD4 - хост запросил MS OS 2.0, VD3 - и принял его целиком (подробнее в README)
+        if (!tud_mounted()) leds_set(((usb_trace >> 3) & 1) | (usb_trace & 2));
 
         receive_commands();
 

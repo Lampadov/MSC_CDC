@@ -118,7 +118,8 @@ static uint8_t const desc_bos[] = {
 };
 
 // Отладка энумерации: биты, которые main.c показывает светодиодами, пока устройство не настроено
-// бит 0 - хост прочитал BOS, бит 1 - хост запросил MS OS 2.0, бит 2 - хост запросил URL WebUSB
+// бит 0 - хост прочитал BOS, бит 1 - хост запросил MS OS 2.0, бит 2 - хост запросил URL WebUSB,
+// бит 3 - ответ MS OS 2.0 передан хосту целиком (завершён этап статуса)
 volatile uint8_t usb_trace;
 
 uint8_t const *tud_descriptor_bos_cb(void) {
@@ -177,6 +178,7 @@ static struct {
 // Vendor-запросы: хост просит URL страницы и набор MS OS 2.0
 //--------------------------------------------------------------------+
 bool tud_vendor_control_xfer_cb(uint8_t rhport, uint8_t stage, tusb_control_request_t const *request) {
+  if (stage == CONTROL_STAGE_ACK && request->bRequest == VENDOR_REQUEST_MICROSOFT) usb_trace |= 8;  // хост принял весь ответ
   if (stage != CONTROL_STAGE_SETUP) return true;     // нужен только этап SETUP
 
   if (request->bmRequestType_bit.type != TUSB_REQ_TYPE_VENDOR) return false;
