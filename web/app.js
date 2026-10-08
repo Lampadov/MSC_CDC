@@ -64,7 +64,12 @@ function stepGame(game, wantedDir) {
   return 'eat';
 }
 
-if (typeof module !== 'undefined') module.exports = { parseFrame, ledsCommand, newGame, stepGame };
+// Сглаживание отсчётов АЦП: экспоненциальное среднее, чем меньше alpha, тем плавнее линия
+function smooth(previous, sample, alpha = 0.06) {
+  return previous === null ? sample : previous + (sample - previous) * alpha;
+}
+
+if (typeof module !== 'undefined') module.exports = { parseFrame, ledsCommand, newGame, stepGame, smooth };
 
 // ---------- остальной код работает только в браузере ----------
 if (typeof document !== 'undefined') (function () {
@@ -152,7 +157,8 @@ if (typeof document !== 'undefined') (function () {
   }
 
   // ===== кадр от платы =====
-  const history = [];                               // отсчёты АЦП для графика
+  const history = [];                               // сглаженные отсчёты АЦП для графика
+  let averaged = null;
   const HISTORY = 500;                              // около 10 секунд
 
   function onFrame(f) {
@@ -161,8 +167,9 @@ if (typeof document !== 'undefined') (function () {
     boardLeds = f.leds;
     for (let i = 0; i < 2; i++) $('led' + i).setAttribute('aria-pressed', String(!!(f.leds & (1 << i))));
 
-    $('adc').textContent = f.adc;
-    history.push(f.adc);
+    averaged = smooth(averaged, f.adc);
+    $('adc').textContent = Math.round(averaged);
+    history.push(averaged);
     if (history.length > HISTORY) history.shift();
 
     const pressed = f.buttons & ~prevButtons;       // кнопки, нажатые с прошлого кадра
@@ -180,12 +187,15 @@ if (typeof document !== 'undefined') (function () {
     c2d.clearRect(0, 0, w, h);
     if (history.length > 1) {
       let min = Math.min(...history), max = Math.max(...history);
-      if (max - min < 8) { const c = (max + min) / 2; min = c - 4; max = c + 4; }   // не растягивать шум на весь график
+      if (max - min < 20) { const c = (max + min) / 2; min = c - 10; max = c + 10; }   // не растягивать шум на весь график
       c2d.strokeStyle = ORANGE; c2d.lineWidth = 3; c2d.lineJoin = 'round'; c2d.beginPath();
-      history.forEach((v, i) => {
-        const x = i * w / (HISTORY - 1), y = h - 8 - (v - min) / (max - min) * (h - 16);
-        i ? c2d.lineTo(x, y) : c2d.moveTo(x, y);
-      });
+      const px = (i) => i * w / (HISTORY - 1);
+      const py = (v) => h - 8 - (v - min) / (max - min) * (h - 16);
+      c2d.moveTo(px(0), py(history[0]));
+      for (let i = 1; i < history.length - 1; i++) {      // кривая через середины отрезков: без изломов
+        c2d.quadraticCurveTo(px(i), py(history[i]), (px(i) + px(i + 1)) / 2, (py(history[i]) + py(history[i + 1])) / 2);
+      }
+      c2d.lineTo(px(history.length - 1), py(history[history.length - 1]));
       c2d.stroke();
     }
     requestAnimationFrame(drawChart);
