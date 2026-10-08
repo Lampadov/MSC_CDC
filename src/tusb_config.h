@@ -11,8 +11,7 @@
 #define CFG_TUD_ENDPOINT0_SIZE  64
 #define CFG_TUSB_SPEED          OPT_MODE_FULL_SPEED
 
-// Только vendor-класс (WebUSB, драйвер WinUSB ставится Windows сам)
-#define USB_SETUP_LOG           1   // отладка: журнал SETUP в порту (usb_setup_log)
+// Только vendor-класс (WebUSB; драйвер WinUSB Windows подключает сама по MS OS 1.0)
 #define CFG_TUD_CDC             0
 #define CFG_TUD_HID             0
 #define CFG_TUD_MIDI            0

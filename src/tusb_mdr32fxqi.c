@@ -32,14 +32,7 @@ typedef struct {
 
 static ep_state_t    ep_state[EP_COUNT][2]; // [точка][TUSB_DIR_OUT / TUSB_DIR_IN]
 static volatile bool ep_armed[EP_COUNT];    // мы взвели EPRDY и ждём транзакцию
-#if USB_SETUP_LOG
-// Отладка: журнал принятых SETUP-пакетов (смотреть в окне Watch отладчика)
-volatile uint8_t  usb_setup_log[32][8];
-volatile uint32_t usb_setup_cnt;
-volatile uint32_t usb_reset_cnt;
-volatile uint32_t usb_stall_cnt;
-#endif
-static volatile bool ep0_stalled;               // стек ответил на SETUP STALL-ом
+static volatile bool ep0_stalled;           // стек ответил на SETUP STALL-ом
 static volatile bool rx_parked[EP_COUNT];   // в RX FIFO лежит пакет, которому ещё не дали буфер
 static volatile bool ep_halted[EP_COUNT];   // точка в состоянии STALL до clear_stall
 static uint32_t      set_addr = 0;
@@ -140,9 +133,6 @@ static void handle_usb_device_reset(uint8_t rhport)
 {
     set_addr = 0;
     USB_SetSA(0);
-#if USB_SETUP_LOG
-    usb_reset_cnt++;
-#endif
 
     for (int ep = 0; ep < EP_COUNT; ep++) {
         ep_clear_state(ep);
@@ -463,12 +453,6 @@ static void handle_ep0(uint8_t rhport)
         USB_SetSEPxRXFC(USB_EP0, 1);
         USB_SEPxToggleEPDATASEQ(USB_EP0);
         ep0_stalled = false;
-#if USB_SETUP_LOG
-        for (int i = 0; i < 8; i++) {
-            usb_setup_log[usb_setup_cnt & 31][i] = setup[i];
-        }
-        usb_setup_cnt++;
-#endif
         dcd_event_setup_received(rhport, setup, true);
 
         // Ответ на SETUP должен попасть в FIFO до взведения EP0 ниже,
@@ -479,9 +463,6 @@ static void handle_ep0(uint8_t rhport)
     // Отправлен STALL (учитываем только если стек его запрашивал: старый бит в STS игнорируем)
     else if ((sts & USB_SEPx_STS_SCSTALLSENT_Set) && ep0_stalled) {
         ep0_stalled = false;
-#if USB_SETUP_LOG
-        usb_stall_cnt++;
-#endif
         USB_SEPxToggleEPDATASEQ(USB_EP0);
     }
 
