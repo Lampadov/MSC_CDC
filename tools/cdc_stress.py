@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 r"""
 Нагрузочный тест CDC (виртуальный COM-порт) на MDR32F9Q2I.
-Прошивка должна работать эхом: всё принятое отправляется обратно (так сделано в main.c).
+Скрипт сам вводит в консоли прошивки команду echo: после неё всё принятое возвращается
+обратно (режим действует до закрытия порта).
 
 Нужны Python 3.9+ и pyserial:   pip install pyserial
 
@@ -75,7 +76,27 @@ def hexdump(b, n=16):
 
 
 def open_port(port, **kw):
-    return serial.Serial(port, 115200, timeout=0.05, write_timeout=2, **kw)
+    """Открыть порт и перевести прошивку из консоли в режим прозрачного эха (команда echo)."""
+    ser = serial.Serial(port, 115200, timeout=0.05, write_timeout=2, **kw)
+    try:
+        ser.dtr = True                      # консоль работает, пока терминал держит DTR
+    except OSError:
+        pass
+    time.sleep(0.3)
+    ser.reset_input_buffer()                # приветствие консоли нам не нужно
+    ser.write(b"echo\r")
+    buf, end = bytearray(), time.perf_counter() + 2
+    while time.perf_counter() < end:
+        buf += ser.read(256)
+        # "ECHO MODE" - режим включён сейчас; "echo\r" без ответа - он уже был включён
+        if b"ECHO MODE" in buf or bytes(buf).endswith(b"echo\r"):
+            break
+    else:
+        ser.close()
+        raise RuntimeError(f"прошивка не вошла в режим echo, получено: {bytes(buf)!r}")
+    time.sleep(0.1)
+    ser.reset_input_buffer()
+    return ser
 
 
 def read_exact(ser, n, timeout):
@@ -212,10 +233,6 @@ def test_reopen(port, seconds, seed):
     while time.perf_counter() < end:
         try:
             ser = open_port(port)
-            try:
-                ser.dtr = True
-            except OSError:
-                pass
             drain(ser, 0.1)
             for _ in range(3):
                 n = rnd.randint(1, 100)
