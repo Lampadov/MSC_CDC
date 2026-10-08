@@ -32,6 +32,7 @@ typedef struct {
 
 static ep_state_t    ep_state[EP_COUNT][2]; // [точка][TUSB_DIR_OUT / TUSB_DIR_IN]
 static volatile bool ep_armed[EP_COUNT];    // мы взвели EPRDY и ждём транзакцию
+static volatile bool ep0_stalled;               // стек ответил на SETUP STALL-ом
 static volatile bool rx_parked[EP_COUNT];   // в RX FIFO лежит пакет, которому ещё не дали буфер
 static volatile bool ep_halted[EP_COUNT];   // точка в состоянии STALL до clear_stall
 static uint32_t      set_addr = 0;
@@ -393,6 +394,7 @@ void dcd_edpt_stall(uint8_t rhport, uint8_t ep_addr)
                         USB_SEPx_CTRL_EPDATASEQ_Data0 |
                         USB_SEPx_CTRL_EPRDY_Ready);
     ep_armed[epnum]  = true;
+    ep0_stalled      = (epnum == USB_EP0);
     ep_halted[epnum] = (epnum != USB_EP0);   // EP0 выходит из STALL сама по новому SETUP
 
     __set_PRIMASK(primask);
@@ -437,6 +439,7 @@ static void handle_ep0(uint8_t rhport)
 
     // Отправлен STALL
     if (sts & USB_SEPx_STS_SCSTALLSENT_Set) {
+        ep0_stalled = false;
         USB_SEPxToggleEPDATASEQ(USB_EP0);
     }
 
@@ -452,6 +455,7 @@ static void handle_ep0(uint8_t rhport)
 
         USB_SetSEPxRXFC(USB_EP0, 1);
         USB_SEPxToggleEPDATASEQ(USB_EP0);
+        ep0_stalled = false;
         dcd_event_setup_received(rhport, setup, true);
 
         // Ответ на SETUP должен попасть в FIFO до взведения EP0 ниже,
@@ -463,7 +467,6 @@ static void handle_ep0(uint8_t rhport)
     else if ((ts & USB_SEPx_TS_SCTTYPE_Msk) == USB_SEPx_TS_SCTTYPE_In) {
 
         if (sts & USB_SEPx_STS_SCACKRXED_Set) {
-            dcd_event_xfer_complete(rhport, 0x80, ep_state[0][TUSB_DIR_IN].total_len, XFER_RESULT_SUCCESS, true);
             USB_SetSEPxTXFDC(USB_EP0, 1);
 
             if (set_addr) {
@@ -471,6 +474,11 @@ static void handle_ep0(uint8_t rhport)
                 set_addr = 0;
             }
             USB_SEPxToggleEPDATASEQ(USB_EP0);
+
+            // Следующий пакет ответа должен попасть в FIFO до взведения EP0 ниже,
+            // иначе хост получит пустой пакет и оборвёт длинный дескриптор (>64 байт)
+            dcd_event_xfer_complete(rhport, 0x80, ep_state[0][TUSB_DIR_IN].total_len, XFER_RESULT_SUCCESS, true);
+            tud_task();
         }
     }
 
@@ -479,8 +487,11 @@ static void handle_ep0(uint8_t rhport)
         handle_ep_out(rhport, USB_EP0);
     }
 
-    // EP0 всегда взведена - она должна принять следующий SETUP
-    ep_set_ready(USB_EP0);
+    // EP0 всегда взведена - она должна принять следующий SETUP.
+    // Исключение: стек только что ответил на SETUP STALL-ом - не затираем его
+    if (!ep0_stalled) {
+        ep_set_ready(USB_EP0);
+    }
 }
 
 static void handle_ep(uint8_t rhport, uint8_t ep)
