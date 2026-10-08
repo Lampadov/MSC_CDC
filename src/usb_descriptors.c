@@ -37,7 +37,7 @@
                            PID_MAP(MIDI, 3) | PID_MAP(VENDOR, 4) )
 
 #define USB_VID   0xABAB
-#define USB_BCD   0x0100
+#define USB_BCD   0x0200
 
 //--------------------------------------------------------------------+
 // Device Descriptors
@@ -106,7 +106,7 @@ enum
 uint8_t const desc_configuration[] =
 {
   // Config number, interface count, string index, total length, attribute, power in mA
-  TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, CONFIG_TOTAL_LEN, TUSB_DESC_CONFIG_ATT_REMOTE_WAKEUP, 100),
+  TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, CONFIG_TOTAL_LEN, 0x00, 100),
 
   // Interface number, string index, protocol, report descriptor len, EP In address, size & polling interval
   TUD_HID_DESCRIPTOR(ITF_NUM_HID, 0, HID_ITF_PROTOCOL_NONE, sizeof(desc_hid_report), EPNUM_HID, CFG_TUD_HID_EP_BUFSIZE, 1)
@@ -116,7 +116,7 @@ uint8_t const desc_device_qualifier[] =
 {
     0x0A,                           // bLength
     0x06,                           // bDescriptorType (Device Qualifier)
-    0x00, 0x01,                     // bcdUSB (USB 2.0)
+    0x00, 0x02,                     // bcdUSB (USB 2.0)
     0x00,                           // bDeviceClass
     0x00,                           // bDeviceSubClass
     0x00,                           // bDeviceProtocol

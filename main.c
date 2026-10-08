@@ -2,160 +2,192 @@
 #include <MDR32FxQI_rst_clk.h>
 
 #include "tusb.h"
-#include "stdio.h"
 
-void Delay(int waitTicks);
-void hid_task(void);
+/*
+ * USB-мышь на кнопках платы.
+ *   SELECT       - левая кнопка мыши
+ *   UP/DOWN/LEFT/RIGHT - движение курсора; пока кнопка удержана, курсор едет
+ *                  непрерывно и постепенно ускоряется
+ *
+ * Светодиоды: VD3 горит, когда хост настроил устройство; VD4 горит, пока нажата любая кнопка.
+ */
 
-#define LED_PERIOD 50000
-#define VD3 PORT_Pin_0
-#define VD4 PORT_Pin_1
+// ---- Настройки поведения ----
+#define DEBOUNCE_MS       5     // кнопка считается нажатой/отпущенной после стольких мс стабильного уровня
+#define REPORT_PERIOD_MS  10    // период отчётов о движении, пока кнопка удержана
+#define SPEED_START       2     // начальная скорость, пикселей за отчёт
+#define SPEED_MAX         20    // максимальная скорость, пикселей за отчёт
+#define SPEED_ACCEL_MS    100   // каждые столько мс удержания скорость растёт на 1
 
-#define LED_ALL VD3 | VD4
+#define VD3     PORT_Pin_0
+#define VD4     PORT_Pin_1
+#define LED_ALL (VD3 | VD4)
 
 typedef struct {
     MDR_PORT_TypeDef* port;
-    uint16_t pin;
-    uint8_t keycode;        
+    uint16_t          pin;
 } button_t;
 
-static const button_t buttons[] = {
-    {MDR_PORTC, PORT_Pin_2, HID_KEY_ENTER},      // SELECT 
-    {MDR_PORTB, PORT_Pin_5, HID_KEY_ARROW_UP},   // UP 
-    {MDR_PORTE, PORT_Pin_1, HID_KEY_ARROW_DOWN}, // DOWN 
-    {MDR_PORTE, PORT_Pin_3, HID_KEY_ARROW_LEFT}, // LEFT
-    {MDR_PORTB, PORT_Pin_6, HID_KEY_ARROW_RIGHT} // RIGHT
+enum { BTN_SELECT, BTN_UP, BTN_DOWN, BTN_LEFT, BTN_RIGHT, BTN_COUNT };
+
+static const button_t buttons[BTN_COUNT] = {
+    {MDR_PORTC, PORT_Pin_2},   // SELECT
+    {MDR_PORTB, PORT_Pin_5},   // UP
+    {MDR_PORTE, PORT_Pin_1},   // DOWN
+    {MDR_PORTE, PORT_Pin_3},   // LEFT
+    {MDR_PORTB, PORT_Pin_6}    // RIGHT
 };
-#define NUM_BUTTONS 5
 
-// Хранение предыдущего состояния для обнаружения изменений
-static uint8_t prev_buttons = 0;
-static int8_t prev_dx = 0;
-static int8_t prev_dy = 0;
+#define BIT(b)  (1u << (b))
 
-int main()
-{	
-  PORT_InitTypeDef GPIOInitStruct;
-	
-  RST_CLK_PCLKcmd (RST_CLK_PCLK_PORTC | RST_CLK_PCLK_PORTB | RST_CLK_PCLK_PORTE, ENABLE);
-  PORT_StructInit(&GPIOInitStruct);
-  
-  GPIOInitStruct.PORT_Pin        = LED_ALL;
-  GPIOInitStruct.PORT_OE         = PORT_OE_OUT;
-  GPIOInitStruct.PORT_SPEED      = PORT_SPEED_SLOW;
-  GPIOInitStruct.PORT_MODE       = PORT_MODE_DIGITAL;
-  PORT_Init(MDR_PORTC, &GPIOInitStruct);
-	
-	GPIOInitStruct.PORT_Pin        = PORT_Pin_2;
-  GPIOInitStruct.PORT_OE         = PORT_OE_IN;
-  GPIOInitStruct.PORT_SPEED      = PORT_SPEED_SLOW;
-  GPIOInitStruct.PORT_MODE       = PORT_MODE_DIGITAL;
-  PORT_Init(MDR_PORTC, &GPIOInitStruct);
-	
-	GPIOInitStruct.PORT_Pin        = PORT_Pin_5 | PORT_Pin_6;
-  GPIOInitStruct.PORT_OE         = PORT_OE_IN;
-  GPIOInitStruct.PORT_SPEED      = PORT_SPEED_SLOW;
-  GPIOInitStruct.PORT_MODE       = PORT_MODE_DIGITAL;
-  PORT_Init(MDR_PORTB, &GPIOInitStruct);	
-	
-	GPIOInitStruct.PORT_Pin        = PORT_Pin_1 | PORT_Pin_3;
-  GPIOInitStruct.PORT_OE         = PORT_OE_IN;
-  GPIOInitStruct.PORT_SPEED      = PORT_SPEED_SLOW;
-  GPIOInitStruct.PORT_MODE       = PORT_MODE_DIGITAL;
-  PORT_Init(MDR_PORTE, &GPIOInitStruct);	
-	
-  tusb_rhport_init_t dev_init = {.role = TUSB_ROLE_DEVICE, .speed = TUSB_SPEED_FULL};
-  tusb_init(0, &dev_init);
-	
-  while (1)
-  {
-		tud_task(); // tinyusb device task
-		hid_task();
-  }      
-}
+extern void     SystemCoreClockUpdate(void);
+extern uint32_t SystemCoreClock;
 
+static void hid_task(void);
 
+//--------------------------------------------------------------------+
+// Время в миллисекундах (SysTick)
+//--------------------------------------------------------------------+
 
-void Delay(int waitTicks)
+static volatile uint32_t ms_ticks;
+
+void SysTick_Handler(void)
 {
-  int i;
-  for (i = 0; i < waitTicks; i++)
-  {
-    __NOP();
-  }	
+    ms_ticks++;
 }
 
+//--------------------------------------------------------------------+
+// main
+//--------------------------------------------------------------------+
 
-//void hid_task(void) {
-//    if (!tud_hid_ready()) return;
-//	
-//    uint8_t current_mask = 0;
-//    for (uint8_t i = 0; i < NUM_BUTTONS; i++) {
-//        if (PORT_ReadInputDataBit(buttons[i].port, buttons[i].pin) == 0) {
-//            current_mask |= (1 << i);
-//        }
-//    }
-//    if (current_mask != prev_buttons) {
-//        uint8_t keycodes[6] = {0};
-//        uint8_t idx = 0;
-//        for (uint8_t i = 0; i < NUM_BUTTONS && idx < 6; i++) {
-//            if (current_mask & (1 << i)) {
-//                keycodes[idx++] = buttons[i].keycode;
-//            }
-//        }
-//        tud_hid_keyboard_report(0, 0, keycodes);
-//        prev_buttons = current_mask;
-//    }
-//}
+static void gpio_init(void)
+{
+    PORT_InitTypeDef gpio;
 
-void hid_task(void) {
-    if (!tud_hid_ready()) return;
+    RST_CLK_PCLKcmd(RST_CLK_PCLK_PORTC | RST_CLK_PCLK_PORTB | RST_CLK_PCLK_PORTE, ENABLE);
+    PORT_StructInit(&gpio);
+    gpio.PORT_SPEED = PORT_SPEED_SLOW;
+    gpio.PORT_MODE  = PORT_MODE_DIGITAL;
 
-    // Опрашиваем все кнопки (нажатие = низкий уровень)
-    uint8_t current_mask = 0;
-    for (uint8_t i = 0; i < NUM_BUTTONS; i++) {
+    // Светодиоды - выходы
+    gpio.PORT_Pin = LED_ALL;
+    gpio.PORT_OE  = PORT_OE_OUT;
+    PORT_Init(MDR_PORTC, &gpio);
+
+    // Кнопки - входы
+    gpio.PORT_OE = PORT_OE_IN;
+    gpio.PORT_Pin = PORT_Pin_2;
+    PORT_Init(MDR_PORTC, &gpio);
+    gpio.PORT_Pin = PORT_Pin_5 | PORT_Pin_6;
+    PORT_Init(MDR_PORTB, &gpio);
+    gpio.PORT_Pin = PORT_Pin_1 | PORT_Pin_3;
+    PORT_Init(MDR_PORTE, &gpio);
+}
+
+int main(void)
+{
+    gpio_init();
+
+    tusb_rhport_init_t dev_init = {.role = TUSB_ROLE_DEVICE, .speed = TUSB_SPEED_FULL};
+    tusb_init(0, &dev_init);   // здесь же настраивается PLL
+
+    // Тактовая частота известна только после tusb_init: считаем по регистрам и запускаем SysTick на 1 кГц
+    SystemCoreClockUpdate();
+    SysTick_Config(SystemCoreClock / 1000);
+
+    while (1)
+    {
+        tud_task();   // обработка USB-стека
+        hid_task();
+    }
+}
+
+//--------------------------------------------------------------------+
+// Кнопки и отчёты HID
+//--------------------------------------------------------------------+
+
+static void hid_task(void)
+{
+    static uint32_t last_ms;          // последняя обработанная миллисекунда
+    static uint32_t last_report_ms;   // когда ушёл последний отчёт
+    static uint32_t move_start_ms;    // когда началось текущее удержание
+    static uint8_t  integrator[BTN_COUNT];
+    static uint8_t  state;            // кнопки после подавления дребезга (битовая маска)
+    static uint8_t  sent_buttons;     // состояние кнопок мыши, которое уже ушло хосту
+    static bool     was_moving;       // шло ли движение в прошлую миллисекунду
+
+    uint32_t now = ms_ticks;
+    if (now == last_ms) {
+        return;                       // всё ниже выполняется раз в миллисекунду
+    }
+    last_ms = now;
+
+    // Подавление дребезга: счётчик растёт, пока кнопка нажата (низкий уровень), и падает, пока отпущена
+    for (uint8_t i = 0; i < BTN_COUNT; i++) {
         if (PORT_ReadInputDataBit(buttons[i].port, buttons[i].pin) == 0) {
-            current_mask |= (1 << i);
+            if (integrator[i] < DEBOUNCE_MS) integrator[i]++;
+        } else if (integrator[i] > 0) {
+            integrator[i]--;
         }
+        if (integrator[i] == DEBOUNCE_MS)  state |= BIT(i);
+        else if (integrator[i] == 0)       state &= (uint8_t)~BIT(i);
     }
 
-    // Кнопка SELECT - левая кнопка мыши
-    uint8_t mouse_buttons = (current_mask & (1 << 0)) ? 0x01 : 0;
+    // Светодиоды
+    if (tud_mounted()) PORT_SetBits(MDR_PORTC, VD3); else PORT_ResetBits(MDR_PORTC, VD3);
+    if (state)         PORT_SetBits(MDR_PORTC, VD4); else PORT_ResetBits(MDR_PORTC, VD4);
 
-    // Остальные кнопки задают смещение курсора по x, y
+    // Скорость курсора растёт с длительностью удержания
+    uint8_t move_mask = BIT(BTN_UP) | BIT(BTN_DOWN) | BIT(BTN_LEFT) | BIT(BTN_RIGHT);
+    bool moving = (state & move_mask) != 0;
+    if (moving && !was_moving) {
+        move_start_ms = now;
+    }
+    was_moving = moving;
+
+    int speed = SPEED_START + (int)((now - move_start_ms) / SPEED_ACCEL_MS);
+    if (speed > SPEED_MAX) speed = SPEED_MAX;
+
     int8_t dx = 0, dy = 0;
-    if (current_mask & (1 << 4)) dx += 20; // RIGHT
-    if (current_mask & (1 << 3)) dx -= 20; // LEFT
-    if (current_mask & (1 << 2)) dy += 20; // DOWN 
-    if (current_mask & (1 << 1)) dy -= 20; // UP 
+    if (state & BIT(BTN_RIGHT)) dx += speed;
+    if (state & BIT(BTN_LEFT))  dx -= speed;
+    if (state & BIT(BTN_DOWN))  dy += speed;
+    if (state & BIT(BTN_UP))    dy -= speed;
 
-    // Отправляем отчёт только при изменении состояния
-		if (mouse_buttons != prev_buttons || dx != prev_dx || dy != prev_dy) {
-				tud_hid_mouse_report(0, mouse_buttons, dx, dy, 0, 0);
-				prev_buttons = mouse_buttons;
-				prev_dx = dx;
-				prev_dy = dy;
-		}
+    uint8_t mouse_buttons  = (state & BIT(BTN_SELECT)) ? MOUSE_BUTTON_LEFT : 0;
+    bool    buttons_change = (mouse_buttons != sent_buttons);
+    bool    time_to_move   = (dx || dy) && (now - last_report_ms >= REPORT_PERIOD_MS);
+
+    // Отчёт уходит при смене кнопок мыши или по таймеру, пока курсор должен двигаться
+    if ((buttons_change || time_to_move) && tud_hid_ready()) {
+        if (tud_hid_mouse_report(0, mouse_buttons, dx, dy, 0, 0)) {
+            sent_buttons   = mouse_buttons;
+            last_report_ms = now;
+        }
+    }
 }
 
+//--------------------------------------------------------------------+
+// Обязательные обратные вызовы HID
+//--------------------------------------------------------------------+
 
-// Вызывается при получении отчёта от хоста (например, индикаторы клавиатуры)
+// Хост передал отчёт устройству (для мыши не используется)
 void tud_hid_set_report_cb(uint8_t instance, uint8_t report_id,
                            hid_report_type_t report_type,
-                           uint8_t const* buffer, uint16_t bufsize) {
+                           uint8_t const* buffer, uint16_t bufsize)
+{
     (void)instance;
     (void)report_id;
     (void)report_type;
     (void)buffer;
     (void)bufsize;
-
-    // Здесь можно обработать, например, состояние NumLock/CapsLock
 }
 
-// Вызывается, когда хост запрашивает отчёт
+// Хост запросил отчёт через управляющую точку; 0 - нечего отдавать
 uint16_t tud_hid_get_report_cb(uint8_t instance, uint8_t report_id,
                                hid_report_type_t report_type,
-                               uint8_t* buffer, uint16_t reqlen) {
+                               uint8_t* buffer, uint16_t reqlen)
+{
     (void)instance;
     (void)report_id;
     (void)report_type;
