@@ -447,17 +447,11 @@ static void handle_ep0(uint8_t rhport)
     uint32_t ts  = USB_GetSEPxTS(USB_EP0);
     uint32_t sts = USB_GetSEPxSTS(USB_EP0);
 
-    // Отправлен STALL
-    if (sts & USB_SEPx_STS_SCSTALLSENT_Set) {
-        ep0_stalled = false;
-#if USB_SETUP_LOG
-        usb_stall_cnt++;
-#endif
-        USB_SEPxToggleEPDATASEQ(USB_EP0);
-    }
-
-    // Обработка SETUP
-    else if ((ts & USB_SEPx_TS_SCTTYPE_Msk) == USB_SEPx_TS_SCTTYPE_Setup) {
+    // Обработка SETUP. Проверяется первой: после STALL бит SCSTALLSENT остаётся в STS
+    // и без этой проверки следующий SETUP принимался бы за подтверждение STALL и терялся.
+    // Признак SETUP - тип транзакции и 8 байт в RX FIFO (TS и STS могут быть устаревшими)
+    if (((ts & USB_SEPx_TS_SCTTYPE_Msk) == USB_SEPx_TS_SCTTYPE_Setup) &&
+        USB_GetSEPxRXFDC(USB_EP0) >= 8) {
 
         USB_SetSEPxCTRL(USB_EP0, USB_SEPx_CTRL_EPDATASEQ_Data0); // Явная установка DATA0
 
@@ -480,6 +474,15 @@ static void handle_ep0(uint8_t rhport)
         // Ответ на SETUP должен попасть в FIFO до взведения EP0 ниже,
         // иначе на первый IN контроллер отправит пустой пакет
         tud_task();
+    }
+
+    // Отправлен STALL (учитываем только если стек его запрашивал: старый бит в STS игнорируем)
+    else if ((sts & USB_SEPx_STS_SCSTALLSENT_Set) && ep0_stalled) {
+        ep0_stalled = false;
+#if USB_SETUP_LOG
+        usb_stall_cnt++;
+#endif
+        USB_SEPxToggleEPDATASEQ(USB_EP0);
     }
 
     // Обработка IN
