@@ -36,11 +36,11 @@
  */
 
 #define USB_VID   0xCAFE
-#define USB_PID   0x4013
+#define USB_PID   0x4014
 
 // 1 - драйвер WinUSB через MS OS 2.0 (BOS, bcdUSB 2.10), подсказка со страницей WebUSB в Chrome;
 // 0 - через MS OS 1.0 (строка 0xEE, bcdUSB 2.00): BOS хост не запрашивает
-#define USE_MS_OS_20  0
+#define USE_MS_OS_20  1
 
 #if USE_MS_OS_20
 #define USB_BCD   0x0210     // 2.10: хост запрашивает BOS-дескриптор
@@ -68,9 +68,9 @@ static tusb_desc_device_t const desc_device = {
     .bDescriptorType    = TUSB_DESC_DEVICE,
     .bcdUSB             = USB_BCD,
 
-    .bDeviceClass       = 0x00,     // класс задан на уровне интерфейса
-    .bDeviceSubClass    = 0x00,
-    .bDeviceProtocol    = 0x00,
+    .bDeviceClass       = TUSB_CLASS_MISC,        // 0xEF/0x02/0x01: составное устройство - Windows всегда
+    .bDeviceSubClass    = MISC_SUBCLASS_COMMON,   // грузит usbccgp и применяет подмножество функции
+    .bDeviceProtocol    = MISC_PROTOCOL_IAD,      // из MS OS 2.0 (так устроен и CMSIS-DAP программатор)
     .bMaxPacketSize0    = CFG_TUD_ENDPOINT0_SIZE,
 
     .idVendor           = USB_VID,
@@ -79,7 +79,7 @@ static tusb_desc_device_t const desc_device = {
 
     .iManufacturer      = 0x01,
     .iProduct           = 0x02,
-    .iSerialNumber      = 0x00,
+    .iSerialNumber      = 0x03,
 
     .bNumConfigurations = 0x01
 };
@@ -117,7 +117,7 @@ uint8_t const *tud_descriptor_configuration_cb(uint8_t index) {
 //--------------------------------------------------------------------+
 // BOS Descriptor: сообщает хосту, что устройство поддерживает WebUSB и MS OS 2.0
 //--------------------------------------------------------------------+
-#define MS_OS_20_DESC_LEN  0xA2     // заголовок 10 + compatible ID 20 + свойство реестра 132
+#define MS_OS_20_DESC_LEN  0xB2     // заголовок 10 + подмножества 8+8 + compatible ID 20 + свойство реестра 132
 
 #define BOS_TOTAL_LEN  (TUD_BOS_DESC_LEN + TUD_BOS_WEBUSB_DESC_LEN + TUD_BOS_MICROSOFT_OS_DESC_LEN)
 
@@ -149,14 +149,21 @@ static uint8_t const desc_ms_os_20[] = {
     U16_TO_U8S_LE(0x000A), U16_TO_U8S_LE(MS_OS_20_SET_HEADER_DESCRIPTOR), U32_TO_U8S_LE(0x06030000),
     U16_TO_U8S_LE(MS_OS_20_DESC_LEN),
 
-    // Compatible ID: драйвер WinUSB. Подмножеств конфигурации и функции нет: устройство с одним
-    // интерфейсом Windows не считает составным, и описание действует на всё устройство
+    // Подмножество конфигурации: длина, тип, номер конфигурации, резерв, длина подмножества
+    U16_TO_U8S_LE(0x0008), U16_TO_U8S_LE(MS_OS_20_SUBSET_HEADER_CONFIGURATION), 0, 0,
+    U16_TO_U8S_LE(MS_OS_20_DESC_LEN - 0x0A),
+
+    // Подмножество функции: длина, тип, первый интерфейс, резерв, длина подмножества
+    U16_TO_U8S_LE(0x0008), U16_TO_U8S_LE(MS_OS_20_SUBSET_HEADER_FUNCTION), ITF_NUM_VENDOR, 0,
+    U16_TO_U8S_LE(MS_OS_20_DESC_LEN - 0x0A - 0x08),
+
+    // Compatible ID: драйвер WinUSB
     U16_TO_U8S_LE(0x0014), U16_TO_U8S_LE(MS_OS_20_FEATURE_COMPATBLE_ID),
     'W', 'I', 'N', 'U', 'S', 'B', 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 
     // Свойство реестра DeviceInterfaceGUIDs (по нему программы находят устройство)
-    U16_TO_U8S_LE(MS_OS_20_DESC_LEN - 0x0A - 0x14), U16_TO_U8S_LE(MS_OS_20_FEATURE_REG_PROPERTY),
+    U16_TO_U8S_LE(MS_OS_20_DESC_LEN - 0x0A - 0x08 - 0x08 - 0x14), U16_TO_U8S_LE(MS_OS_20_FEATURE_REG_PROPERTY),
     U16_TO_U8S_LE(0x0007), U16_TO_U8S_LE(0x002A),                  // REG_MULTI_SZ, длина имени 42 байта
     'D', 0, 'e', 0, 'v', 0, 'i', 0, 'c', 0, 'e', 0, 'I', 0, 'n', 0, 't', 0, 'e', 0,
     'r', 0, 'f', 0, 'a', 0, 'c', 0, 'e', 0, 'G', 0, 'U', 0, 'I', 0, 'D', 0, 's', 0, 0, 0,
@@ -247,12 +254,28 @@ bool tud_vendor_control_xfer_cb(uint8_t rhport, uint8_t stage, tusb_control_requ
 }
 
 //--------------------------------------------------------------------+
+// Device Qualifier (отдаём дескриптор, как программатор; для Full Speed он справочный)
+//--------------------------------------------------------------------+
+static uint8_t const desc_device_qualifier[] = {
+    0x0A, 0x06,                          // длина, тип
+    U16_TO_U8S_LE(USB_BCD),              // bcdUSB
+    TUSB_CLASS_MISC, MISC_SUBCLASS_COMMON, MISC_PROTOCOL_IAD,
+    CFG_TUD_ENDPOINT0_SIZE,              // размер пакета EP0
+    0x01, 0x00                           // число конфигураций, резерв
+};
+
+uint8_t const *tud_descriptor_device_qualifier_cb(void) {
+  return desc_device_qualifier;
+}
+
+//--------------------------------------------------------------------+
 // String Descriptors
 //--------------------------------------------------------------------+
 static char const *string_desc_arr[] = {
     (const char[]) { 0x09, 0x04 }, // 0: язык - английский (0x0409)
     "Milandr",                     // 1: производитель
     "Milandr WebUSB Demo",         // 2: изделие
+    "MDR32-WEBUSB-0001",           // 3: серийный номер
 };
 
 static uint16_t _desc_str[32 + 1];
