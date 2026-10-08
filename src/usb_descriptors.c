@@ -123,6 +123,10 @@ static uint8_t const desc_bos[] = {
 // бит 3 - ответ MS OS 2.0 передан хосту целиком (завершён этап статуса)
 volatile uint8_t usb_trace;
 
+volatile uint32_t usb_mount_cnt, usb_umount_cnt;
+void tud_mount_cb(void)   { usb_mount_cnt++; }
+void tud_umount_cb(void)  { usb_umount_cnt++; }
+
 uint8_t const *tud_descriptor_bos_cb(void) {
   usb_trace |= 1;
   return desc_bos;
