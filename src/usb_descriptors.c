@@ -34,7 +34,7 @@
  */
 #define PID_MAP(itf, n)  ((CFG_TUD_##itf) ? (1 << (n)) : 0)
 #define USB_PID           (0x4000 | PID_MAP(HID, 2) | \
-                           PID_MAP(MIDI, 3) | PID_MAP(VENDOR, 4) )
+                           PID_MAP(MIDI, 3) | PID_MAP(VENDOR, 4) | ((HID_MODE - 1) << 5))
 
 #define USB_VID   0xABAB
 #define USB_BCD   0x0200
@@ -76,8 +76,13 @@ uint8_t const * tud_descriptor_device_cb(void)
 
 uint8_t const desc_hid_report[] =
 {
-//		TUD_HID_REPORT_DESC_KEYBOARD()
-		TUD_HID_REPORT_DESC_MOUSE()
+#if HID_MODE == HID_MODE_KEYBOARD
+  TUD_HID_REPORT_DESC_KEYBOARD()
+#elif HID_MODE == HID_MODE_ECHO
+  TUD_HID_REPORT_DESC_GENERIC_INOUT(CFG_TUD_HID_EP_BUFSIZE)
+#else
+  TUD_HID_REPORT_DESC_MOUSE()
+#endif
 };
 
 // Invoked when received GET HID REPORT DESCRIPTOR
@@ -99,17 +104,33 @@ enum
   ITF_NUM_TOTAL
 };
 
-#define  CONFIG_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_HID_DESC_LEN)
+#if HID_MODE == HID_MODE_KEYBOARD
+#define HID_ITF_PROTOCOL_MODE  HID_ITF_PROTOCOL_KEYBOARD   // boot-клавиатура (работает в BIOS)
+#else
+#define HID_ITF_PROTOCOL_MODE  HID_ITF_PROTOCOL_NONE
+#endif
 
-#define EPNUM_HID   0x82
+#define EPNUM_HID       0x82   // EP2 IN  - отчёты к хосту
+#define EPNUM_HID_OUT   0x01   // EP1 OUT - отчёты от хоста (только в режиме ECHO)
+
+#if HID_MODE == HID_MODE_ECHO
+#define CONFIG_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_HID_INOUT_DESC_LEN)
+#else
+#define CONFIG_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_HID_DESC_LEN)
+#endif
 
 uint8_t const desc_configuration[] =
 {
   // Config number, interface count, string index, total length, attribute, power in mA
   TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, CONFIG_TOTAL_LEN, 0x00, 100),
 
+#if HID_MODE == HID_MODE_ECHO
+  // Interface number, string index, protocol, report descriptor len, EP Out & In address, size & polling interval
+  TUD_HID_INOUT_DESCRIPTOR(ITF_NUM_HID, 0, HID_ITF_PROTOCOL_NONE, sizeof(desc_hid_report), EPNUM_HID_OUT, EPNUM_HID, CFG_TUD_HID_EP_BUFSIZE, 1)
+#else
   // Interface number, string index, protocol, report descriptor len, EP In address, size & polling interval
-  TUD_HID_DESCRIPTOR(ITF_NUM_HID, 0, HID_ITF_PROTOCOL_NONE, sizeof(desc_hid_report), EPNUM_HID, CFG_TUD_HID_EP_BUFSIZE, 1)
+  TUD_HID_DESCRIPTOR(ITF_NUM_HID, 0, HID_ITF_PROTOCOL_MODE, sizeof(desc_hid_report), EPNUM_HID, CFG_TUD_HID_EP_BUFSIZE, 1)
+#endif
 };
 
 uint8_t const desc_device_qualifier[] =
@@ -205,8 +226,14 @@ enum {
 static char const *string_desc_arr[] =
 {
   (const char[]) { 0x09, 0x04 }, // 0: is supported language is English (0x0409)
-  "TinyUSB",                     // 1: Manufacturer
-  "TinyUSB Device",              // 2: Product
+  "Milandr",                     // 1: Manufacturer
+#if HID_MODE == HID_MODE_KEYBOARD
+  "Milandr HID Keyboard",        // 2: Product
+#elif HID_MODE == HID_MODE_ECHO
+  "Milandr HID Echo",            // 2: Product
+#else
+  "Milandr HID Mouse",           // 2: Product
+#endif
   NULL,                          // 3: Serials will use unique ID if possible
 };
 
