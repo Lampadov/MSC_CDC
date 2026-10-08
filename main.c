@@ -74,6 +74,8 @@ static void buttons_scan(void)
     }
 }
 
+extern volatile uint8_t usb_trace;     // usb_descriptors.c
+
 static void leds_set(uint8_t mask)
 {
     leds_state = mask & 0x03;
@@ -202,6 +204,11 @@ int main(void)
     while (1)
     {
         tud_task();                      // обработка USB-стека
+
+        // ОТЛАДКА: пока хост не настроил устройство, светодиоды показывают, что он запрашивал
+        // VD3 - прочитал BOS, VD4 - запросил MS OS 2.0 (подробнее в README)
+        if (!tud_mounted()) leds_set(usb_trace);
+
         receive_commands();
 
         if (ms_ticks == last_ms) continue;     // дальше - раз в миллисекунду

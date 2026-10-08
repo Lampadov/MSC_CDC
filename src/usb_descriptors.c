@@ -36,7 +36,7 @@
  */
 
 #define USB_VID   0xCAFE
-#define USB_PID   0x4010
+#define USB_PID   0x4011
 #define USB_BCD   0x0210     // 2.10: хост запрашивает BOS-дескриптор
 
 // Адрес страницы, которую Chrome предложит открыть при подключении платы.
@@ -117,7 +117,12 @@ static uint8_t const desc_bos[] = {
     TUD_BOS_MS_OS_20_DESCRIPTOR(MS_OS_20_DESC_LEN, VENDOR_REQUEST_MICROSOFT)
 };
 
+// Отладка энумерации: биты, которые main.c показывает светодиодами, пока устройство не настроено
+// бит 0 - хост прочитал BOS, бит 1 - хост запросил MS OS 2.0, бит 2 - хост запросил URL WebUSB
+volatile uint8_t usb_trace;
+
 uint8_t const *tud_descriptor_bos_cb(void) {
+  usb_trace |= 1;
   return desc_bos;
 }
 
@@ -178,10 +183,12 @@ bool tud_vendor_control_xfer_cb(uint8_t rhport, uint8_t stage, tusb_control_requ
 
   switch (request->bRequest) {
     case VENDOR_REQUEST_WEBUSB:
+      usb_trace |= 4;
       return tud_control_xfer(rhport, request, (void *) (uintptr_t) &desc_url, desc_url.len);
 
     case VENDOR_REQUEST_MICROSOFT:
       if (request->wIndex == 7) {                    // 7 = запрос дескриптора MS OS 2.0
+        usb_trace |= 2;
         return tud_control_xfer(rhport, request, (void *) (uintptr_t) desc_ms_os_20, MS_OS_20_DESC_LEN);
       }
       return false;
