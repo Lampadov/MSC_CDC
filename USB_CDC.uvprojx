@@ -48,7 +48,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>.\Objects\</OutputDirectory>
-          <OutputName>USB_MSC_CDC</OutputName>
+          <OutputName>USB_CDC</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>CFG_TUSB_MCU</Define>
               <Undefine></Undefine>
-              <IncludePath>.\src\class\cdc\serial;.\src\class\cdc;.\src\common;.\src\device;.\src\osal;.\src\typec;.\src;.\src\bsp;.\src\class\msc</IncludePath>
+              <IncludePath>.\src\class\cdc\serial;.\src\class\cdc;.\src\common;.\src\device;.\src\osal;.\src\typec;.\src;.\src\bsp</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -369,7 +369,7 @@
             <TextAddressRange>0x08000000</TextAddressRange>
             <DataAddressRange>0x20000000</DataAddressRange>
             <pXoBase></pXoBase>
-            <ScatterFile>.\Objects\USB_MSC_CDC.sct</ScatterFile>
+            <ScatterFile>.\Objects\USB_CDC.sct</ScatterFile>
             <IncludeLibs></IncludeLibs>
             <IncludeLibsPath></IncludeLibsPath>
             <Misc></Misc>
@@ -421,16 +421,6 @@
               <FileName>tusb_mdr32fxqi.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\tusb_mdr32fxqi.c</FilePath>
-            </File>
-            <File>
-              <FileName>msc_device.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\src\class\msc\msc_device.c</FilePath>
-            </File>
-            <File>
-              <FileName>msc_disk.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\src\msc_disk.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -603,7 +593,7 @@
   <LayerInfo>
     <Layers>
       <Layer>
-        <LayName>USB_MSC_CDC</LayName>
+        <LayName>USB_CDC</LayName>
         <LayPrjMark>1</LayPrjMark>
       </Layer>
     </Layers>

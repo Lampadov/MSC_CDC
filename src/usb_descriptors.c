@@ -26,13 +26,13 @@
 #include "tusb.h"
 
 /* A combination of interfaces must have a unique product id, since PC will save device driver after the first plug.
- * Same VID/PID with different interface e.g MSC (first), then CDC (later) will possibly cause system error on PC.
+ * Same VID/PID with different interface will possibly cause system error on PC.
  *
  * Auto ProductID layout's Bitmap:
- *   [MSB]         HID | MSC | CDC          [LSB]
+ *   [MSB]         HID | CDC          [LSB]
  */
 #define PID_MAP(itf, n)  ((CFG_TUD_##itf) ? (1 << (n)) : 0)
-#define USB_PID           (0x4000 | PID_MAP(CDC, 0) | PID_MAP(MSC, 1) | PID_MAP(HID, 2) | \
+#define USB_PID           (0x4000 | PID_MAP(CDC, 0) | PID_MAP(HID, 2) | \
                            PID_MAP(MIDI, 3) | PID_MAP(VENDOR, 4) )
 
 #define USB_VID   0xCAFE
@@ -77,18 +77,15 @@ uint8_t const *tud_descriptor_device_cb(void) {
 enum {
   ITF_NUM_CDC = 0,
   ITF_NUM_CDC_DATA,
-  ITF_NUM_MSC,
   ITF_NUM_TOTAL
 };
 
-  #define EPNUM_CDC_NOTIF   0x81
-  #define EPNUM_CDC_OUT     0x02
-  #define EPNUM_CDC_IN      0x82
+  // Every endpoint works in one direction only (the controller has a single EPRDY per endpoint)
+  #define EPNUM_CDC_NOTIF   0x81   // EP1 IN  - notifications
+  #define EPNUM_CDC_OUT     0x02   // EP2 OUT - data from host
+  #define EPNUM_CDC_IN      0x83   // EP3 IN  - data to host
 
-  #define EPNUM_MSC_OUT     0x03
-  #define EPNUM_MSC_IN      0x83
-
-#define CONFIG_TOTAL_LEN    (TUD_CONFIG_DESC_LEN + TUD_CDC_DESC_LEN + TUD_MSC_DESC_LEN)
+#define CONFIG_TOTAL_LEN    (TUD_CONFIG_DESC_LEN + TUD_CDC_DESC_LEN)
 
 // full speed configuration
 static uint8_t const desc_fs_configuration[] = {
@@ -98,8 +95,6 @@ static uint8_t const desc_fs_configuration[] = {
     // Interface number, string index, EP notification address and size, EP data address (out, in) and size.
     TUD_CDC_DESCRIPTOR(ITF_NUM_CDC, 0, EPNUM_CDC_NOTIF, 16, EPNUM_CDC_OUT, EPNUM_CDC_IN, 64),
 
-    // Interface number, string index, EP Out & EP In address, EP size
-    TUD_MSC_DESCRIPTOR(ITF_NUM_MSC, 0, EPNUM_MSC_OUT, EPNUM_MSC_IN, 64),
 };
 
 uint8_t const desc_device_qualifier[] =
@@ -153,7 +148,6 @@ static char const *string_desc_arr[] = {
     "Milandr Device",              // 2: Product
     NULL,                          // 3: Serials will use unique ID if possible
     "Milandr CDC",                 // 4: CDC Interface
-    "Milandr MSC",                 // 5: MSC Interface
 };
 
 static uint16_t _desc_str[32 + 1];
