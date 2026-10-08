@@ -23,7 +23,6 @@
  *
  */
 
-#include <ctype.h>
 #include <string.h>
 
 #include "tusb.h"
@@ -31,15 +30,11 @@
 /*
  * RAM-диск 8 КБ с файловой системой FAT12. На нём два файла:
  *   README.TXT - описание проекта
- *   LED.TXT    - управление светодиодом VD3: запишите в файл 1 (или on) - светодиод горит,
- *                0 (или off) - гаснет
+ *   TEXT.TXT   - текст, который плата "набирает на клавиатуре" по кнопке SELECT (см. main.c)
  *
  * Раскладка секторов (512 байт, один сектор на кластер):
  *   0 загрузочный сектор | 1 таблица FAT | 2 корневой каталог | 3.. данные файлов
  */
-
-// Светодиод включается в main.c
-void led_set(bool on);
 
 enum {
   DISK_BLOCK_NUM  = 16,    // меньше 8 КБ Windows не монтирует
@@ -57,16 +52,18 @@ enum {
 // К1986ВЕ9х записано байтами UTF-8, чтобы текст не зависел от кодировки этого файла.
 #define README_TEXT \
   "\xEF\xBB\xBF" \
-  "Milandr \xD0\x9A" "1986" "\xD0\x92\xD0\x95" "9" "\xD1\x85" " - USB flash drive demo (TinyUSB).\r\n" \
+  "Milandr \xD0\x9A" "1986" "\xD0\x92\xD0\x95" "9" "\xD1\x85" " - USB flash drive + keyboard (TinyUSB).\r\n" \
   "\r\n" \
-  "This disk lives in the RAM of the microcontroller.\r\n" \
+  "This device is a flash drive and a keyboard at the same time.\r\n" \
   "\r\n" \
-  "Try it: open LED.TXT, replace 0 with 1 and save the file.\r\n" \
-  "The LED VD3 on the board turns on. Write 0 to turn it off.\r\n" \
+  "Try it: edit TEXT.TXT and save it, click into any text field\r\n" \
+  "and press SELECT on the board - the board types the text for you.\r\n" \
+  "(English keyboard layout, plain ASCII text, up to 512 characters.)\r\n" \
   "\r\n" \
   "Questions: support@milandr.ru\r\n"
 
-#define LED_TEXT  "0"
+#define TEXT_FILE_NAME  "TEXT    TXT"
+#define TEXT_DEFAULT    "Hello from Milandr!"
 
 static uint8_t msc_disk[DISK_BLOCK_NUM][DISK_BLOCK_SIZE];
 static bool    ejected;
@@ -122,32 +119,31 @@ void msc_disk_init(void)
 
   memcpy(msc_disk[SECTOR_ROOT], "Milandr MSC\x08", 12);   // запись 0 - метка тома
   add_file(1, "README  TXT", 2, README_TEXT, sizeof(README_TEXT) - 1);
-  add_file(2, "LED     TXT", 3, LED_TEXT, sizeof(LED_TEXT) - 1);
+  add_file(2, TEXT_FILE_NAME, 3, TEXT_DEFAULT, sizeof(TEXT_DEFAULT) - 1);
 }
 
 //--------------------------------------------------------------------+
-// LED.TXT: после каждой записи на диск находим файл в каталоге и читаем из него команду.
-// Так работает и перенос файла на другой кластер, который иногда делает Windows.
+// Чтение TEXT.TXT для main.c. Файл ищем в каталоге заново при каждом вызове: Windows может
+// перенести его на другой кластер при сохранении.
+// Возвращает число скопированных в out байт (не больше max и не больше одного сектора).
 //--------------------------------------------------------------------+
-static void led_update(void)
+int msc_disk_read_text(char* out, int max)
 {
   for (int i = 0; i < 16; i++) {
     const uint8_t* e = &msc_disk[SECTOR_ROOT][i * 32];
-    if (memcmp(e, "LED     TXT", 11) != 0) continue;
+    if (memcmp(e, TEXT_FILE_NAME, 11) != 0) continue;
 
     int cluster = e[26] | (e[27] << 8);
-    int size    = e[28];                       // файл с командой короткий
+    int size    = e[28] | (e[29] << 8);
     int sector  = SECTOR_DATA + cluster - 2;
-    if (size == 0 || cluster < 2 || sector >= DISK_BLOCK_NUM) return;
+    if (cluster < 2 || sector >= DISK_BLOCK_NUM) return 0;
 
-    const uint8_t* p = msc_disk[sector];
-    while (*p == 0xEF || *p == 0xBB || *p == 0xBF || isspace(*p)) p++;   // пропускаем метку UTF-8 и пробелы
-
-    int c = tolower(p[0]);
-    if (c == '1' || (c == 'o' && tolower(p[1]) == 'n'))       led_set(true);    // 1 или on
-    else if (c == '0' || (c == 'o' && tolower(p[1]) == 'f'))  led_set(false);   // 0 или off
-    return;
+    if (size > DISK_BLOCK_SIZE) size = DISK_BLOCK_SIZE;
+    if (size > max) size = max;
+    memcpy(out, msc_disk[sector], size);
+    return size;
   }
+  return 0;
 }
 
 //--------------------------------------------------------------------+
@@ -206,7 +202,6 @@ int32_t tud_msc_write10_cb(uint8_t lun, uint32_t lba, uint32_t offset, uint8_t* 
   if (lba * DISK_BLOCK_SIZE + offset + bufsize > sizeof(msc_disk)) return -1;
 
   memcpy(msc_disk[lba] + offset, buffer, bufsize);
-  led_update();                                      // вдруг изменился LED.TXT
   return (int32_t)bufsize;
 }
 

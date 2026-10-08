@@ -46,7 +46,7 @@ static tusb_desc_device_t const desc_device = {
     .bDescriptorType    = TUSB_DESC_DEVICE,
     .bcdUSB             = USB_BCD,
 
-    // Class is defined at interface level (MSC)
+    // Class is defined at interface level (MSC + HID)
     .bDeviceClass       = 0x00,
     .bDeviceSubClass    = 0x00,
     .bDeviceProtocol    = 0x00,
@@ -56,8 +56,8 @@ static tusb_desc_device_t const desc_device = {
     .idProduct          = USB_PID,
     .bcdDevice          = 0x0100,
 
-    .iManufacturer      = 0x00,
-    .iProduct           = 0x00,
+    .iManufacturer      = 0x01,
+    .iProduct           = 0x02,
     .iSerialNumber      = 0x00,
 
     .bNumConfigurations = 0x01
@@ -75,14 +75,26 @@ uint8_t const *tud_descriptor_device_cb(void) {
 
 enum {
   ITF_NUM_MSC = 0,
+  ITF_NUM_HID,
   ITF_NUM_TOTAL
 };
 
-  // Every endpoint works in one direction only (the controller has a single EPRDY per endpoint)
-  #define EPNUM_MSC_OUT     0x01   // EP1 OUT - data from host
-  #define EPNUM_MSC_IN      0x82   // EP2 IN  - data to host
+// Every endpoint works in one direction only (the controller has a single EPRDY per endpoint)
+#define EPNUM_MSC_OUT     0x01   // EP1 OUT - MSC data from host
+#define EPNUM_MSC_IN      0x82   // EP2 IN  - MSC data to host
+#define EPNUM_HID_IN      0x83   // EP3 IN  - HID reports to host
 
-#define CONFIG_TOTAL_LEN    (TUD_CONFIG_DESC_LEN + TUD_MSC_DESC_LEN)
+#define CONFIG_TOTAL_LEN    (TUD_CONFIG_DESC_LEN + TUD_MSC_DESC_LEN + TUD_HID_DESC_LEN)
+
+// HID report descriptor: keyboard
+static uint8_t const desc_hid_report[] = {
+    TUD_HID_REPORT_DESC_KEYBOARD()
+};
+
+uint8_t const *tud_hid_descriptor_report_cb(uint8_t instance) {
+  (void) instance;
+  return desc_hid_report;
+}
 
 // full speed configuration
 static uint8_t const desc_fs_configuration[] = {
@@ -91,6 +103,9 @@ static uint8_t const desc_fs_configuration[] = {
 
     // Interface number, string index, EP Out & EP In address, EP size
     TUD_MSC_DESCRIPTOR(ITF_NUM_MSC, 0, EPNUM_MSC_OUT, EPNUM_MSC_IN, 64),
+
+    // Interface number, string index, protocol, report descriptor len, EP In address, size & polling interval
+    TUD_HID_DESCRIPTOR(ITF_NUM_HID, 0, HID_ITF_PROTOCOL_NONE, sizeof(desc_hid_report), EPNUM_HID_IN, CFG_TUD_HID_EP_BUFSIZE, 1),
 };
 
 uint8_t const desc_device_qualifier[] =
@@ -141,7 +156,7 @@ enum {
 static char const *string_desc_arr[] = {
     (const char[]) { 0x09, 0x04 }, // 0: is supported language is English (0x0409)
     "Milandr",                     // 1: Manufacturer
-    "Milandr Device",              // 2: Product
+    "Milandr Macro Keyboard",       // 2: Product
     NULL,                          // 3: Serials will use unique ID if possible
 };
 

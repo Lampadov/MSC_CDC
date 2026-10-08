@@ -48,7 +48,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>.\Objects\</OutputDirectory>
-          <OutputName>USB_MSC</OutputName>
+          <OutputName>USB_MSC_HID</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>CFG_TUSB_MCU</Define>
               <Undefine></Undefine>
-              <IncludePath>.\src\common;.\src\device;.\src\osal;.\src\typec;.\src;.\src\bsp;.\src\class\msc</IncludePath>
+              <IncludePath>.\src\common;.\src\device;.\src\osal;.\src\typec;.\src;.\src\bsp;.\src\class\msc;.\src\class\hid</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -369,7 +369,7 @@
             <TextAddressRange>0x08000000</TextAddressRange>
             <DataAddressRange>0x20000000</DataAddressRange>
             <pXoBase></pXoBase>
-            <ScatterFile>.\Objects\USB_MSC.sct</ScatterFile>
+            <ScatterFile>.\Objects\USB_MSC_HID.sct</ScatterFile>
             <IncludeLibs></IncludeLibs>
             <IncludeLibsPath></IncludeLibsPath>
             <Misc></Misc>
@@ -421,6 +421,11 @@
               <FileName>msc_device.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\class\msc\msc_device.c</FilePath>
+            </File>
+            <File>
+              <FileName>hid_device.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\class\hid\hid_device.c</FilePath>
             </File>
             <File>
               <FileName>msc_disk.c</FileName>
@@ -598,7 +603,7 @@
   <LayerInfo>
     <Layers>
       <Layer>
-        <LayName>USB_MSC</LayName>
+        <LayName>USB_MSC_HID</LayName>
         <LayPrjMark>1</LayPrjMark>
       </Layer>
     </Layers>

@@ -3,7 +3,7 @@
  * Auto generated Run-Time-Environment Configuration File
  *      *** Do not modify ! ***
  *
- * Project: 'USB_MSC' 
+ * Project: 'USB_MSC_HID' 
  * Target:  'Target 1' 
  */
 
