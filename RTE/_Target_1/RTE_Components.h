@@ -3,7 +3,7 @@
  * Auto generated Run-Time-Environment Configuration File
  *      *** Do not modify ! ***
  *
- * Project: 'USB_MSC_CDC' 
+ * Project: 'USB_MSC' 
  * Target:  'Target 1' 
  */
 

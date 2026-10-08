@@ -35,7 +35,7 @@ static bool ejected = false;
 // CFG_EXAMPLE_MSC_READONLY defined
 
 #define README_CONTENTS \
-"This is TinyUSB MassStorage and CDC Classes demo.\r\n\r\n\
+"This is TinyUSB MassStorage Class demo.\r\n\r\n\
 If you find any bugs or get any questions, write to us at support@milandr.ru"
 
 enum {
