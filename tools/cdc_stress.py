@@ -145,7 +145,7 @@ def test_stream(port, seconds, seed):
             sent += n
             if time.perf_counter() - tick > 10:
                 tick = time.perf_counter()
-                print(f"  ... stream: {sent} Б отправлено, {recvd} Б принято", flush=True)
+                print(f"  ... stream: {sent} Б отправлено, {recvd} Б принято и сверено, в пути {sent - recvd} Б (норма до ~6000)", flush=True)
         # дождаться хвоста
         t_end = time.perf_counter() + STALL_SEC
         while recvd < sent and not stop.is_set() and time.perf_counter() < t_end:
@@ -158,6 +158,7 @@ def test_stream(port, seconds, seed):
     th.join(1)
     ser.close()
     res.bytes = recvd
+    res.extra = f"отправлено {sent} Б, принято и сверено {recvd} Б"
     return res.report()
 
 
