@@ -48,7 +48,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>.\Objects\</OutputDirectory>
-          <OutputName>USB_CDC</OutputName>
+          <OutputName>USB_HID</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>CFG_TUSB_MCU</Define>
               <Undefine></Undefine>
-              <IncludePath>.\src\class\cdc\serial;.\src\class\cdc;.\src\common;.\src\device;.\src\osal;.\src\typec;.\src;.\src\bsp</IncludePath>
+              <IncludePath>.\src\class\hid;.\src\common;.\src\device;.\src\osal;.\src\typec;.\src;.\src\bsp</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -369,7 +369,7 @@
             <TextAddressRange>0x08000000</TextAddressRange>
             <DataAddressRange>0x20000000</DataAddressRange>
             <pXoBase></pXoBase>
-            <ScatterFile>.\Objects\USB_CDC.sct</ScatterFile>
+            <ScatterFile>.\Objects\USB_HID.sct</ScatterFile>
             <IncludeLibs></IncludeLibs>
             <IncludeLibsPath></IncludeLibsPath>
             <Misc></Misc>
@@ -388,9 +388,9 @@
               <FilePath>.\main.c</FilePath>
             </File>
             <File>
-              <FileName>cdc_device.c</FileName>
+              <FileName>hid_device.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\src\class\cdc\cdc_device.c</FilePath>
+              <FilePath>.\src\class\hid\hid_device.c</FilePath>
             </File>
             <File>
               <FileName>tusb_fifo.c</FileName>
@@ -593,7 +593,7 @@
   <LayerInfo>
     <Layers>
       <Layer>
-        <LayName>USB_CDC</LayName>
+        <LayName>USB_HID</LayName>
         <LayPrjMark>1</LayPrjMark>
       </Layer>
     </Layers>

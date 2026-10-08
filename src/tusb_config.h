@@ -1,7 +1,10 @@
-#ifndef _TUSB_CONFIG_H_
-#define _TUSB_CONFIG_H_
+#ifndef TUSB_CONFIG_H
+#define TUSB_CONFIG_H
 
-// Минимальная конфигурация для MDR32FxQI с 32KB RAM
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define CFG_TUSB_DEBUG          0
 #define CFG_TUSB_OS             OPT_OS_NONE
 #define CFG_TUSB_MEM_ALIGN      __attribute__ ((aligned(4)))
@@ -11,15 +14,20 @@
 #define CFG_TUD_ENDPOINT0_SIZE  64
 #define CFG_TUSB_SPEED          OPT_MODE_FULL_SPEED
 
-// Только CDC (COM-порт)
-#define CFG_TUD_CDC             1
-#define CFG_TUD_HID             0
-#define CFG_TUD_MIDI            0
-#define CFG_TUD_VENDOR          0
+//--------------------------------------------------------------------
+// Включённые классы устройства
+//--------------------------------------------------------------------
+// HID (мышь/клавиатура)
+#define CFG_TUD_HID            1
+// Остальные классы отключены для экономии памяти
+#define CFG_TUD_MIDI           0
+#define CFG_TUD_VENDOR         0
 
-// Меньшие буферы для экономии памяти
-#define CFG_TUD_CDC_RX_BUFSIZE  64
-#define CFG_TUD_CDC_TX_BUFSIZE  64
+// Размер буфера конечной точки HID-отчёта (для клавиатуры 8 байт)
+#define CFG_TUD_HID_EP_BUFSIZE  8
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif
