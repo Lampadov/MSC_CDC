@@ -40,9 +40,11 @@ int main()
 void cdc_task(void)
 {
   // Ёхо: всЄ, что пришло в CDC, отправл€ем обратно
-  if (tud_cdc_available()) {
+  // „итаем не больше, чем влезет в TX-буфер: иначе при медленном хосте байты тер€ютс€
+  uint32_t room = tud_cdc_write_available();
+  if (room > 0 && tud_cdc_available()) {
     uint8_t buf[64];
-    uint32_t n = tud_cdc_read(buf, sizeof(buf));
+    uint32_t n = tud_cdc_read(buf, room < sizeof(buf) ? room : sizeof(buf));
     tud_cdc_write(buf, n);
     tud_cdc_write_flush();
   }
