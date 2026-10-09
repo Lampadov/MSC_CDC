@@ -14,6 +14,7 @@
 Флаг 0x18 в записи каталога просит Windows показывать имя строчными буквами: index.htm, app.js.
 """
 import os
+import re
 import sys
 
 SECTOR = 512
@@ -35,10 +36,60 @@ README = (
     "The disk is read only.\r\n"
 )
 
-# (имя 8.3, содержимое, показывать строчными)
+
+
+def minify_js(src):
+    """Убирает комментарии, отступы, пустые строки и пробелы вокруг знаков. Переводы строк остаются,
+    поэтому код работает как прежде. В исходнике нет регулярных выражений и конструкций вида "a + +b"."""
+    out, strings, i, n = [], [], 0, len(src)
+    while i < n:
+        c = src[i]
+        if c in "'\"`":                                   # строка: прячем под номером, чтобы не трогать
+            j = i + 1
+            while j < n and src[j] != c:
+                j += 2 if src[j] == "\\" else 1
+            strings.append(src[i:j + 1])
+            out.append("\x00%d\x00" % (len(strings) - 1))
+            i = j + 1
+        elif src.startswith("//", i):                      # однострочный комментарий
+            while i < n and src[i] != "\n":
+                i += 1
+        elif src.startswith("/*", i):                      # многострочный комментарий
+            i = src.index("*/", i) + 2
+        else:
+            out.append(c)
+            i += 1
+    text = "".join(out)
+    text = re.sub(r"[ \t]+", " ", text)
+    text = re.sub(r" ?([=+\-*/%<>!&|?:,;{}()\[\]]) ?", r"\1", text)   # пробелы вокруг знаков
+    text = re.sub(r"\n+", "\n", text.replace("\r", ""))
+    text = "\n".join(ln.strip() for ln in text.split("\n")).strip("\n")
+    return re.sub("\x00(\\d+)\x00", lambda m: strings[int(m.group(1))], text)
+
+
+def minify_css(css):
+    css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+    css = re.sub(r"\s+", " ", css)
+    return re.sub(r"\s*([{};:,>])\s*", r"\1", css).replace(";}", "}").strip()
+
+
+def minify_html(src):
+    src = re.sub(r"<!--.*?-->", "", src, flags=re.S)
+    src = re.sub(r"<style>(.*?)</style>", lambda m: "<style>" + minify_css(m.group(1)) + "</style>", src, flags=re.S)
+    lines = (ln.strip() for ln in src.split("\n"))
+    return "\n".join(ln for ln in lines if ln)
+
+
+def read(name):
+    return open(os.path.join(WEB, name), encoding="utf-8").read()
+
+
+# Образ собирается из уменьшенных копий файлов (без комментариев и отступов), чтобы поместиться в 32 КБ
+# бесплатной версии Keil. Исходники в web/ остаются читаемыми.
+# (имя 8.3, содержимое)
 FILES = [
-    ("INDEX   HTM", open(os.path.join(WEB, "index.html"), "rb").read()),
-    ("APP     JS ", open(os.path.join(WEB, "app.js"), "rb").read()),
+    ("INDEX   HTM", minify_html(read("index.html")).encode("utf-8")),
+    ("APP     JS ", minify_js(read("app.js")).encode("utf-8")),
     ("README  TXT", README.encode("utf-8")),
 ]
 
@@ -120,6 +171,8 @@ def main():
         f.write("\n".join(lines) + "\n};\n")
     if len(sys.argv) > 1:                                    # python make_disk.py file.img - сохранить и образ
         open(sys.argv[1], "wb").write(img)
+    for name, data in FILES:
+        print("  %s %d байт" % (name.strip(), len(data)))
     print("src/disk_image.c: %d секторов, %d байт" % (total, len(img)))
 
 
