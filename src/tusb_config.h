@@ -11,13 +11,17 @@
 #define CFG_TUD_ENDPOINT0_SIZE  64
 #define CFG_TUSB_SPEED          OPT_MODE_FULL_SPEED
 
-// Только vendor-класс (WebUSB; драйвер WinUSB Windows подключает сама по MS OS 1.0)
+// Флешка (MSC) + vendor-класс (WebUSB; драйвер WinUSB Windows подключает сама по MS OS 1.0)
 #define CFG_TUD_CDC             0
 #define CFG_TUD_HID             0
 #define CFG_TUD_MIDI            0
+#define CFG_TUD_MSC             1
 #define CFG_TUD_VENDOR          1
 
-// Размер буферов vendor-класса (WebUSB)
+// Размер буфера обмена MSC
+#define CFG_TUD_MSC_EP_BUFSIZE  64
+
+// Размер буферов vendor-класса (WebUSB); команды приходят через EP0, приёмный буфер не используется
 #define CFG_TUD_VENDOR_RX_BUFSIZE  64
 #define CFG_TUD_VENDOR_TX_BUFSIZE  64
 

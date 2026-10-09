@@ -4,15 +4,16 @@
 #include "tusb.h"
 
 /*
- * WebUSB-демо: плата общается с веб-страницей (web/index.html) прямо из браузера Chrome/Edge,
- * без драйверов и без установки программ.
+ * Флешка + WebUSB: плата определяется как USB-диск, на котором лежит веб-страница управления
+ * платой (index.htm). Страница открывается с диска в Chrome/Edge и по WebUSB управляет этой же платой.
+ * Драйверы и установка программ не нужны. Диск только для чтения, образ во флеш-памяти
+ * (src/disk_image.c, создаётся tools/make_disk.py из каталога web/).
  *
  *   плата -> страница  кадр состояния раз в 20 мс: кнопки, светодиоды, значение АЦП, время
- *   страница -> плата  команда "включить/выключить светодиоды"
+ *   страница -> плата  команда "включить/выключить светодиоды" (vendor-запрос на EP0, см. usb_descriptors.c)
  *
- * Формат кадров (все числа little-endian):
- *   плата -> страница  [0x01] [кнопки] [светодиоды] [АЦП, 2 байта] [мс с запуска, 4 байта]
- *   страница -> плата  [0x01] [светодиоды]
+ * Формат кадра платы (все числа little-endian), передаётся по EP3 IN:
+ *   [0x01] [кнопки] [светодиоды] [АЦП, 2 байта] [мс с запуска, 4 байта]
  * Биты кнопок: 0 SELECT, 1 UP, 2 DOWN, 3 LEFT, 4 RIGHT. Биты светодиодов: 0 VD3, 1 VD4.
  */
 
@@ -24,7 +25,6 @@
 #define DEBOUNCE_MS      5
 
 #define MSG_STATE   0x01
-#define MSG_LEDS    0x01
 
 #define VD3  PORT_Pin_0
 #define VD4  PORT_Pin_1
@@ -74,7 +74,7 @@ static void buttons_scan(void)
     }
 }
 
-static void leds_set(uint8_t mask)
+void leds_set(uint8_t mask)
 {
     leds_state = mask & 0x03;
     if (leds_state & 1) PORT_SetBits(MDR_PORTC, VD3); else PORT_ResetBits(MDR_PORTC, VD3);
@@ -150,16 +150,6 @@ static void send_state(void)
     }
 }
 
-static void receive_commands(void)
-{
-    uint8_t cmd[2];
-
-    while (tud_vendor_available() >= sizeof(cmd)) {
-        tud_vendor_read(cmd, sizeof(cmd));
-        if (cmd[0] == MSG_LEDS) leds_set(cmd[1]);
-    }
-}
-
 //--------------------------------------------------------------------+
 // main
 //--------------------------------------------------------------------+
@@ -202,8 +192,6 @@ int main(void)
     while (1)
     {
         tud_task();                      // обработка USB-стека
-
-        receive_commands();
 
         if (ms_ticks == last_ms) continue;     // дальше - раз в миллисекунду
         last_ms = ms_ticks;

@@ -2,12 +2,14 @@
 //
 // Формат кадров (little-endian), см. main.c в прошивке:
 //   плата -> страница  [0x01][кнопки][светодиоды][АЦП: 2 байта][мс с запуска: 4 байта]  (9 байт)
-//   страница -> плата  [0x01][светодиоды]                                               (2 байта)
+//   страница -> плата  vendor-запрос на интерфейс 1: bRequest 0x10, wValue = маска светодиодов
+//                      (отдельной точки OUT нет: EP1/EP2 заняты флешкой)
 // Биты кнопок: 0 SELECT, 1 UP, 2 DOWN, 3 LEFT, 4 RIGHT. Биты светодиодов: 0 VD3, 1 VD4.
 
 const USB_VID    = 0xCAFE;   // должен совпадать с USB_VID в usb_descriptors.c
-const EP_OUT     = 1;        // EP1 OUT: команды
-const EP_IN      = 2;        // EP2 IN:  кадры состояния
+const ITF_WEBUSB = 1;        // интерфейс 0 - флешка, интерфейс 1 - WebUSB
+const EP_IN      = 3;        // EP3 IN: кадры состояния (EP1/EP2 заняты флешкой)
+const REQ_LEDS   = 0x10;     // bRequest команды "установить светодиоды"
 const FRAME_SIZE = 9;
 const BTN        = { SELECT: 0, UP: 1, DOWN: 2, LEFT: 3, RIGHT: 4 };
 
@@ -20,8 +22,11 @@ function parseFrame(view) {
   };
 }
 
-function ledsCommand(mask) {
-  return new Uint8Array([0x01, mask & 0x03]);
+// Параметры controlTransferOut для установки светодиодов
+function ledsRequest(mask) {
+  return {
+    setup: { requestType: 'vendor', recipient: 'interface', request: REQ_LEDS, value: mask & 0x03, index: ITF_WEBUSB },
+  };
 }
 
 // ---------- змейка: чистая логика без рисования ----------
@@ -69,7 +74,7 @@ function smooth(previous, sample, alpha = 0.06) {
   return previous === null ? sample : previous + (sample - previous) * alpha;
 }
 
-if (typeof module !== 'undefined') module.exports = { parseFrame, ledsCommand, newGame, stepGame, smooth };
+if (typeof module !== 'undefined') module.exports = { parseFrame, ledsRequest, newGame, stepGame, smooth };
 
 // ---------- остальной код работает только в браузере ----------
 if (typeof document !== 'undefined') (function () {
@@ -98,7 +103,7 @@ if (typeof document !== 'undefined') (function () {
     device = dev;
     await device.open();
     if (device.configuration === null) await device.selectConfiguration(1);
-    await device.claimInterface(0);
+    await device.claimInterface(ITF_WEBUSB);
     sentLeds = -1;
     setStatus('подключено', true);
     readLoop();
@@ -140,7 +145,7 @@ if (typeof document !== 'undefined') (function () {
     try {
       while (device && sentLeds !== wantedLeds) {
         sentLeds = wantedLeds;
-        await device.transferOut(EP_OUT, ledsCommand(sentLeds));
+        await device.controlTransferOut(ledsRequest(sentLeds).setup);
       }
     } catch (e) {
       await disconnect();

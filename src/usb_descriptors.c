@@ -26,7 +26,10 @@
 #include "tusb.h"
 
 /*
- * Дескрипторы WebUSB-устройства: один vendor-интерфейс с двумя bulk-точками.
+ * Дескрипторы составного устройства: флешка (MSC, интерфейс 0) + WebUSB (vendor, интерфейс 1).
+ *
+ * Флешка содержит страницу управления платой. Страница открывается из браузера прямо с диска
+ * платы и по WebUSB (интерфейс 1) общается с этой же платой.
  *
  * Как Windows сама, без драйвера и без прав администратора, подключает WinUSB (Microsoft OS 1.0):
  *   1. Хост читает строку 0xEE. В ней "MSFT100" и код vendor-запроса (MS_VENDOR_CODE).
@@ -39,12 +42,18 @@
  */
 
 #define USB_VID   0xCAFE         // должен совпадать с USB_VID в web/app.js
-#define USB_PID   0x4015
+#define USB_PID   0x4016
 
 // Коды MS OS 1.0
 #define MS_VENDOR_CODE     0x03  // bRequest vendor-запросов; сообщается хосту в строке 0xEE
 #define MS_REQ_COMPAT_ID   4     // wIndex: запрос Compatible ID
 #define MS_REQ_PROPERTIES  5     // wIndex: запрос свойств (GUID интерфейса)
+
+// Команда страницы: установить светодиоды (wValue - маска). Адресована интерфейсу 1
+#define REQ_SET_LEDS       0x10
+
+// Реализация в main.c
+void leds_set(uint8_t mask);
 
 //--------------------------------------------------------------------+
 // Device Descriptor
@@ -92,21 +101,31 @@ uint8_t const *tud_descriptor_device_qualifier_cb(void) {
 // Configuration Descriptor
 //--------------------------------------------------------------------+
 enum {
-  ITF_NUM_VENDOR = 0,
+  ITF_NUM_MSC = 0,       // флешка
+  ITF_NUM_VENDOR,        // WebUSB
   ITF_NUM_TOTAL
 };
 
 // Каждая точка работает в одном направлении (у контроллера один EPRDY на точку)
-#define EPNUM_VENDOR_OUT  0x01   // EP1 OUT - команды от страницы
-#define EPNUM_VENDOR_IN   0x82   // EP2 IN  - данные к странице
+#define EPNUM_MSC_OUT     0x01   // EP1 OUT - данные от хоста на флешку
+#define EPNUM_MSC_IN      0x82   // EP2 IN  - данные с флешки
+#define EPNUM_VENDOR_IN   0x83   // EP3 IN  - кадры состояния для страницы (команды идут через EP0)
 
-#define CONFIG_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_VENDOR_DESC_LEN)
+// Интерфейс WebUSB с одной точкой IN. Класс 0xFF - vendor, поэтому браузер разрешает его занять
+#define VENDOR_IN_ONLY_DESC_LEN  (9 + 7)
+#define VENDOR_IN_ONLY_DESCRIPTOR(_itfnum, _epin, _epsize) \
+  9, TUSB_DESC_INTERFACE, _itfnum, 0, 1, TUSB_CLASS_VENDOR_SPECIFIC, 0x00, 0x00, 0, \
+  7, TUSB_DESC_ENDPOINT, _epin, TUSB_XFER_BULK, U16_TO_U8S_LE(_epsize), 0
+
+#define CONFIG_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_MSC_DESC_LEN + VENDOR_IN_ONLY_DESC_LEN)
 
 static uint8_t const desc_configuration[] = {
     TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, CONFIG_TOTAL_LEN, 0x00, 100),
 
     // Interface number, string index, EP Out & EP In address, EP size
-    TUD_VENDOR_DESCRIPTOR(ITF_NUM_VENDOR, 0, EPNUM_VENDOR_OUT, EPNUM_VENDOR_IN, 64),
+    TUD_MSC_DESCRIPTOR(ITF_NUM_MSC, 0, EPNUM_MSC_OUT, EPNUM_MSC_IN, 64),
+
+    VENDOR_IN_ONLY_DESCRIPTOR(ITF_NUM_VENDOR, EPNUM_VENDOR_IN, 64),
 };
 
 uint8_t const *tud_descriptor_configuration_cb(uint8_t index) {
@@ -118,7 +137,7 @@ uint8_t const *tud_descriptor_configuration_cb(uint8_t index) {
 // Microsoft OS 1.0: "подключи WinUSB к этому интерфейсу"
 //--------------------------------------------------------------------+
 
-// Compatible ID: драйвер WinUSB для интерфейса 0
+// Compatible ID: драйвер WinUSB только для интерфейса 1 (WebUSB). Флешкой занимается штатный драйвер Windows
 static uint8_t const desc_ms_compat_id[] = {
     U32_TO_U8S_LE(40), U16_TO_U8S_LE(0x0100), U16_TO_U8S_LE(MS_REQ_COMPAT_ID),   // длина, версия, тип
     1, 0, 0, 0, 0, 0, 0, 0,                                                      // одна функция
@@ -128,7 +147,7 @@ static uint8_t const desc_ms_compat_id[] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
-// Свойство реестра DeviceInterfaceGUID = {975F44D9-0D08-43FD-8B3E-127CA8AFFF9D}
+// Свойство реестра DeviceInterfaceGUID (относится к интерфейсу 1) = {975F44D9-0D08-43FD-8B3E-127CA8AFFF9D}
 static uint8_t const desc_ms_properties[] = {
     U32_TO_U8S_LE(142), U16_TO_U8S_LE(0x0100), U16_TO_U8S_LE(MS_REQ_PROPERTIES), // длина, версия, тип
     U16_TO_U8S_LE(1),                                                            // одно свойство
@@ -146,11 +165,18 @@ static uint8_t const desc_ms_properties[] = {
 TU_VERIFY_STATIC(sizeof(desc_ms_compat_id) == 40, "Incorrect size");
 TU_VERIFY_STATIC(sizeof(desc_ms_properties) == 142, "Incorrect size");
 
-// Vendor-запросы хоста: Compatible ID и свойства
+// Vendor-запросы хоста: Compatible ID, свойства и команда страницы
 bool tud_vendor_control_xfer_cb(uint8_t rhport, uint8_t stage, tusb_control_request_t const *request) {
   if (stage != CONTROL_STAGE_SETUP) return true;     // нужен только этап SETUP
 
-  if (request->bmRequestType_bit.type != TUSB_REQ_TYPE_VENDOR || request->bRequest != MS_VENDOR_CODE) {
+  if (request->bmRequestType_bit.type != TUSB_REQ_TYPE_VENDOR) return false;
+
+  if (request->bRequest == REQ_SET_LEDS) {           // страница управляет светодиодами
+    leds_set((uint8_t) request->wValue);
+    return tud_control_status(rhport, request);
+  }
+
+  if (request->bRequest != MS_VENDOR_CODE) {
     return false;                                    // неизвестный запрос: STALL
   }
 
@@ -171,8 +197,8 @@ bool tud_vendor_control_xfer_cb(uint8_t rhport, uint8_t stage, tusb_control_requ
 static char const *string_desc_arr[] = {
     (const char[]) { 0x09, 0x04 }, // 0: язык - английский (0x0409)
     "Milandr",                     // 1: производитель
-    "Milandr WebUSB Demo",         // 2: изделие
-    "MDR32-WEBUSB-0001",           // 3: серийный номер
+    "Milandr WebUSB Drive",         // 2: изделие
+    "MDR32-MSCWEB-0001",           // 3: серийный номер
 };
 
 static uint16_t _desc_str[32 + 1];
