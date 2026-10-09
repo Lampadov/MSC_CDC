@@ -17,7 +17,16 @@ function parseFrame(view) {
     buttons: view.getUint8(1),
     leds: view.getUint8(2),
     adc: view.getUint16(3, true),
+    ms: view.getUint32(5, true),        // время работы платы по SysTick, мс
   };
+}
+
+// Время работы платы: "ЧЧ:ММ:СС", с суточным счётчиком после 24 часов
+function formatUptime(ms) {
+  const t = Math.floor(ms / 1000), d = Math.floor(t / 86400);
+  const p = (n) => String(n).padStart(2, '0');
+  const clock = p(Math.floor(t / 3600) % 24) + ':' + p(Math.floor(t / 60) % 60) + ':' + p(t % 60);
+  return d > 0 ? d + ' д ' + clock : clock;
 }
 
 function ledsCommand(mask) {
@@ -69,7 +78,7 @@ function smooth(previous, sample, alpha = 0.06) {
   return previous === null ? sample : previous + (sample - previous) * alpha;
 }
 
-if (typeof module !== 'undefined') module.exports = { parseFrame, ledsCommand, newGame, stepGame, smooth };
+if (typeof module !== 'undefined') module.exports = { formatUptime, parseFrame, ledsCommand, newGame, stepGame, smooth };
 
 // ---------- остальной код работает только в браузере ----------
 if (typeof document !== 'undefined') (function () {
@@ -91,6 +100,7 @@ if (typeof document !== 'undefined') (function () {
   function setStatus(text, on) {
     $('statusText').textContent = text;
     $('status').classList.toggle('on', on);
+    if (!on) $('uptime').textContent = '--:--:--';
     $('connect').textContent = on ? 'Отключить' : 'Подключить плату';
   }
 
@@ -117,6 +127,7 @@ if (typeof document !== 'undefined') (function () {
     while (device === dev && dev) {
       try {
         const r = await dev.transferIn(EP_IN, 64);
+        if (device !== dev) return;                 // пока ждали кадр, плату отключили
         if (r.status === 'ok') {
           const frame = parseFrame(r.data);
           if (frame) onFrame(frame);
@@ -162,6 +173,7 @@ if (typeof document !== 'undefined') (function () {
   const HISTORY = 500;                              // около 10 секунд
 
   function onFrame(f) {
+    $('uptime').textContent = formatUptime(f.ms);
     for (let i = 0; i < 5; i++) $('k' + i).classList.toggle('down', !!(f.buttons & (1 << i)));
 
     boardLeds = f.leds;

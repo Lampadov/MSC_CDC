@@ -65,6 +65,12 @@
   #game { max-width: 560px; margin: 0 auto; border: 1px solid var(--line); border-radius: 10px; cursor: pointer; }
   .score { display: flex; justify-content: center; gap: 20px; margin-top: 10px; color: var(--muted); }
   .score b { color: var(--text); font-variant-numeric: tabular-nums; }
+
+  /* время работы микроконтроллера */
+  .uptime { margin-top: 24px; padding: 18px 24px 16px; background: var(--orange-soft); border-color: #f6d9b4; }
+  .uptime output { display: block; font-size: 44px; line-height: 1.1; font-weight: 300; letter-spacing: .04em;
+                   font-variant-numeric: tabular-nums; }
+  .uptime p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
 </style>
 </head>
 <body>
@@ -78,6 +84,11 @@
   </header>
 
   <div id="nosupport">Браузер не поддерживает WebUSB. Откройте страницу в Chrome или Edge по адресу <code>http://localhost</code> или по <code>https</code>.</div>
+
+  <section class="uptime">
+    <output id="uptime">--:--:--</output>
+    <p>Время работы микроконтроллера с последнего сброса</p>
+  </section>
 
   <div class="two">
     <section>
