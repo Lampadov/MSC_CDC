@@ -1,7 +1,7 @@
 #ifndef _TUSB_CONFIG_H_
 #define _TUSB_CONFIG_H_
 
-// Минимальная конфигурация для MDR32FxQI с 32KB RAM
+// Минимальная конфигурация
 #define CFG_TUSB_DEBUG          0
 #define CFG_TUSB_OS             OPT_OS_NONE
 #define CFG_TUSB_MEM_ALIGN      __attribute__ ((aligned(4)))
