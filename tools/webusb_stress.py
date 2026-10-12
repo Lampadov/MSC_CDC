@@ -16,7 +16,7 @@ r"""
 Нужно:  pip install pyusb libusb-package
 Драйвер WinUSB Windows ставит сама (MS OS 1.0). Примеры:
   python webusb_stress.py --minutes 10
-  python webusb_stress.py --vid 0xCAFE --pid 0x4016 --minutes 30 --seed 5
+  python webusb_stress.py --vid 0xCAFE --pid 0x4007 --minutes 30 --seed 5
 Код выхода 1, если были ошибки.
 """
 import argparse
@@ -130,7 +130,7 @@ def control_loop(dev, st, stop, rnd, vid, pid):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--vid", type=lambda s: int(s, 0), default=0xCAFE)
-    ap.add_argument("--pid", type=lambda s: int(s, 0), default=0x4016)
+    ap.add_argument("--pid", type=lambda s: int(s, 0), default=0x4007)
     ap.add_argument("--minutes", type=float, default=5)
     ap.add_argument("--seed", type=int)
     a = ap.parse_args()
