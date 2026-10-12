@@ -335,7 +335,7 @@
             <v6WtE>0</v6WtE>
             <v6Rtti>0</v6Rtti>
             <VariousControls>
-              <MiscControls></MiscControls>
+              <MiscControls>--diag_suppress=66</MiscControls>
               <Define>CFG_TUSB_MCU</Define>
               <Undefine></Undefine>
               <IncludePath>.\src\class\hid;.\src\common;.\src\device;.\src\osal;.\src\typec;.\src;.\src\bsp</IncludePath>
