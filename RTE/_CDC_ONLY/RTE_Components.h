@@ -3,8 +3,8 @@
  * Auto generated Run-Time-Environment Configuration File
  *      *** Do not modify ! ***
  *
- * Project: 'USB_MSC_WEBUSB' 
- * Target:  'Target 1' 
+ * Project: 'USB_EXAMPLES' 
+ * Target:  'CDC_ONLY' 
  */
 
 #ifndef RTE_COMPONENTS_H

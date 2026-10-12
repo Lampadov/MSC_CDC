@@ -4,7 +4,7 @@
 
 ## Запуск
 
-1. Откройте `USB_MSC_WEBUSB.uvprojx` в Keil, соберите и прошейте плату.
+1. Откройте `USB_EXAMPLES.uvprojx` в Keil, выберите цель `MSC_WEBUSB`, соберите и прошейте плату.
    - Если Keil не находит `MDR32FxQI_adc.h`: *Manage Run-Time Environment* -> *Drivers* -> галочка **ADC**. Без АЦП задайте в `main.c` `#define USE_ADC 0`.
 2. Подключите плату к USB. Появится диск `Milandr WEB` (только чтение) с файлами `index.htm`, `app.js`, `README.TXT`.
 3. Откройте `index.htm` с этого диска в Chrome или Edge и нажмите **Подключить плату**.

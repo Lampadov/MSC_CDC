@@ -3,7 +3,7 @@
  * Auto generated Run-Time-Environment Configuration File
  *      *** Do not modify ! ***
  *
- * Project: 'USB_HID' 
+ * Project: 'USB_EXAMPLES' 
  * Target:  'HID_KEYBOARD' 
  */
 
