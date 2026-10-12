@@ -441,14 +441,30 @@ class WinPortPower(Power):
         try:
             params = (wintypes.ULONG * 2)(self.port, 0)               # ConnectionIndex, StatusReturned
             got = wintypes.DWORD()
-            if not k.DeviceIoControl(h, self.IOCTL_USB_HUB_CYCLE_PORT, params, 8, params, 8, ctypes.byref(got), None):
-                sys.exit("IOCTL_USB_HUB_CYCLE_PORT не выполнен: ошибка %d. Хаб не поддерживает команду? Нужна Windows 8 или новее."
-                         % ctypes.get_last_error())
+            if k.DeviceIoControl(h, self.IOCTL_USB_HUB_CYCLE_PORT, params, 8, params, 8, ctypes.byref(got), None):
+                return True
+            err = ctypes.get_last_error()
         finally:
             k.CloseHandle(h)
+        if err in (1, 50, 87):                             # команду хаб не понимает
+            sys.exit("Хаб не поддерживает IOCTL_USB_HUB_CYCLE_PORT (ошибка %d). Нужна Windows 8 или новее, "
+                     "используйте --power pnputil или реле." % err)
+        self.last_error = err                              # 2 - на порту сейчас нет устройства (идёт переподключение)
+        return False
 
     def on(self):
         pass                                               # порт включит сама Windows
+
+    def cycle(self, retry_s=3.0):
+        """Отключает порт; если Windows отвечает, что на порту нет устройства (оно ещё
+        подключается после прошлого цикла), пробует снова в течение retry_s секунд."""
+        t0 = now()
+        while True:
+            if self.off():
+                return True
+            if now() - t0 > retry_s:
+                return False
+            time.sleep(0.05)
 
 
 class PnputilPower(Power):
@@ -493,6 +509,8 @@ class SimPower(Power):
         self.mode = "ok"
         self.rnd = random.Random(1)
         self.self_recovering = self_rec
+        if self_rec:
+            self.cycle = lambda retry_s=0: (self.off(), True)[1]
 
     def off(self):
         self.present_at = None
@@ -555,7 +573,12 @@ def run_cycle(n, args, power, chk, sim, log):
 
     # 1. отключаем и ждём, пока устройство исчезнет
     t_off = now()
-    power.off()
+    if hasattr(power, "cycle"):
+        if not power.cycle():
+            c.result, c.detail = "ошибка_команды", "хаб отклонил отключение порта (ошибка Windows %s)" % getattr(power, "last_error", "?")
+            return c
+    else:
+        power.off()
     # устройство "ушло", когда на шине нет его исправных узлов (отключённое pnputil остаётся в списке с ошибкой)
     gone = wait(lambda: not any(n.ok for n in chk.mine(get())), args.gone_timeout if not manual else 600)
     self_rec = getattr(power, "self_recovering", False)
@@ -579,9 +602,15 @@ def run_cycle(n, args, power, chk, sim, log):
         if not manual and random.random() < args.interrupt and interrupts < 2:
             interrupts += 1
             c.interrupted = True
-            time.sleep(random.uniform(0.02, args.interrupt_max))
-            power.off()
-            if not self_rec:
+            if self_rec:                                   # порт можно сбросить, лишь когда устройство уже на нём
+                wait(lambda: chk.mine(get()), 5)
+            time.sleep(random.uniform(0.0 if self_rec else 0.02, args.interrupt_max))
+            if self_rec:
+                if not power.cycle():
+                    c.result, c.detail = "ошибка_команды", "хаб отклонил повторное отключение порта (ошибка Windows %s)" % getattr(power, "last_error", "?")
+                    return c
+            else:
+                power.off()
                 time.sleep(random.uniform(args.off_min, args.off_max))
             continue
         break
@@ -772,9 +801,12 @@ def main():
                         print("Остановлено на отказе. Плата оставлена в текущем состоянии.")
                         break
                     # приводим плату в порядок: длинное отключение
-                    power.off()
-                    time.sleep(3)
-                    power.on()
+                    if hasattr(power, "cycle"):
+                        power.cycle(10)
+                    else:
+                        power.off()
+                        time.sleep(3)
+                        power.on()
                     wait(lambda: (sim and True) or chk.check(enum_usb())[0], args.timeout)
                 time.sleep(random.uniform(args.settle_min, args.settle_max) if not sim else 0)
         except KeyboardInterrupt:
