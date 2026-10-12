@@ -5,12 +5,16 @@ r"""
 Раз за разом программно "выдёргивает" порт, к которому подключена плата, и проверяет, что Windows
 нашла устройство и подняла все его интерфейсы без ошибок. Печатает время каждого подключения.
 
+Критерий успеха цикла: у всех узлов устройства в диспетчере нет ошибок и драйверы запущены, поднялись
+все интерфейсы. Если у примера есть диск (msc-only, msc-hid, msc-webusb), он ещё должен смонтироваться,
+читаться целиком и совпадать с образом, прочитанным при первом подключении.
+
   python enum_test.py <пример> [число циклов] [пауза между циклами, с]
 
   python enum_test.py msc-hid           # 100 циклов
   python enum_test.py cdc-only 500 0    # 500 циклов без паузы
 
-Примеры: cdc-only, msc-only, main, hid-only, msc-hid, webusb, msc-webusb.
+Примеры: cdc-only, hid-only, msc-only, msc-hid, msc-webusb.
 Плату подключайте прямо к порту компьютера, без хаба. Код выхода 1, если были отказы.
 """
 import ctypes
@@ -22,13 +26,13 @@ from ctypes import wintypes
 # пример: (VID, PID, сколько интерфейсов-функций должно подняться кроме самого устройства)
 EXAMPLES = {
     "cdc-only":   (0xCAFE, 0x4001, 0),
-    "msc-only":   (0xCAFE, 0x4002, 0),
-    "main":       (0xCAFE, 0x4003, 2),
     "hid-only":   (0xABAB, 0x4004, 0),
+    "msc-only":   (0xCAFE, 0x4002, 0),
     "msc-hid":    (0xCAFE, 0x4006, 2),
-    "webusb":     (0xCAFE, 0x4015, 0),
     "msc-webusb": (0xCAFE, 0x4016, 2),
 }
+# метка диска у примеров с флешкой
+LABELS = {"msc-only": "Milandr MSC", "msc-hid": "Milandr MSC", "msc-webusb": "Milandr WEB"}
 TIMEOUT = 10.0                      # сколько ждать появления устройства, с
 
 setupapi = ctypes.WinDLL("setupapi", use_last_error=True)
@@ -58,6 +62,8 @@ kernel.CreateFileW.argtypes = [wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD,
 kernel.DeviceIoControl.argtypes = [ctypes.c_void_p, wintypes.DWORD, ctypes.c_void_p, wintypes.DWORD,
                                    ctypes.c_void_p, wintypes.DWORD, ctypes.POINTER(wintypes.DWORD), ctypes.c_void_p]
 kernel.CloseHandle.argtypes = [ctypes.c_void_p]
+kernel.GetVolumeInformationW.argtypes = [wintypes.LPCWSTR, wintypes.LPWSTR, wintypes.DWORD, ctypes.c_void_p,
+                                         ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, wintypes.DWORD]
 
 
 def usb_nodes():
@@ -87,8 +93,37 @@ def usb_nodes():
     return result
 
 
-def board_state(prefix, children):
-    """-> (готова, описание): устройство и все его интерфейсы найдены и исправны."""
+disk_reference = {}                 # образ диска, прочитанный при первом подключении
+
+
+def read_disk(label):
+    """Находит том по метке и читает его целиком как устройство (\\\\.\\E:), минуя файловую систему.
+    Возвращает (данные, "") или (None, причина)."""
+    mask = kernel.GetLogicalDrives()
+    for i in range(26):
+        if not mask & (1 << i):
+            continue
+        root = "%s:\\" % chr(65 + i)
+        name = ctypes.create_unicode_buffer(261)
+        if kernel.GetVolumeInformationW(root, name, 261, None, None, None, None, 0) and name.value == label:
+            data = bytearray()
+            try:
+                with open("\\\\.\\%s:" % chr(65 + i), "rb", buffering=0) as f:
+                    while len(data) < (1 << 20):
+                        chunk = f.read(4096)
+                        if not chunk:
+                            break
+                        data += chunk
+            except OSError as e:
+                return None, "диск %s: ошибка чтения (%s)" % (root[:2], e)
+            if not any(data):
+                return None, "диск %s отдаёт одни нули" % root[:2]
+            return bytes(data), ""
+    return None, "диск '%s' не смонтирован" % label
+
+
+def board_state(prefix, children, label=None):
+    """-> (готова, описание): устройство и все его интерфейсы найдены и исправны, диск (если есть) читается."""
     mine = [n for n in usb_nodes() if n[0].startswith(prefix)]
     if not mine:
         return False, "устройства нет на шине"
@@ -98,6 +133,14 @@ def board_state(prefix, children):
     kids = [n for n in mine if "&MI_" in n[0]]
     if len(kids) < children:
         return False, "поднялось интерфейсов %d из %d" % (len(kids), children)
+    if label:
+        data, why = read_disk(label)
+        if data is None:
+            return False, why
+        if "data" not in disk_reference:
+            disk_reference["data"] = data
+        elif data != disk_reference["data"]:
+            return False, "диск отличается от первого чтения (размер %d, был %d)" % (len(data), len(disk_reference["data"]))
     return True, ""
 
 
@@ -156,9 +199,10 @@ def main():
     cycles = int(sys.argv[2]) if len(sys.argv) > 2 else 100
     pause = float(sys.argv[3]) if len(sys.argv) > 3 else 0.5
     prefix = "USB\\VID_%04X&PID_%04X" % (vid, pid)
+    label = LABELS.get(sys.argv[1])
 
-    if wait(lambda: board_state(prefix, children)[0], 15) is None:
-        sys.exit("Плата не готова перед началом теста: " + board_state(prefix, children)[1])
+    if wait(lambda: board_state(prefix, children, label)[0], 15) is None:
+        sys.exit("Плата не готова перед началом теста: " + board_state(prefix, children, label)[1])
     hub, port = find_port(prefix)
 
     times, fails = [], 0
@@ -173,8 +217,8 @@ def main():
             print("%4d: ОШИБКА, плата не отключилась" % n)
             fails += 1
             continue
-        if wait(lambda: board_state(prefix, children)[0], TIMEOUT) is None:
-            print("%4d: ОШИБКА за %d с: %s" % (n, TIMEOUT, board_state(prefix, children)[1]))
+        if wait(lambda: board_state(prefix, children, label)[0], TIMEOUT) is None:
+            print("%4d: ОШИБКА за %d с: %s" % (n, TIMEOUT, board_state(prefix, children, label)[1]))
             fails += 1
             continue
         ms = int((time.perf_counter() - t0) * 1000)

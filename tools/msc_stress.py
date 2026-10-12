@@ -14,6 +14,7 @@ r"""
          (WRITE10 + READ10 через файловую систему). Права администратора не нужны.
            python msc_stress.py files E:\ --minutes 10
 
+Диск примера msc-webusb доступен только для чтения: для него годится только режим raw.
 Не запускайте режимы одновременно. Ошибки печатаются сразу, итог - в конце, код выхода 1 при ошибках.
 """
 import argparse, os, random, sys, time, errno
@@ -59,10 +60,23 @@ def raw_test(dev, minutes, size, seed):
     rnd = random.Random(seed)
     st = Stats()
     f = open(dev, 'rb', buffering=0)
-    ref = f.read(size)
-    if len(ref) != size:
-        print(f"Не удалось прочитать {size} байт с {dev} (получено {len(ref)})")
-        return 1
+    if size is None:                   # размер не задан: читаем том до конца (диск msc-webusb занимает 15872 байта)
+        ref = bytearray()
+        while len(ref) < (1 << 20):
+            chunk = f.read(4096)
+            if not chunk:
+                break
+            ref += chunk
+        ref, size = bytes(ref), len(ref) - len(ref) % SECTOR
+        ref = ref[:size]
+        if size == 0:
+            print(f"Не удалось прочитать том {dev}")
+            return 1
+    else:
+        ref = f.read(size)
+        if len(ref) != size:
+            print(f"Не удалось прочитать {size} байт с {dev} (получено {len(ref)})")
+            return 1
     print(f"Эталон прочитан ({size} байт), жму {minutes} мин...")
     end, last = now() + minutes * 60, now()
     nsec = size // SECTOR
@@ -170,7 +184,7 @@ def main():
     ap.add_argument('mode', choices=['raw', 'files'])
     ap.add_argument('target', help=r'raw: \\.\E: или /dev/sdX;  files: E:\ или /media/...')
     ap.add_argument('--minutes', type=float, default=5)
-    ap.add_argument('--size', type=int, default=16 * SECTOR, help='размер диска в байтах (raw), по умолчанию 8192')
+    ap.add_argument('--size', type=int, default=None, help='размер диска в байтах (raw), по умолчанию том читается до конца')
     ap.add_argument('--seed', type=int, default=None, help='зерно случайных чисел (для повторения прогона)')
     ap.add_argument('--max-files', type=int, default=8)
     ap.add_argument('--max-size', type=int, default=1500, help='максимальный размер файла, байт')
