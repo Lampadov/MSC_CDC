@@ -14,7 +14,7 @@ r"""
   python enum_test.py msc-hid           # 100 циклов
   python enum_test.py cdc-only 500 0    # 500 циклов без паузы
 
-Примеры: cdc-only, hid-only (мышь), hid-keyboard, msc-only, msc-hid, msc-webusb.
+Примеры: cdc-only, hid-mouse, hid-keyboard, msc-only, msc-hid, webusb-only, msc-webusb.
 Плату подключайте прямо к порту компьютера, без хаба. Код выхода 1, если были отказы.
 """
 import ctypes
@@ -26,11 +26,13 @@ from ctypes import wintypes
 # пример: (VID, PID, сколько интерфейсов-функций должно подняться кроме самого устройства)
 EXAMPLES = {
     "cdc-only":   (0xCAFE, 0x4001, 0),
-    "hid-only":   (0xABAB, 0x4004, 0),
-    "hid-keyboard": (0xABAB, 0x4024, 0),   # hid-only, собранный с HID_MODE=2 (клавиатура); по умолчанию - мышь
-    "msc-only":   (0xCAFE, 0x4002, 0),
+    "hid-mouse":    (0xCAFE, 0x4002, 0),   # каталог examples/hid-only, по умолчанию мышь
+    "hid-only":     (0xCAFE, 0x4002, 0),   # старое имя, то же что hid-mouse
+    "hid-keyboard": (0xCAFE, 0x4003, 0),   # examples/hid-only, собранный с HID_MODE=2 (клавиатура)
+    "msc-only":   (0xCAFE, 0x4004, 0),
     "msc-hid":    (0xCAFE, 0x4006, 2),
-    "msc-webusb": (0xCAFE, 0x4016, 2),
+    "webusb-only": (0xCAFE, 0x4005, 0),
+    "msc-webusb": (0xCAFE, 0x4007, 2),
 }
 # метка диска у примеров с флешкой
 LABELS = {"msc-only": "Milandr MSC", "msc-hid": "Milandr MSC", "msc-webusb": "Milandr WEB"}

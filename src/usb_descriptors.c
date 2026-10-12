@@ -26,17 +26,11 @@
 #include "tusb.h"
 #include "usb_descriptors.h"
 
-/* A combination of interfaces must have a unique product id, since PC will save device driver after the first plug.
- * Same VID/PID with different interface will possibly cause system error on PC.
- *
- * Auto ProductID layout's Bitmap:
- *   [MSB]         HID          [LSB]
- */
-#define PID_MAP(itf, n)  ((CFG_TUD_##itf) ? (1 << (n)) : 0)
-#define USB_PID           (0x4000 | PID_MAP(HID, 2) | \
-                           PID_MAP(MIDI, 3) | PID_MAP(VENDOR, 4) | ((HID_MODE - 1) << 5))
+/* PID = 0x4000 + номер примера: у каждого примера свой PID, потому что Windows запоминает
+ * драйвер и дескрипторы по VID/PID после первого подключения. */
+#define USB_PID   (0x4002 + (HID_MODE - 1))   // 0x4002 мышь, 0x4003 клавиатура
 
-#define USB_VID   0xABAB
+#define USB_VID   0xCAFE
 #define USB_BCD   0x0200
 
 //--------------------------------------------------------------------+
