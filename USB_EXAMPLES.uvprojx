@@ -335,7 +335,7 @@
             <v6WtE>0</v6WtE>
             <v6Rtti>0</v6Rtti>
             <VariousControls>
-              <MiscControls></MiscControls>
+              <MiscControls>--diag_suppress=66</MiscControls>
               <Define>CFG_TUSB_MCU,EXAMPLE_CDC</Define>
               <Undefine></Undefine>
               <IncludePath>.\examples\cdc-only;.\src\class\cdc\serial;.\src\class\cdc;.\src\common;.\src\device;.\src\osal;.\src\typec;.\src;.\src\bsp</IncludePath>
@@ -791,7 +791,7 @@
             <v6WtE>0</v6WtE>
             <v6Rtti>0</v6Rtti>
             <VariousControls>
-              <MiscControls></MiscControls>
+              <MiscControls>--diag_suppress=66</MiscControls>
               <Define>CFG_TUSB_MCU,EXAMPLE_HID</Define>
               <Undefine></Undefine>
               <IncludePath>.\examples\hid-only;.\src\class\hid;.\src\common;.\src\device;.\src\osal;.\src\typec;.\src;.\src\bsp</IncludePath>
@@ -1247,7 +1247,7 @@
             <v6WtE>0</v6WtE>
             <v6Rtti>0</v6Rtti>
             <VariousControls>
-              <MiscControls></MiscControls>
+              <MiscControls>--diag_suppress=66</MiscControls>
               <Define>CFG_TUSB_MCU,EXAMPLE_HID,HID_MODE=2</Define>
               <Undefine></Undefine>
               <IncludePath>.\examples\hid-only;.\src\class\hid;.\src\common;.\src\device;.\src\osal;.\src\typec;.\src;.\src\bsp</IncludePath>
@@ -1703,7 +1703,7 @@
             <v6WtE>0</v6WtE>
             <v6Rtti>0</v6Rtti>
             <VariousControls>
-              <MiscControls></MiscControls>
+              <MiscControls>--diag_suppress=66</MiscControls>
               <Define>CFG_TUSB_MCU,EXAMPLE_MSC</Define>
               <Undefine></Undefine>
               <IncludePath>.\examples\msc-only;.\src\class\msc;.\src\common;.\src\device;.\src\osal;.\src\typec;.\src;.\src\bsp</IncludePath>
@@ -2159,7 +2159,7 @@
             <v6WtE>0</v6WtE>
             <v6Rtti>0</v6Rtti>
             <VariousControls>
-              <MiscControls></MiscControls>
+              <MiscControls>--diag_suppress=66</MiscControls>
               <Define>CFG_TUSB_MCU,EXAMPLE_WEBUSB_ONLY</Define>
               <Undefine></Undefine>
               <IncludePath>.\examples\webusb-only;.\src\class\vendor;.\src\common;.\src\device;.\src\osal;.\src\typec;.\src;.\src\bsp</IncludePath>
@@ -2615,7 +2615,7 @@
             <v6WtE>0</v6WtE>
             <v6Rtti>0</v6Rtti>
             <VariousControls>
-              <MiscControls></MiscControls>
+              <MiscControls>--diag_suppress=66</MiscControls>
               <Define>CFG_TUSB_MCU,EXAMPLE_MSC_HID</Define>
               <Undefine></Undefine>
               <IncludePath>.\examples\msc-hid;.\src\class\msc;.\src\class\hid;.\src\common;.\src\device;.\src\osal;.\src\typec;.\src;.\src\bsp</IncludePath>
@@ -3071,7 +3071,7 @@
             <v6WtE>0</v6WtE>
             <v6Rtti>0</v6Rtti>
             <VariousControls>
-              <MiscControls></MiscControls>
+              <MiscControls>--diag_suppress=66</MiscControls>
               <Define>CFG_TUSB_MCU,EXAMPLE_MSC_WEBUSB</Define>
               <Undefine></Undefine>
               <IncludePath>.\examples\msc-webusb;.\src\class\msc;.\src\class\vendor;.\src\common;.\src\device;.\src\osal;.\src\typec;.\src;.\src\bsp</IncludePath>
