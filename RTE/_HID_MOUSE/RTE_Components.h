@@ -3,8 +3,8 @@
  * Auto generated Run-Time-Environment Configuration File
  *      *** Do not modify ! ***
  *
- * Project: 'USB_CDC' 
- * Target:  'Target 1' 
+ * Project: 'USB_EXAMPLES' 
+ * Target:  'HID_MOUSE' 
  */
 
 #ifndef RTE_COMPONENTS_H
