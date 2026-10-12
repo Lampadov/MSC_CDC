@@ -1,22 +1,23 @@
 #!/usr/bin/env python3
 r"""
-Нагрузочный тест WebUSB-интерфейса примера msc-webusb (Windows или Linux).
+Нагрузочный тест WebUSB-интерфейса примеров webusb и msc-webusb (Windows или Linux).
 
 Одновременно:
-  - читает кадры состояния с EP3 IN и проверяет каждый: длина 9 байт, заголовок 0x01, время платы
+  - читает кадры состояния (msc-webusb: EP3 IN, webusb: EP2 IN) и проверяет каждый: длина 9 байт, заголовок 0x01, время платы
     растёт, АЦП не больше 4095, пауза между кадрами не больше 300 мс (иначе зависание);
-  - в случайные моменты шлёт команду светодиодов (vendor-запрос 0x10) со случайной маской и проверяет,
-    что маска появилась в кадрах в течение 300 мс;
+  - в случайные моменты шлёт команду светодиодов со случайной маской (msc-webusb: vendor-запрос 0x10,
+    webusb: bulk-пакет 01 <маска> в EP1 OUT) и проверяет, что маска появилась в кадрах в течение 300 мс;
   - читает дескрипторы: устройства, строку Microsoft OS 0xEE, Compatible ID и свойства MS OS 1.0;
   - шлёт неизвестный vendor-запрос и проверяет, что плата отвечает STALL и продолжает работать.
 
-Параллельно можно запустить msc_stress.py raw на диске платы: так проверяется и составное устройство
-под нагрузкой. Закройте страницу WebUSB в браузере: устройство занимает только одна программа.
+Для msc-webusb параллельно можно запустить msc_stress.py raw на диске платы: так проверяется и составное
+устройство под нагрузкой. Закройте страницу WebUSB в браузере: устройство занимает только одна программа.
 
 Нужно:  pip install pyusb libusb-package
 Драйвер WinUSB Windows ставит сама (MS OS 1.0). Примеры:
-  python webusb_stress.py --minutes 10
-  python webusb_stress.py --vid 0xCAFE --pid 0x4016 --minutes 30 --seed 5
+  python webusb_stress.py msc-webusb --minutes 10
+  python webusb_stress.py webusb --minutes 10
+  python webusb_stress.py msc-webusb --pid 0x4016 --minutes 30 --seed 5
 Код выхода 1, если были ошибки.
 """
 import argparse
@@ -31,7 +32,13 @@ try:
 except ImportError:
     sys.exit("Нужны pyusb и libusb-package: pip install pyusb libusb-package")
 
-ITF, EP_IN, REQ_LEDS, MS_VENDOR = 1, 0x83, 0x10, 0x03
+REQ_LEDS, MS_VENDOR = 0x10, 0x03
+# профили: интерфейс, EP IN, EP OUT для команд (None - команды vendor-запросом), PID
+PROFILES = {
+    "msc-webusb": dict(itf=1, ep_in=0x83, ep_out=None, pid=0x4016),
+    "webusb":     dict(itf=0, ep_in=0x82, ep_out=0x01, pid=0x4015),
+}
+ITF, EP_IN, EP_OUT = 1, 0x83, None
 FRAME_GAP = 0.3
 
 
@@ -58,9 +65,9 @@ def reader(dev, st, stop):
             if stop.is_set():
                 return
             if getattr(e, "errno", None) in (110, 10060, None) and "timed out" in str(e).lower():
-                st.error("кадров нет более 500 мс (зависание EP3 IN)")
+                st.error("кадров нет более 500 мс (зависание IN-точки)")
                 continue
-            st.error("чтение EP3 IN: %s" % e)
+            st.error("чтение IN-точки: %s" % e)
             time.sleep(0.2)
             continue
         now = time.perf_counter()
@@ -92,7 +99,10 @@ def control_loop(dev, st, stop, rnd, vid, pid):
         try:
             if r < 0.55:                                    # светодиоды: команда и проверка по кадрам
                 mask = rnd.randrange(4)
-                dev.ctrl_transfer(0x41, REQ_LEDS, mask, ITF, None, timeout=1000)
+                if EP_OUT is None:
+                    dev.ctrl_transfer(0x41, REQ_LEDS, mask, ITF, None, timeout=1000)
+                else:
+                    dev.write(EP_OUT, bytes([0x01, mask]), timeout=1000)
                 t0 = time.perf_counter()
                 while st.leds_seen != mask and time.perf_counter() - t0 < FRAME_GAP:
                     time.sleep(0.002)
@@ -128,12 +138,18 @@ def control_loop(dev, st, stop, rnd, vid, pid):
 
 
 def main():
+    global ITF, EP_IN, EP_OUT
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("example", nargs="?", choices=sorted(PROFILES), default="msc-webusb")
     ap.add_argument("--vid", type=lambda s: int(s, 0), default=0xCAFE)
-    ap.add_argument("--pid", type=lambda s: int(s, 0), default=0x4016)
+    ap.add_argument("--pid", type=lambda s: int(s, 0), default=None, help="по умолчанию PID примера")
     ap.add_argument("--minutes", type=float, default=5)
     ap.add_argument("--seed", type=int)
     a = ap.parse_args()
+    prof = PROFILES[a.example]
+    ITF, EP_IN, EP_OUT = prof["itf"], prof["ep_in"], prof["ep_out"]
+    if a.pid is None:
+        a.pid = prof["pid"]
     seed = a.seed if a.seed is not None else random.randrange(1 << 30)
     print("seed=%d" % seed)
 

@@ -11,11 +11,12 @@
 | `HID_KEYBOARD` | `examples/hid-only` | клавиатура; UP+DOWN печатает "Hello from Milandr!" | ABAB:4024 | `hid_check.py keyboard` |
 | `MSC_ONLY` | `examples/msc-only` | флешка (диск в RAM, метка "Milandr MSC") | CAFE:4002 | `msc_stress.py` |
 | `MSC_HID` | `examples/msc-hid` | флешка + клавиатура; SELECT печатает содержимое `TEXT.TXT` | CAFE:4006 | `msc_stress.py`, `hid_check.py` |
-| `MSC_WEBUSB` | `examples/msc-webusb` | флешка только для чтения с веб-страницей управления платой + WebUSB (метка "Milandr WEB") | CAFE:4016 | `msc_stress.py raw`, `webusb_stress.py` |
+| `WEBUSB` | `examples/webusb` | WebUSB без флешки: страница управления платой запускается с локального сервера, светодиоды, кнопки, АЦП, игра | CAFE:4015 | `webusb_stress.py webusb` |
+| `MSC_WEBUSB` | `examples/msc-webusb` | флешка только для чтения с веб-страницей управления платой + WebUSB (метка "Milandr WEB") | CAFE:4016 | `msc_stress.py raw`, `webusb_stress.py msc-webusb` |
 
 `HID_MOUSE` и `HID_KEYBOARD` собираются из одних исходников; отличаются макросом `HID_MODE` (во втором `HID_MODE=2` в Define цели). Режим входит в PID, поэтому Windows считает их разными устройствами.
 
-Подробности по `MSC_WEBUSB`: `examples/msc-webusb/README.md`.
+Подробности: `examples/webusb/README.md` и `examples/msc-webusb/README.md`. В `WEBUSB` страницу открывают с локального сервера, в `MSC_WEBUSB` она лежит на самой плате.
 
 ## Сборка
 
@@ -35,6 +36,7 @@
     python enum_test.py hid-only 200        # мышь;  hid-keyboard для клавиатуры
     python enum_test.py msc-only
     python enum_test.py msc-hid
+    python enum_test.py webusb
     python enum_test.py msc-webusb
 
 Аргументы: пример, число циклов (100), пауза между циклами в секундах (0.5). Для каждого цикла печатается `ok, N мс` или причина отказа.
@@ -44,11 +46,12 @@
     python cdc_stress.py COM5 all --minutes 15                  # CDC: поток, пинг-понг, переоткрытие порта
     python msc_stress.py raw \\.\E: --minutes 10                # MSC: чтение случайными кусками (администратор)
     python msc_stress.py files E:\ --minutes 10                 # MSC: файлы (только msc-only и msc-hid)
-    python webusb_stress.py --minutes 10                        # WebUSB: кадры, команды LED, дескрипторы (pip install pyusb libusb-package)
+    python webusb_stress.py webusb --minutes 10                 # WebUSB: кадры, команды LED, дескрипторы (pip install pyusb libusb-package)
+    python webusb_stress.py msc-webusb --minutes 10
     python hid_check.py keyboard --runs 20                      # HID: сверка набранного текста
     python hid_check.py mouse --runs 20                         # HID: проверка движения курсора
 
-Для `MSC_WEBUSB` запускайте `msc_stress.py raw` и `webusb_stress.py` одновременно: так проверяется составное устройство под нагрузкой.
+Для `MSC_WEBUSB` запускайте `msc_stress.py raw` и `webusb_stress.py msc-webusb` одновременно: так проверяется составное устройство под нагрузкой.
 
 ## Образ диска примера MSC_WEBUSB
 
@@ -60,6 +63,6 @@
     examples/<имя>/      файлы конкретного примера
     tools/               тесты и make_disk.py
     RTE/                 файлы компонентов Keil (для каждой цели свой RTE_Components.h)
-    USB_EXAMPLES.uvprojx проект с шестью целями
+    USB_EXAMPLES.uvprojx проект с семью целями
 
-Остальные ветки репозитория (`cdc-only`, `hid-only`, `msc-only`, `msc-hid`, `msc-webusb`) содержат те же примеры по одному: каждый со своим проектом Keil.
+Остальные ветки репозитория (`cdc-only`, `hid-only`, `msc-only`, `msc-hid`, `webusb`, `msc-webusb`) содержат те же примеры по одному: каждый со своим проектом Keil.
