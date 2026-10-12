@@ -10,23 +10,33 @@ r"""
 и для проверки COM-порта:  pip install pyserial.
 Запускайте от имени администратора (нужно для режима pnputil и для чтения свойств драйверов).
 
-Как отключать плату (--power):
+Как отключать плату (--power). Без доп. железа, штатными средствами Windows:
 
+  winport   (по умолчанию в Windows) Команда IOCTL_USB_HUB_CYCLE_PORT на хаб, к которому подключена
+            плата: стек USB сам выключает питание порта и включает его снова, то есть программно
+            имитирует выдёргивание и вставку кабеля. Нужна Windows 8 или новее и права
+            администратора. Паузу без питания выбирает Windows, --off-min/--off-max здесь не
+            действуют. Если хаб не умеет выключать питание порта (у части контроллеров и
+            хабов так), порт сбрасывается и устройство энумерируется заново; от настоящего
+            отключения VBUS это отличается, плату питайте тогда через реле (режим relay).
+  pnputil   Windows отключает и включает устройство в диспетчере (pnputil /disable-device).
+            Порт при этом остаётся под питанием, это самая мягкая проверка.
+
+С внешним железом:
   relay     Реле или ключ в разрыве линии VBUS, управляется линией DTR или RTS любого
             USB-UART адаптера:  --relay-port COM7 --relay-line dtr [--relay-invert]
             Это настоящее отключение питания: плата перезагружается и энумерируется с нуля.
   uhubctl   USB-хаб с управлением питанием портов (программа uhubctl):
             --hub-location 1-1 --hub-port 2
   cmd       Любые свои команды: --off-cmd "..." --on-cmd "..." (умная розетка, Arduino с реле и т. п.).
-  pnputil   Без железа: Windows отключает и включает устройство (pnputil /disable-device).
-            Питание платы не пропадает, это проверка стека хоста, а не настоящее переподключение.
   manual    Вы сами выдёргиваете и вставляете кабель; скрипт ждёт и фиксирует моменты. Скрипт
             подсказывает, что делать, и измеряет время от вставки до готовности.
 
 Примеры (Windows, командная строка от администратора):
+  python enum_stress.py msc-hid --cycles 500 --interrupt 0.3        # штатный winport
   python enum_stress.py msc-hid --power relay --relay-port COM7 --relay-line dtr --cycles 500
   python enum_stress.py webusb --power manual --cycles 50
-  python enum_stress.py msc-only --power pnputil --minutes 30 --interrupt 0.3
+  python enum_stress.py msc-only --power pnputil --minutes 30
   python enum_stress.py --list                 # что скрипт видит на шине сейчас
 
 Паузы случайные, чтобы поймать редкие гонки: --off-min/--off-max (сколько плата без питания),
@@ -71,6 +81,7 @@ class Node:
     """Узел USB в диспетчере устройств."""
     def __init__(self, iid, started=True, problem=0, service=""):
         self.iid, self.started, self.problem, self.service = iid, started, problem, service
+        self.devinst = 0
 
     @property
     def ok(self):
@@ -132,7 +143,9 @@ def enum_windows():
             if not sa.SetupDiGetDeviceRegistryPropertyW(h, ctypes.byref(d), SPDRP_SERVICE, ctypes.byref(rtype),
                                                         svc, ctypes.sizeof(svc), ctypes.byref(need)):
                 svc.value = ""
-            nodes.append(Node(buf.value.upper(), bool(status.value & DN_STARTED), problem.value, svc.value))
+            node = Node(buf.value.upper(), bool(status.value & DN_STARTED), problem.value, svc.value)
+            node.devinst = d.DevInst
+            nodes.append(node)
     finally:
         sa.SetupDiDestroyDeviceInfoList(h)
     return nodes
@@ -363,6 +376,81 @@ class CmdPower(Power):
         subprocess.run(self.on_cmd, shell=True, check=False)
 
 
+class WinPortPower(Power):
+    """Штатное средство Windows: IOCTL_USB_HUB_CYCLE_PORT на хабе, к которому подключена плата.
+    Стек USB сам отключает порт и включает его снова (питание порта выключается, если хаб это умеет;
+    иначе порт сбрасывается и устройство энумерируется заново). Нужны права администратора.
+    Паузу без питания здесь задать нельзя, её выбирает Windows."""
+    name = "winport"
+    self_recovering = True                                 # включение выполняет сама Windows
+
+    IOCTL_USB_HUB_CYCLE_PORT = 0x00220444
+    CM_DRP_ADDRESS = 0x1D                                  # номер порта на хабе
+
+    def __init__(self, checker):
+        if not IS_WIN:
+            sys.exit("--power winport работает только в Windows")
+        self.checker = checker
+        self.hub = self.port = None
+
+    def resolve(self):
+        import ctypes
+        import uuid
+        from ctypes import wintypes
+        cm = ctypes.WinDLL("cfgmgr32")
+        node = next((n for n in self.checker.mine(enum_windows()) if "&MI_" not in n.iid), None)
+        if node is None:
+            sys.exit("Плата не найдена на шине, подключите её и запустите снова")
+
+        port, rtype, size = wintypes.DWORD(), wintypes.ULONG(), wintypes.ULONG(4)
+        cr = cm.CM_Get_DevNode_Registry_PropertyW(node.devinst, self.CM_DRP_ADDRESS, ctypes.byref(rtype),
+                                                  ctypes.byref(port), ctypes.byref(size), 0)
+        if cr != 0:
+            sys.exit("Не удалось узнать номер порта платы (cfgmgr32: %d)" % cr)
+        parent = wintypes.DWORD()
+        if cm.CM_Get_Parent(ctypes.byref(parent), node.devinst, 0) != 0:
+            sys.exit("Не удалось найти хаб, к которому подключена плата")
+        hub_id = ctypes.create_unicode_buffer(512)
+        cm.CM_Get_Device_IDW(parent, hub_id, 512, 0)
+
+        guid = (ctypes.c_ubyte * 16).from_buffer_copy(uuid.UUID("F18A0E88-C30C-11D0-8815-00A0C906BED8").bytes_le)
+        length = wintypes.ULONG()
+        if cm.CM_Get_Device_Interface_List_SizeW(ctypes.byref(length), ctypes.byref(guid), hub_id, 0) != 0 or length.value < 2:
+            sys.exit("У хаба %s нет интерфейса управления" % hub_id.value)
+        buf = ctypes.create_unicode_buffer(length.value)
+        if cm.CM_Get_Device_Interface_ListW(ctypes.byref(guid), hub_id, buf, length.value, 0) != 0:
+            sys.exit("Не удалось получить путь к хабу %s" % hub_id.value)
+        self.hub, self.port, self.hub_id = buf.value, port.value, hub_id.value
+        print("Хаб: %s, порт %d" % (self.hub_id, self.port))
+
+    def off(self):
+        import ctypes
+        from ctypes import wintypes
+        if self.hub is None:
+            self.resolve()
+        k = ctypes.WinDLL("kernel32", use_last_error=True)
+        k.CreateFileW.restype = ctypes.c_void_p
+        k.CreateFileW.argtypes = [wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD, ctypes.c_void_p,
+                                  wintypes.DWORD, wintypes.DWORD, ctypes.c_void_p]
+        k.DeviceIoControl.argtypes = [ctypes.c_void_p, wintypes.DWORD, ctypes.c_void_p, wintypes.DWORD,
+                                      ctypes.c_void_p, wintypes.DWORD, ctypes.POINTER(wintypes.DWORD), ctypes.c_void_p]
+        k.CloseHandle.argtypes = [ctypes.c_void_p]
+        h = k.CreateFileW(self.hub, 0x40000000, 2, None, 3, 0, None)   # GENERIC_WRITE, SHARE_WRITE, OPEN_EXISTING
+        if h in (None, ctypes.c_void_p(-1).value):
+            sys.exit("Не удалось открыть хаб %s (запущено от администратора?): ошибка %d" % (self.hub, ctypes.get_last_error()))
+        try:
+            params = (wintypes.ULONG * 2)(self.port, 0)               # ConnectionIndex, StatusReturned
+            got = wintypes.DWORD()
+            if not k.DeviceIoControl(h, self.IOCTL_USB_HUB_CYCLE_PORT, params, 8, params, 8, ctypes.byref(got), None):
+                sys.exit("IOCTL_USB_HUB_CYCLE_PORT не выполнен: ошибка %d. Хаб не поддерживает команду? Нужна Windows 8 или новее."
+                         % ctypes.get_last_error())
+        finally:
+            k.CloseHandle(h)
+
+    def on(self):
+        pass                                               # порт включит сама Windows
+
+
 class PnputilPower(Power):
     name = "pnputil"
 
@@ -400,13 +488,16 @@ class SimPower(Power):
     """Для самопроверки скрипта: выдуманная плата с случайными сбоями."""
     name = "simulate"
 
-    def __init__(self):
+    def __init__(self, self_rec=False):
         self.present_at = None
         self.mode = "ok"
         self.rnd = random.Random(1)
+        self.self_recovering = self_rec
 
     def off(self):
         self.present_at = None
+        if self.self_recovering:
+            self.on()
 
     def on(self):
         r = self.rnd.random()
@@ -467,11 +558,12 @@ def run_cycle(n, args, power, chk, sim, log):
     power.off()
     # устройство "ушло", когда на шине нет его исправных узлов (отключённое pnputil остаётся в списке с ошибкой)
     gone = wait(lambda: not any(n.ok for n in chk.mine(get())), args.gone_timeout if not manual else 600)
+    self_rec = getattr(power, "self_recovering", False)
     if gone is None:
         c.result, c.detail = "не_отключилась", "устройство осталось на шине через %.0f с после отключения" % args.gone_timeout
         return c
     c.gone_ms = int(gone * 1000)
-    if not manual:
+    if not manual and not self_rec:                        # у winport паузу выбирает Windows
         rest = off_s - (now() - t_off)
         if rest > 0:
             time.sleep(rest)
@@ -479,7 +571,7 @@ def run_cycle(n, args, power, chk, sim, log):
     # 2. включаем; иногда обрываем энумерацию на полуслове
     interrupts = 0
     while True:
-        t_on = now()
+        t_on = t_off if (self_rec and interrupts == 0) else now()   # у winport отсчёт от команды
         power.on()
         if manual:                                         # отсчёт от появления, а не от подсказки
             wait(lambda: chk.mine(get()), 600)
@@ -489,7 +581,8 @@ def run_cycle(n, args, power, chk, sim, log):
             c.interrupted = True
             time.sleep(random.uniform(0.02, args.interrupt_max))
             power.off()
-            time.sleep(random.uniform(args.off_min, args.off_max))
+            if not self_rec:
+                time.sleep(random.uniform(args.off_min, args.off_max))
             continue
         break
 
@@ -572,7 +665,8 @@ def main():
     ap.add_argument("--vid", type=lambda s: int(s, 0), help="свой VID (вместо профиля)")
     ap.add_argument("--pid", type=lambda s: int(s, 0), help="свой PID (вместо профиля)")
     ap.add_argument("--list", action="store_true", help="показать устройства на шине и выйти")
-    ap.add_argument("--power", choices=["relay", "uhubctl", "cmd", "pnputil", "manual"], default="manual")
+    ap.add_argument("--power", choices=["winport", "relay", "uhubctl", "cmd", "pnputil", "manual"],
+                    default="winport" if IS_WIN else "manual", help="чем отключать плату (по умолчанию в Windows winport)")
     ap.add_argument("--relay-port"); ap.add_argument("--relay-line", choices=["dtr", "rts"], default="dtr")
     ap.add_argument("--relay-invert", action="store_true", help="инвертировать линию (реле включается нулём)")
     ap.add_argument("--hub-location"); ap.add_argument("--hub-port", type=int)
@@ -612,7 +706,7 @@ def main():
 
     sim = None
     if args.selftest:
-        sim = SimPower()
+        sim = SimPower(self_rec=args.power == "winport")
         power = sim
         global POLL
         POLL = 0.002
@@ -628,6 +722,8 @@ def main():
         if not args.off_cmd or not args.on_cmd:
             ap.error("нужны --off-cmd и --on-cmd")
         power = CmdPower(args.off_cmd, args.on_cmd)
+    elif args.power == "winport":
+        power = WinPortPower(chk)
     elif args.power == "pnputil":
         power = PnputilPower(chk)
     else:
