@@ -48,14 +48,14 @@ static void handle_ep(uint8_t rhport, uint8_t ep);
 // Взвести EPRDY - точка готова к обмену
 static void ep_set_ready(uint8_t ep)
 {
-    USB_SetSEPxCTRL(ep, USB_SEPx_CTRL_EPRDY_Ready);
+    USB_SetSEPxCTRL((USB_EP_TypeDef)ep, USB_SEPx_CTRL_EPRDY_Ready);
     ep_armed[ep] = true;
 }
 
 // Прошла ли транзакция с момента взведения EPRDY
 static bool ep_transaction_done(uint8_t ep)
 {
-    if (ep_armed[ep] && !(USB_GetSEPxCTRL(ep) & USB_SEPx_CTRL_EPRDY_Ready)) {
+    if (ep_armed[ep] && !(USB_GetSEPxCTRL((USB_EP_TypeDef)ep) & USB_SEPx_CTRL_EPRDY_Ready)) {
         ep_armed[ep] = false;
         return true;
     }
@@ -93,11 +93,11 @@ static void handle_ep_in(uint8_t ep)
 
     // Если точка уже взведена (ждёт OUT), TX FIFO пуст - сбрасывать нечего
     if (!ep_armed[ep]) {
-        USB_SetSEPxTXFDC(ep, 1);
+        USB_SetSEPxTXFDC((USB_EP_TypeDef)ep, 1);
     }
 
     for (uint16_t i = 0; i < state->total_len; i++) {
-        USB_SetSEPxTXFD(ep, state->buffer[i]);
+        USB_SetSEPxTXFD((USB_EP_TypeDef)ep, state->buffer[i]);
     }
 
     // Пока в RX FIFO лежит отложенный пакет, точку не взводим - её взведёт dcd_edpt_xfer(OUT)
@@ -111,15 +111,15 @@ static void handle_ep_out(uint8_t rhport, uint8_t ep)
 {
     ep_state_t* state = &ep_state[ep][TUSB_DIR_OUT];
 
-    uint32_t count = USB_GetSEPxRXFDC(ep);
+    uint32_t count = USB_GetSEPxRXFDC((USB_EP_TypeDef)ep);
     if (count > state->total_len) {
         count = state->total_len;   // не пишем за пределы буфера стека
     }
 
     for (uint32_t i = 0; i < count; i++) {
-        state->buffer[i] = USB_GetSEPxRXFD(ep);
+        state->buffer[i] = USB_GetSEPxRXFD((USB_EP_TypeDef)ep);
     }
-    USB_SetSEPxRXFC(ep, 1);
+    USB_SetSEPxRXFC((USB_EP_TypeDef)ep, 1);
 
     state->pending = false;
     dcd_event_xfer_complete(rhport, ep, count, XFER_RESULT_SUCCESS, true);
@@ -137,10 +137,10 @@ static void handle_usb_device_reset(uint8_t rhport)
     for (int ep = 0; ep < EP_COUNT; ep++) {
         ep_clear_state(ep);
 
-        USB_SetSEPxTXFDC(ep, 1);
-        USB_SetSEPxRXFC(ep, 1);
+        USB_SetSEPxTXFDC((USB_EP_TypeDef)ep, 1);
+        USB_SetSEPxRXFC((USB_EP_TypeDef)ep, 1);
 
-        USB_SetSEPxCTRL(ep,
+        USB_SetSEPxCTRL((USB_EP_TypeDef)ep,
                         USB_SEPx_CTRL_EPEN_Disable |
                             USB_SEPx_CTRL_EPRDY_NotReady |
                             USB_SEPx_CTRL_EPDATASEQ_Data0 |
@@ -151,7 +151,7 @@ static void handle_usb_device_reset(uint8_t rhport)
         // точка с EPRDY=1 и пустым FIFO отвечает на IN пустым пакетом (ZLP), а для MSC это ошибка
         ep_halted[ep] = false;
         ep_armed[ep]  = (ep == USB_EP0);
-        USB_SetSEPxCTRL(ep,
+        USB_SetSEPxCTRL((USB_EP_TypeDef)ep,
                         USB_SEPx_CTRL_EPEN_Enable |
                             (ep == USB_EP0 ? USB_SEPx_CTRL_EPRDY_Ready : USB_SEPx_CTRL_EPRDY_NotReady) |
                             USB_SEPx_CTRL_EPDATASEQ_Data0 |
@@ -278,14 +278,14 @@ bool dcd_edpt_open(uint8_t rhport, tusb_desc_endpoint_t const* ep_desc)
     __disable_irq();
 
     // Точка включена, но в NAK: EPRDY взведёт dcd_edpt_xfer, когда у стека будут данные или буфер
-    USB_SetSEPxCTRL(epnum,
+    USB_SetSEPxCTRL((USB_EP_TypeDef)epnum,
                     USB_SEPx_CTRL_EPEN_Enable |
                         USB_SEPx_CTRL_EPRDY_NotReady |
                         USB_SEPx_CTRL_EPDATASEQ_Data0 |
                         USB_SEPx_CTRL_EPSSTALL_NotReply |
                         USB_SEPx_CTRL_EPISOEN_Reset);
-    USB_SetSEPxRXFC(epnum, 1);
-    USB_SetSEPxTXFDC(epnum, 1);
+    USB_SetSEPxRXFC((USB_EP_TypeDef)epnum, 1);
+    USB_SetSEPxTXFDC((USB_EP_TypeDef)epnum, 1);
 
     ep_armed[epnum]              = false;
     ep_halted[epnum]             = false;
@@ -364,7 +364,7 @@ bool dcd_edpt_xfer(uint8_t rhport, uint8_t ep_addr, uint8_t* buffer, uint16_t to
             ep_set_ready(epnum);
         }
     } else if (!ep_armed[epnum]) {
-        USB_SetSEPxRXFC(epnum, 1);
+        USB_SetSEPxRXFC((USB_EP_TypeDef)epnum, 1);
         ep_set_ready(epnum);
     }
 
@@ -386,10 +386,10 @@ void dcd_edpt_stall(uint8_t rhport, uint8_t ep_addr)
 
     ep_clear_state(epnum);   // TinyUSB требует снять поставленные передачи
 
-    USB_SetSEPxTXFDC(epnum, 1);
-    USB_SetSEPxRXFC(epnum, 1);
+    USB_SetSEPxTXFDC((USB_EP_TypeDef)epnum, 1);
+    USB_SetSEPxRXFC((USB_EP_TypeDef)epnum, 1);
 
-    USB_SetSEPxCTRL(epnum,
+    USB_SetSEPxCTRL((USB_EP_TypeDef)epnum,
                     USB_SEPx_CTRL_EPSSTALL_Reply |
                         USB_SEPx_CTRL_EPDATASEQ_Data0 |
                         USB_SEPx_CTRL_EPRDY_Ready);
@@ -415,11 +415,11 @@ void dcd_edpt_clear_stall(uint8_t rhport, uint8_t ep_addr)
     rx_parked[epnum]  = false;
     ep_halted[epnum]  = false;
 
-    USB_SetSEPxTXFDC(epnum, 1);
-    USB_SetSEPxRXFC(epnum, 1);
+    USB_SetSEPxTXFDC((USB_EP_TypeDef)epnum, 1);
+    USB_SetSEPxRXFC((USB_EP_TypeDef)epnum, 1);
 
     // После снятия STALL точка в NAK, пока стек не поставит передачу (обычно сразу следом)
-    USB_SetSEPxCTRL(epnum,
+    USB_SetSEPxCTRL((USB_EP_TypeDef)epnum,
                     USB_SEPx_CTRL_EPSSTALL_NotReply |
                         USB_SEPx_CTRL_EPDATASEQ_Data0 |
                         USB_SEPx_CTRL_EPRDY_NotReady);
@@ -502,15 +502,15 @@ static void handle_ep(uint8_t rhport, uint8_t ep)
     ep_state_t* in  = &ep_state[ep][TUSB_DIR_IN];
     ep_state_t* out = &ep_state[ep][TUSB_DIR_OUT];
 
-    uint32_t ts  = USB_GetSEPxTS(ep);
-    uint32_t sts = USB_GetSEPxSTS(ep);
+    uint32_t ts  = USB_GetSEPxTS((USB_EP_TypeDef)ep);
+    uint32_t sts = USB_GetSEPxSTS((USB_EP_TypeDef)ep);
 
     // Отправлен STALL: точка остаётся в STALL до clear_stall - взводим её снова с флагом STALL
     if (sts & USB_SEPx_STS_SCSTALLSENT_Set) {
         in->pending  = false;
         out->pending = false;
         if (ep_halted[ep]) {
-            USB_SetSEPxCTRL(ep,
+            USB_SetSEPxCTRL((USB_EP_TypeDef)ep,
                             USB_SEPx_CTRL_EPSSTALL_Reply |
                                 USB_SEPx_CTRL_EPDATASEQ_Data0 |
                                 USB_SEPx_CTRL_EPRDY_Ready);
@@ -523,8 +523,8 @@ static void handle_ep(uint8_t rhport, uint8_t ep)
     if ((ts & USB_SEPx_TS_SCTTYPE_Msk) == USB_SEPx_TS_SCTTYPE_In) {
 
         if (sts & USB_SEPx_STS_SCACKRXED_Set) {
-            USB_SetSEPxTXFDC(ep, 1);
-            USB_SEPxToggleEPDATASEQ(ep);
+            USB_SetSEPxTXFDC((USB_EP_TypeDef)ep, 1);
+            USB_SEPxToggleEPDATASEQ((USB_EP_TypeDef)ep);
 
             if (in->pending) {
                 in->pending = false;
