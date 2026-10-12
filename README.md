@@ -38,7 +38,8 @@
 **Энумерация** (`tools/enum_test.py`, Windows, права администратора). Скрипт программно отключает и снова включает USB-порт платы (IOCTL_USB_HUB_CYCLE_PORT) и проверяет, что устройство вернулось: узлы запущены без ошибок, число интерфейсов верно, у дисков читается том и содержимое совпадает с эталоном.
 
     python enum_test.py cdc-only 500 0
-    python enum_test.py hid-only 200        # мышь;  hid-keyboard для клавиатуры
+    python enum_test.py hid-mouse 200
+    python enum_test.py hid-keyboard 200
     python enum_test.py msc-only
     python enum_test.py webusb-only
     python enum_test.py msc-hid
