@@ -336,7 +336,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>CFG_TUSB_MCU</Define>
+              <Define>CFG_TUSB_MCU,EXAMPLE_CDC</Define>
               <Undefine></Undefine>
               <IncludePath>.\examples\cdc-only;.\src\class\cdc\serial;.\src\class\cdc;.\src\common;.\src\device;.\src\osal;.\src\typec;.\src;.\src\bsp</IncludePath>
             </VariousControls>
@@ -380,22 +380,52 @@
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>CDC_ONLY</GroupName>
+          <GroupName>Example</GroupName>
           <Files>
             <File>
-              <FileName>main.c</FileName>
+              <FileName>example_main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\examples\cdc-only\main.c</FilePath>
+              <FilePath>.\examples\example_main.c</FilePath>
             </File>
             <File>
-              <FileName>usb_descriptors.c</FileName>
+              <FileName>example_usb_descriptors.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\examples\cdc-only\usb_descriptors.c</FilePath>
+              <FilePath>.\examples\example_usb_descriptors.c</FilePath>
             </File>
+            <File>
+              <FileName>example_msc_disk.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\examples\example_msc_disk.c</FilePath>
+            </File>
+            <File>
+              <FileName>example_disk_image.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\examples\example_disk_image.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>TinyUSB</GroupName>
+          <Files>
             <File>
               <FileName>cdc_device.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\class\cdc\cdc_device.c</FilePath>
+            </File>
+            <File>
+              <FileName>msc_device.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\class\msc\msc_device.c</FilePath>
+            </File>
+            <File>
+              <FileName>hid_device.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\class\hid\hid_device.c</FilePath>
+            </File>
+            <File>
+              <FileName>vendor_device.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\class\vendor\vendor_device.c</FilePath>
             </File>
             <File>
               <FileName>tusb_fifo.c</FileName>
@@ -762,7 +792,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>CFG_TUSB_MCU</Define>
+              <Define>CFG_TUSB_MCU,EXAMPLE_HID</Define>
               <Undefine></Undefine>
               <IncludePath>.\examples\hid-only;.\src\class\hid;.\src\common;.\src\device;.\src\osal;.\src\typec;.\src;.\src\bsp</IncludePath>
             </VariousControls>
@@ -806,22 +836,52 @@
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>HID_MOUSE</GroupName>
+          <GroupName>Example</GroupName>
           <Files>
             <File>
-              <FileName>main.c</FileName>
+              <FileName>example_main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\examples\hid-only\main.c</FilePath>
+              <FilePath>.\examples\example_main.c</FilePath>
             </File>
             <File>
-              <FileName>usb_descriptors.c</FileName>
+              <FileName>example_usb_descriptors.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\examples\hid-only\usb_descriptors.c</FilePath>
+              <FilePath>.\examples\example_usb_descriptors.c</FilePath>
+            </File>
+            <File>
+              <FileName>example_msc_disk.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\examples\example_msc_disk.c</FilePath>
+            </File>
+            <File>
+              <FileName>example_disk_image.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\examples\example_disk_image.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>TinyUSB</GroupName>
+          <Files>
+            <File>
+              <FileName>cdc_device.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\class\cdc\cdc_device.c</FilePath>
+            </File>
+            <File>
+              <FileName>msc_device.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\class\msc\msc_device.c</FilePath>
             </File>
             <File>
               <FileName>hid_device.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\class\hid\hid_device.c</FilePath>
+            </File>
+            <File>
+              <FileName>vendor_device.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\class\vendor\vendor_device.c</FilePath>
             </File>
             <File>
               <FileName>tusb_fifo.c</FileName>
@@ -1188,7 +1248,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>CFG_TUSB_MCU,HID_MODE=2</Define>
+              <Define>CFG_TUSB_MCU,EXAMPLE_HID,HID_MODE=2</Define>
               <Undefine></Undefine>
               <IncludePath>.\examples\hid-only;.\src\class\hid;.\src\common;.\src\device;.\src\osal;.\src\typec;.\src;.\src\bsp</IncludePath>
             </VariousControls>
@@ -1232,22 +1292,52 @@
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>HID_KEYBOARD</GroupName>
+          <GroupName>Example</GroupName>
           <Files>
             <File>
-              <FileName>main.c</FileName>
+              <FileName>example_main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\examples\hid-only\main.c</FilePath>
+              <FilePath>.\examples\example_main.c</FilePath>
             </File>
             <File>
-              <FileName>usb_descriptors.c</FileName>
+              <FileName>example_usb_descriptors.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\examples\hid-only\usb_descriptors.c</FilePath>
+              <FilePath>.\examples\example_usb_descriptors.c</FilePath>
+            </File>
+            <File>
+              <FileName>example_msc_disk.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\examples\example_msc_disk.c</FilePath>
+            </File>
+            <File>
+              <FileName>example_disk_image.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\examples\example_disk_image.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>TinyUSB</GroupName>
+          <Files>
+            <File>
+              <FileName>cdc_device.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\class\cdc\cdc_device.c</FilePath>
+            </File>
+            <File>
+              <FileName>msc_device.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\class\msc\msc_device.c</FilePath>
             </File>
             <File>
               <FileName>hid_device.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\class\hid\hid_device.c</FilePath>
+            </File>
+            <File>
+              <FileName>vendor_device.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\class\vendor\vendor_device.c</FilePath>
             </File>
             <File>
               <FileName>tusb_fifo.c</FileName>
@@ -1614,7 +1704,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>CFG_TUSB_MCU</Define>
+              <Define>CFG_TUSB_MCU,EXAMPLE_MSC</Define>
               <Undefine></Undefine>
               <IncludePath>.\examples\msc-only;.\src\class\msc;.\src\common;.\src\device;.\src\osal;.\src\typec;.\src;.\src\bsp</IncludePath>
             </VariousControls>
@@ -1658,27 +1748,52 @@
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>MSC_ONLY</GroupName>
+          <GroupName>Example</GroupName>
           <Files>
             <File>
-              <FileName>main.c</FileName>
+              <FileName>example_main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\examples\msc-only\main.c</FilePath>
+              <FilePath>.\examples\example_main.c</FilePath>
             </File>
             <File>
-              <FileName>usb_descriptors.c</FileName>
+              <FileName>example_usb_descriptors.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\examples\msc-only\usb_descriptors.c</FilePath>
+              <FilePath>.\examples\example_usb_descriptors.c</FilePath>
             </File>
             <File>
-              <FileName>msc_disk.c</FileName>
+              <FileName>example_msc_disk.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\examples\msc-only\msc_disk.c</FilePath>
+              <FilePath>.\examples\example_msc_disk.c</FilePath>
+            </File>
+            <File>
+              <FileName>example_disk_image.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\examples\example_disk_image.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>TinyUSB</GroupName>
+          <Files>
+            <File>
+              <FileName>cdc_device.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\class\cdc\cdc_device.c</FilePath>
             </File>
             <File>
               <FileName>msc_device.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\class\msc\msc_device.c</FilePath>
+            </File>
+            <File>
+              <FileName>hid_device.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\class\hid\hid_device.c</FilePath>
+            </File>
+            <File>
+              <FileName>vendor_device.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\class\vendor\vendor_device.c</FilePath>
             </File>
             <File>
               <FileName>tusb_fifo.c</FileName>
@@ -2045,7 +2160,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>CFG_TUSB_MCU</Define>
+              <Define>CFG_TUSB_MCU,EXAMPLE_MSC_HID</Define>
               <Undefine></Undefine>
               <IncludePath>.\examples\msc-hid;.\src\class\msc;.\src\class\hid;.\src\common;.\src\device;.\src\osal;.\src\typec;.\src;.\src\bsp</IncludePath>
             </VariousControls>
@@ -2089,22 +2204,37 @@
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>MSC_HID</GroupName>
+          <GroupName>Example</GroupName>
           <Files>
             <File>
-              <FileName>main.c</FileName>
+              <FileName>example_main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\examples\msc-hid\main.c</FilePath>
+              <FilePath>.\examples\example_main.c</FilePath>
             </File>
             <File>
-              <FileName>usb_descriptors.c</FileName>
+              <FileName>example_usb_descriptors.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\examples\msc-hid\usb_descriptors.c</FilePath>
+              <FilePath>.\examples\example_usb_descriptors.c</FilePath>
             </File>
             <File>
-              <FileName>msc_disk.c</FileName>
+              <FileName>example_msc_disk.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\examples\msc-hid\msc_disk.c</FilePath>
+              <FilePath>.\examples\example_msc_disk.c</FilePath>
+            </File>
+            <File>
+              <FileName>example_disk_image.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\examples\example_disk_image.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>TinyUSB</GroupName>
+          <Files>
+            <File>
+              <FileName>cdc_device.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\class\cdc\cdc_device.c</FilePath>
             </File>
             <File>
               <FileName>msc_device.c</FileName>
@@ -2115,6 +2245,11 @@
               <FileName>hid_device.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\class\hid\hid_device.c</FilePath>
+            </File>
+            <File>
+              <FileName>vendor_device.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\class\vendor\vendor_device.c</FilePath>
             </File>
             <File>
               <FileName>tusb_fifo.c</FileName>
@@ -2481,7 +2616,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>CFG_TUSB_MCU</Define>
+              <Define>CFG_TUSB_MCU,EXAMPLE_WEBUSB</Define>
               <Undefine></Undefine>
               <IncludePath>.\examples\webusb;.\src\class\vendor;.\src\common;.\src\device;.\src\osal;.\src\typec;.\src;.\src\bsp</IncludePath>
             </VariousControls>
@@ -2525,17 +2660,47 @@
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>WEBUSB</GroupName>
+          <GroupName>Example</GroupName>
           <Files>
             <File>
-              <FileName>main.c</FileName>
+              <FileName>example_main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\examples\webusb\main.c</FilePath>
+              <FilePath>.\examples\example_main.c</FilePath>
             </File>
             <File>
-              <FileName>usb_descriptors.c</FileName>
+              <FileName>example_usb_descriptors.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\examples\webusb\usb_descriptors.c</FilePath>
+              <FilePath>.\examples\example_usb_descriptors.c</FilePath>
+            </File>
+            <File>
+              <FileName>example_msc_disk.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\examples\example_msc_disk.c</FilePath>
+            </File>
+            <File>
+              <FileName>example_disk_image.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\examples\example_disk_image.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>TinyUSB</GroupName>
+          <Files>
+            <File>
+              <FileName>cdc_device.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\class\cdc\cdc_device.c</FilePath>
+            </File>
+            <File>
+              <FileName>msc_device.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\class\msc\msc_device.c</FilePath>
+            </File>
+            <File>
+              <FileName>hid_device.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\class\hid\hid_device.c</FilePath>
             </File>
             <File>
               <FileName>vendor_device.c</FileName>
@@ -2907,7 +3072,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>CFG_TUSB_MCU</Define>
+              <Define>CFG_TUSB_MCU,EXAMPLE_MSC_WEBUSB</Define>
               <Undefine></Undefine>
               <IncludePath>.\examples\msc-webusb;.\src\class\msc;.\src\class\vendor;.\src\common;.\src\device;.\src\osal;.\src\typec;.\src;.\src\bsp</IncludePath>
             </VariousControls>
@@ -2951,32 +3116,47 @@
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>MSC_WEBUSB</GroupName>
+          <GroupName>Example</GroupName>
           <Files>
             <File>
-              <FileName>main.c</FileName>
+              <FileName>example_main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\examples\msc-webusb\main.c</FilePath>
+              <FilePath>.\examples\example_main.c</FilePath>
             </File>
             <File>
-              <FileName>usb_descriptors.c</FileName>
+              <FileName>example_usb_descriptors.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\examples\msc-webusb\usb_descriptors.c</FilePath>
+              <FilePath>.\examples\example_usb_descriptors.c</FilePath>
             </File>
             <File>
-              <FileName>msc_disk.c</FileName>
+              <FileName>example_msc_disk.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\examples\msc-webusb\msc_disk.c</FilePath>
+              <FilePath>.\examples\example_msc_disk.c</FilePath>
             </File>
             <File>
-              <FileName>disk_image.c</FileName>
+              <FileName>example_disk_image.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\examples\msc-webusb\disk_image.c</FilePath>
+              <FilePath>.\examples\example_disk_image.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>TinyUSB</GroupName>
+          <Files>
+            <File>
+              <FileName>cdc_device.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\class\cdc\cdc_device.c</FilePath>
             </File>
             <File>
               <FileName>msc_device.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\src\class\msc\msc_device.c</FilePath>
+            </File>
+            <File>
+              <FileName>hid_device.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\class\hid\hid_device.c</FilePath>
             </File>
             <File>
               <FileName>vendor_device.c</FileName>

@@ -1,6 +1,6 @@
 # TinyUSB на К1986ВЕ9х (MDR32F9Q2I): набор примеров в одном проекте
 
-Один проект Keil `USB_EXAMPLES.uvprojx`, пример выбирается целью (Target). Код TinyUSB и драйвер контроллера `src/tusb_mdr32fxqi.c` общие для всех примеров, у каждого примера в `examples/<имя>/` лежат только его файлы: `main.c`, `usb_descriptors.c`, `tusb_config.h` (и `msc_disk.c`, `disk_image.c`, где они нужны).
+Один проект Keil `USB_EXAMPLES.uvprojx`, пример выбирается целью (Target). Код TinyUSB и драйвер контроллера `src/tusb_mdr32fxqi.c` общие для всех примеров, у каждого примера в `examples/<имя>/` лежат его файлы: `main.c`, `usb_descriptors.c`, `tusb_config.h` (и `msc_disk.c`, `disk_image.c`, где они нужны).
 
 ## Примеры
 
@@ -24,7 +24,12 @@
 2. Build, Download. Результат лежит в `Objects\<ЦЕЛЬ>\`, листинги в `Listings\<ЦЕЛЬ>\`, поэтому цели не мешают друг другу.
 3. В бесплатной версии Keil (32 КБ) код должен укладываться в лимит; размер `MSC_WEBUSB` близок к границе.
 
-У каждой цели одна группа с её файлами: `main.c`, `usb_descriptors.c`, `msc_disk.c` и т. д. из `examples/<имя>/` и нужные файлы TinyUSB из `src/`. Первым в Include Path стоит `.\examples\<имя>`, поэтому цель находит свой `tusb_config.h`. Keil показывает в дереве группы всех целей, но у чужих целей они пустые: файлы чужих примеров в дереве не видны.
+Как это устроено. Keil не умеет держать у целей разные списки файлов: файлы групп общие для всего проекта. Поэтому список файлов у всех целей одинаковый и короткий, а пример выбирается макросом в Define цели:
+
+- группа `Example`: четыре файла-переходника `examples/example_main.c`, `example_usb_descriptors.c`, `example_msc_disk.c`, `example_disk_image.c`. Каждый содержит только `#include` файла выбранного примера (`#if defined(EXAMPLE_CDC) #include "cdc-only/main.c" ...`); если примеру файл не нужен, переходник пустой;
+- группа `TinyUSB`: ядро и файлы всех четырёх классов. Выключенный в `tusb_config.h` класс компилируется в пустоту.
+
+Макрос примера задан в Options for Target -> C/C++ -> Define (`EXAMPLE_CDC`, `EXAMPLE_HID`, `EXAMPLE_MSC`, `EXAMPLE_MSC_HID`, `EXAMPLE_WEBUSB`, `EXAMPLE_MSC_WEBUSB`). Первым в Include Path стоит `.\examples\<имя>`, поэтому цель находит свой `tusb_config.h`. Исходники примеров правьте в `examples/<имя>/`: Keil открывает их по двойному щелчку на строке `#include` в переходнике.
 
 ## Тесты
 
@@ -60,7 +65,7 @@
 ## Состав репозитория
 
     src/                 TinyUSB v0.21 и порт для MDR32F9Q2I (общие)
-    examples/<имя>/      файлы конкретного примера
+    examples/<имя>/      файлы конкретного примера; examples/example_*.c: переходники для Keil
     tools/               тесты и make_disk.py
     RTE/                 файлы компонентов Keil (для каждой цели свой RTE_Components.h)
     USB_EXAMPLES.uvprojx проект с семью целями
