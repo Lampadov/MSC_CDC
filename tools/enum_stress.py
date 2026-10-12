@@ -556,6 +556,7 @@ class Cycle:
         self.off_ms = self.gone_ms = self.seen_ms = self.ready_ms = None
         self.interrupted = False
         self.bad_enum = 0
+        self.slow = False
 
 
 def snapshot(nodes):
@@ -628,11 +629,14 @@ def run_cycle(n, args, power, chk, sim, log):
     # 3. ждём появления и готовности
     seen = ready = None
     why = "устройство не найдено"
+    timeline = []                                          # что и когда мешало готовности (для медленных циклов)
     while now() - t_on < args.timeout:
         nodes = get()
         if seen is None and chk.mine(nodes):
             seen = now() - t_on
         ready_now, why = chk.check(nodes)
+        if not ready_now and (not timeline or timeline[-1][1] != why):
+            timeline.append((int((now() - t_on) * 1000), why))
         if ready_now:
             ready = now() - t_on
             break
@@ -644,6 +648,11 @@ def run_cycle(n, args, power, chk, sim, log):
         c.seen_ms = int(seen * 1000)
     if ready is not None:
         c.ready_ms = int(ready * 1000)
+        if c.ready_ms > args.slow_ms:                      # цикл прошёл, но медленно: фиксируем, чего ждали
+            c.slow = True
+            log.write("--- цикл %d: медленный, готова за %d мс (появилась за %s мс). Чего ждали:\n%s\n"
+                      % (n, c.ready_ms, c.seen_ms, "\n".join("    с %6d мс: %s" % t for t in timeline)))
+            log.flush()
         return c
 
     if seen is None:
@@ -680,6 +689,9 @@ def summary(cycles, t_start):
         kinds[c.result] = kinds.get(c.result, 0) + 1
     for k, v in sorted(kinds.items()):
         print("  %-20s %d" % (k, v))
+    slow = [c for c in cycles if c.slow]
+    if slow:
+        print("Медленных циклов (готовность дольше порога): %d, подробности в .log" % len(slow))
     interrupted = [c for c in cycles if c.interrupted]
     if interrupted:
         print("С обрывом энумерации: %d циклов, отказов среди них: %d"
@@ -721,6 +733,7 @@ def main():
     ap.add_argument("--interrupt-max", type=float, default=0.6, help="максимум задержки до такого обрыва, с")
     ap.add_argument("--timeout", type=float, default=15.0, help="сколько ждать готовности после включения, с")
     ap.add_argument("--gone-timeout", type=float, default=10.0, help="сколько ждать исчезновения устройства, с")
+    ap.add_argument("--slow-ms", type=int, default=3000, help="цикл дольше этого (мс) пишется в журнал как медленный")
     ap.add_argument("--no-functional", action="store_true", help="не проверять диск и COM-порт, только узлы USB")
     ap.add_argument("--stop-on-fail", action="store_true", help="остановиться на первом отказе, оставив плату как есть")
     ap.add_argument("--seed", type=int, help="зерно случайных пауз (повторение прогона)")
@@ -804,7 +817,7 @@ def main():
                 ok = sum(1 for x in cycles if x.result == "ok")
                 print("%4d: %-18s %s  (успешно %d из %d)" % (
                     n, c.result,
-                    ("готова за %d мс%s" % (c.ready_ms, ", с обрывом" if c.interrupted else "")) if c.result == "ok" else c.detail,
+                    ("готова за %d мс (появилась за %s)%s%s" % (c.ready_ms, c.seen_ms, ", с обрывом" if c.interrupted else "", " МЕДЛЕННО" if c.slow else "")) if c.result == "ok" else c.detail,
                     ok, n), flush=True)
                 if c.result != "ok":
                     if args.stop_on_fail:
