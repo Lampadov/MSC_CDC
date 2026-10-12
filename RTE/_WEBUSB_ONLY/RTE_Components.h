@@ -4,7 +4,7 @@
  *      *** Do not modify ! ***
  *
  * Project: 'USB_EXAMPLES' 
- * Target:  'WEBUSB' 
+ * Target:  'WEBUSB_ONLY' 
  */
 
 #ifndef RTE_COMPONENTS_H

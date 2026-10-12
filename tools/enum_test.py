@@ -14,7 +14,7 @@ r"""
   python enum_test.py msc-hid           # 100 циклов
   python enum_test.py cdc-only 500 0    # 500 циклов без паузы
 
-Примеры: cdc-only, hid-only (мышь), hid-keyboard, msc-only, msc-hid, msc-webusb.
+Примеры: cdc-only, hid-only (мышь), hid-keyboard, msc-only, msc-hid, webusb-only, msc-webusb.
 Плату подключайте прямо к порту компьютера, без хаба. Код выхода 1, если были отказы.
 """
 import ctypes
@@ -30,6 +30,7 @@ EXAMPLES = {
     "hid-keyboard": (0xABAB, 0x4024, 0),   # hid-only, собранный с HID_MODE=2 (клавиатура); по умолчанию - мышь
     "msc-only":   (0xCAFE, 0x4002, 0),
     "msc-hid":    (0xCAFE, 0x4006, 2),
+    "webusb-only": (0xCAFE, 0x4015, 0),
     "msc-webusb": (0xCAFE, 0x4016, 2),
 }
 # метка диска у примеров с флешкой

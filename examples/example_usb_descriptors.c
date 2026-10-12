@@ -12,8 +12,8 @@
   #include "msc-only/usb_descriptors.c"
 #elif defined(EXAMPLE_MSC_HID)
   #include "msc-hid/usb_descriptors.c"
-#elif defined(EXAMPLE_WEBUSB)
-  #include "webusb/usb_descriptors.c"
+#elif defined(EXAMPLE_WEBUSB_ONLY)
+  #include "webusb-only/usb_descriptors.c"
 #elif defined(EXAMPLE_MSC_WEBUSB)
   #include "msc-webusb/usb_descriptors.c"
 #endif

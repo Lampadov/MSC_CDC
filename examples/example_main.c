@@ -12,8 +12,8 @@
   #include "msc-only/main.c"
 #elif defined(EXAMPLE_MSC_HID)
   #include "msc-hid/main.c"
-#elif defined(EXAMPLE_WEBUSB)
-  #include "webusb/main.c"
+#elif defined(EXAMPLE_WEBUSB_ONLY)
+  #include "webusb-only/main.c"
 #elif defined(EXAMPLE_MSC_WEBUSB)
   #include "msc-webusb/main.c"
 #endif

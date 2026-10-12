@@ -6,7 +6,7 @@ r"""
   - читает кадры состояния (msc-webusb: EP3 IN, webusb: EP2 IN) и проверяет каждый: длина 9 байт, заголовок 0x01, время платы
     растёт, АЦП не больше 4095, пауза между кадрами не больше 300 мс (иначе зависание);
   - в случайные моменты шлёт команду светодиодов со случайной маской (msc-webusb: vendor-запрос 0x10,
-    webusb: bulk-пакет 01 <маска> в EP1 OUT) и проверяет, что маска появилась в кадрах в течение 300 мс;
+    webusb-only: bulk-пакет 01 <маска> в EP1 OUT) и проверяет, что маска появилась в кадрах в течение 300 мс;
   - читает дескрипторы: устройства, строку Microsoft OS 0xEE, Compatible ID и свойства MS OS 1.0;
   - шлёт неизвестный vendor-запрос и проверяет, что плата отвечает STALL и продолжает работать.
 
@@ -16,7 +16,7 @@ r"""
 Нужно:  pip install pyusb libusb-package
 Драйвер WinUSB Windows ставит сама (MS OS 1.0). Примеры:
   python webusb_stress.py msc-webusb --minutes 10
-  python webusb_stress.py webusb --minutes 10
+  python webusb_stress.py webusb-only --minutes 10
   python webusb_stress.py msc-webusb --pid 0x4016 --minutes 30 --seed 5
 Код выхода 1, если были ошибки.
 """
@@ -36,7 +36,7 @@ REQ_LEDS, MS_VENDOR = 0x10, 0x03
 # профили: интерфейс, EP IN, EP OUT для команд (None - команды vendor-запросом), PID
 PROFILES = {
     "msc-webusb": dict(itf=1, ep_in=0x83, ep_out=None, pid=0x4016),
-    "webusb":     dict(itf=0, ep_in=0x82, ep_out=0x01, pid=0x4015),
+    "webusb-only": dict(itf=0, ep_in=0x82, ep_out=0x01, pid=0x4015),
 }
 ITF, EP_IN, EP_OUT = 1, 0x83, None
 FRAME_GAP = 0.3

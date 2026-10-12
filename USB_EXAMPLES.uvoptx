@@ -1352,7 +1352,7 @@
   </Target>
 
   <Target>
-    <TargetName>WEBUSB</TargetName>
+    <TargetName>WEBUSB_ONLY</TargetName>
     <ToolsetNumber>0x4</ToolsetNumber>
     <ToolsetName>ARM-ADS</ToolsetName>
     <TargetOption>
@@ -1375,7 +1375,7 @@
         <PageWidth>79</PageWidth>
         <PageLength>66</PageLength>
         <TabStop>8</TabStop>
-        <ListingPath>.\Listings\WEBUSB\</ListingPath>
+        <ListingPath>.\Listings\WEBUSB_ONLY\</ListingPath>
       </OPTLEX>
       <ListingPage>
         <CreateCListing>1</CreateCListing>

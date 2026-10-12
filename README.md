@@ -11,12 +11,12 @@
 | `HID_KEYBOARD` | `examples/hid-only` | клавиатура; UP+DOWN печатает "Hello from Milandr!" | ABAB:4024 | `hid_check.py keyboard` |
 | `MSC_ONLY` | `examples/msc-only` | флешка (диск в RAM, метка "Milandr MSC") | CAFE:4002 | `msc_stress.py` |
 | `MSC_HID` | `examples/msc-hid` | флешка + клавиатура; SELECT печатает содержимое `TEXT.TXT` | CAFE:4006 | `msc_stress.py`, `hid_check.py` |
-| `WEBUSB` | `examples/webusb` | WebUSB без флешки: страница управления платой запускается с локального сервера, светодиоды, кнопки, АЦП, игра | CAFE:4015 | `webusb_stress.py webusb` |
+| `WEBUSB_ONLY` | `examples/webusb-only` | WebUSB без флешки: страница управления платой запускается с локального сервера, светодиоды, кнопки, АЦП, игра | CAFE:4015 | `webusb_stress.py webusb-only` |
 | `MSC_WEBUSB` | `examples/msc-webusb` | флешка только для чтения с веб-страницей управления платой + WebUSB (метка "Milandr WEB") | CAFE:4016 | `msc_stress.py raw`, `webusb_stress.py msc-webusb` |
 
 Мышь и клавиатура собираются из одних исходников двумя целями; отличаются макросом `HID_MODE` (в цели `HID_KEYBOARD` в Define добавлено `HID_MODE=2`). Режим входит в PID, поэтому Windows считает их разными устройствами.
 
-Подробности: `examples/webusb/README.md` и `examples/msc-webusb/README.md`. В `WEBUSB` страницу открывают с локального сервера, в `MSC_WEBUSB` она лежит на самой плате.
+Подробности: `examples/webusb-only/README.md` и `examples/msc-webusb/README.md`. В `WEBUSB_ONLY` страницу открывают с локального сервера, в `MSC_WEBUSB` она лежит на самой плате.
 
 ## Сборка
 
@@ -29,7 +29,7 @@
 - группа `Example`: четыре файла-переходника `examples/example_main.c`, `example_usb_descriptors.c`, `example_msc_disk.c`, `example_disk_image.c`. Каждый содержит только `#include` файла выбранного примера (`#if defined(EXAMPLE_CDC) #include "cdc-only/main.c" ...`); если примеру файл не нужен, переходник пустой;
 - группа `TinyUSB`: ядро и файлы всех четырёх классов. Выключенный в `tusb_config.h` класс компилируется в пустоту.
 
-Макрос примера задан в Options for Target -> C/C++ -> Define (`EXAMPLE_CDC`, `EXAMPLE_HID`, `EXAMPLE_MSC`, `EXAMPLE_MSC_HID`, `EXAMPLE_WEBUSB`, `EXAMPLE_MSC_WEBUSB`). Первым в Include Path стоит `.\examples\<имя>`, поэтому цель находит свой `tusb_config.h`. Исходники примеров правьте в `examples/<имя>/`: Keil открывает их по двойному щелчку на строке `#include` в переходнике.
+Макрос примера задан в Options for Target -> C/C++ -> Define (`EXAMPLE_CDC`, `EXAMPLE_HID`, `EXAMPLE_MSC`, `EXAMPLE_MSC_HID`, `EXAMPLE_WEBUSB_ONLY`, `EXAMPLE_MSC_WEBUSB`). Первым в Include Path стоит `.\examples\<имя>`, поэтому цель находит свой `tusb_config.h`. Исходники примеров правьте в `examples/<имя>/`: Keil открывает их по двойному щелчку на строке `#include` в переходнике.
 
 ## Тесты
 
@@ -41,7 +41,7 @@
     python enum_test.py hid-only 200        # мышь;  hid-keyboard для клавиатуры
     python enum_test.py msc-only
     python enum_test.py msc-hid
-    python enum_test.py webusb
+    python enum_test.py webusb-only
     python enum_test.py msc-webusb
 
 Аргументы: пример, число циклов (100), пауза между циклами в секундах (0.5). Для каждого цикла печатается `ok, N мс` или причина отказа.
@@ -51,7 +51,7 @@
     python cdc_stress.py COM5 all --minutes 15                  # CDC: поток, пинг-понг, переоткрытие порта
     python msc_stress.py raw \\.\E: --minutes 10                # MSC: чтение случайными кусками (администратор)
     python msc_stress.py files E:\ --minutes 10                 # MSC: файлы (только msc-only и msc-hid)
-    python webusb_stress.py webusb --minutes 10                 # WebUSB: кадры, команды LED, дескрипторы (pip install pyusb libusb-package)
+    python webusb_stress.py webusb-only --minutes 10                 # WebUSB: кадры, команды LED, дескрипторы (pip install pyusb libusb-package)
     python webusb_stress.py msc-webusb --minutes 10
     python hid_check.py keyboard --runs 20                      # HID: сверка набранного текста
     python hid_check.py mouse --runs 20                         # HID: проверка движения курсора

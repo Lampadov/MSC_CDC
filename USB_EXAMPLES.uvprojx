@@ -2287,7 +2287,7 @@
       </Groups>
     </Target>
     <Target>
-      <TargetName>WEBUSB</TargetName>
+      <TargetName>WEBUSB_ONLY</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <pCCUsed>5060960::V5.06 update 7 (build 960)::.\ARMCC</pCCUsed>
@@ -2327,14 +2327,14 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>.\Objects\WEBUSB\</OutputDirectory>
+          <OutputDirectory>.\Objects\WEBUSB_ONLY\</OutputDirectory>
           <OutputName>USB_WEBUSB</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
-          <ListingPath>.\Listings\WEBUSB\</ListingPath>
+          <ListingPath>.\Listings\WEBUSB_ONLY\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
           <CreateBatchFile>0</CreateBatchFile>
@@ -2616,9 +2616,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>CFG_TUSB_MCU,EXAMPLE_WEBUSB</Define>
+              <Define>CFG_TUSB_MCU,EXAMPLE_WEBUSB_ONLY</Define>
               <Undefine></Undefine>
-              <IncludePath>.\examples\webusb;.\src\class\vendor;.\src\common;.\src\device;.\src\osal;.\src\typec;.\src;.\src\bsp</IncludePath>
+              <IncludePath>.\examples\webusb-only;.\src\class\vendor;.\src\common;.\src\device;.\src\osal;.\src\typec;.\src;.\src\bsp</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -2649,7 +2649,7 @@
             <TextAddressRange>0x08000000</TextAddressRange>
             <DataAddressRange>0x20000000</DataAddressRange>
             <pXoBase></pXoBase>
-            <ScatterFile>.\Objects\WEBUSB\USB_WEBUSB.sct</ScatterFile>
+            <ScatterFile>.\Objects\WEBUSB_ONLY\USB_WEBUSB.sct</ScatterFile>
             <IncludeLibs></IncludeLibs>
             <IncludeLibsPath></IncludeLibsPath>
             <Misc></Misc>
@@ -3211,14 +3211,14 @@
           <targetInfo name="HID_KEYBOARD"/>
           <targetInfo name="MSC_ONLY"/>
           <targetInfo name="MSC_HID"/>
-          <targetInfo name="WEBUSB"/>
+          <targetInfo name="WEBUSB_ONLY"/>
           <targetInfo name="MSC_WEBUSB"/>
         </targetInfos>
       </component>
       <component Cclass="Drivers" Cgroup="ADC" Cvendor="Milandr" Cversion="2.2.0i" condition="CON_MDR32FxQI">
         <package name="MDR32FxQI" schemaVersion="1.2" url="" vendor="Milandr" version="1.3.2"/>
         <targetInfos>
-          <targetInfo name="WEBUSB"/>
+          <targetInfo name="WEBUSB_ONLY"/>
           <targetInfo name="MSC_WEBUSB"/>
         </targetInfos>
       </component>
@@ -3230,7 +3230,7 @@
           <targetInfo name="HID_KEYBOARD"/>
           <targetInfo name="MSC_ONLY"/>
           <targetInfo name="MSC_HID"/>
-          <targetInfo name="WEBUSB"/>
+          <targetInfo name="WEBUSB_ONLY"/>
           <targetInfo name="MSC_WEBUSB"/>
         </targetInfos>
       </component>
@@ -3242,7 +3242,7 @@
           <targetInfo name="HID_KEYBOARD"/>
           <targetInfo name="MSC_ONLY"/>
           <targetInfo name="MSC_HID"/>
-          <targetInfo name="WEBUSB"/>
+          <targetInfo name="WEBUSB_ONLY"/>
           <targetInfo name="MSC_WEBUSB"/>
         </targetInfos>
       </component>
@@ -3254,7 +3254,7 @@
           <targetInfo name="HID_KEYBOARD"/>
           <targetInfo name="MSC_ONLY"/>
           <targetInfo name="MSC_HID"/>
-          <targetInfo name="WEBUSB"/>
+          <targetInfo name="WEBUSB_ONLY"/>
           <targetInfo name="MSC_WEBUSB"/>
         </targetInfos>
       </component>
@@ -3354,7 +3354,7 @@
           <targetInfo name="HID_KEYBOARD"/>
           <targetInfo name="MSC_ONLY"/>
           <targetInfo name="MSC_HID"/>
-          <targetInfo name="WEBUSB"/>
+          <targetInfo name="WEBUSB_ONLY"/>
           <targetInfo name="MSC_WEBUSB"/>
         </targetInfos>
       </file>
@@ -3368,7 +3368,7 @@
           <targetInfo name="HID_KEYBOARD"/>
           <targetInfo name="MSC_ONLY"/>
           <targetInfo name="MSC_HID"/>
-          <targetInfo name="WEBUSB"/>
+          <targetInfo name="WEBUSB_ONLY"/>
           <targetInfo name="MSC_WEBUSB"/>
         </targetInfos>
       </file>
@@ -3382,7 +3382,7 @@
           <targetInfo name="HID_KEYBOARD"/>
           <targetInfo name="MSC_ONLY"/>
           <targetInfo name="MSC_HID"/>
-          <targetInfo name="WEBUSB"/>
+          <targetInfo name="WEBUSB_ONLY"/>
           <targetInfo name="MSC_WEBUSB"/>
         </targetInfos>
       </file>
@@ -3396,7 +3396,7 @@
           <targetInfo name="HID_KEYBOARD"/>
           <targetInfo name="MSC_ONLY"/>
           <targetInfo name="MSC_HID"/>
-          <targetInfo name="WEBUSB"/>
+          <targetInfo name="WEBUSB_ONLY"/>
           <targetInfo name="MSC_WEBUSB"/>
         </targetInfos>
       </file>
@@ -3410,7 +3410,7 @@
           <targetInfo name="HID_KEYBOARD"/>
           <targetInfo name="MSC_ONLY"/>
           <targetInfo name="MSC_HID"/>
-          <targetInfo name="WEBUSB"/>
+          <targetInfo name="WEBUSB_ONLY"/>
           <targetInfo name="MSC_WEBUSB"/>
         </targetInfos>
       </file>

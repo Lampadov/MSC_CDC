@@ -5,7 +5,7 @@
 
 ## Запуск
 
-1. Откройте `USB_EXAMPLES.uvprojx` в Keil, выберите цель `WEBUSB`, соберите и прошейте плату.
+1. Откройте `USB_EXAMPLES.uvprojx` в Keil, выберите цель `WEBUSB_ONLY`, соберите и прошейте плату.
    - Если Keil не находит `MDR32FxQI_adc.h`: *Manage Run-Time Environment* -> *Drivers* -> поставьте галочку **ADC**.
    - Без АЦП: в `main.c` задайте `#define USE_ADC 0` (вместо АЦП будет «треугольник»).
 2. Подключите плату к USB. Windows сама подключит драйвер WinUSB (несколько секунд).
