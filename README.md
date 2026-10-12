@@ -7,14 +7,16 @@
 | Цель Keil | Каталог | Что делает плата | VID:PID | Тест |
 |---|---|---|---|---|
 | `CDC_ONLY` | `examples/cdc-only` | виртуальный COM-порт | CAFE:4001 | `cdc_stress.py` |
-| `HID_MOUSE` | `examples/hid-only` | мышь, кнопки платы двигают курсор; UP+DOWN рисует круг | ABAB:4004 | `enum_test.py` |
-| `HID_KEYBOARD` | `examples/hid-only` | клавиатура; UP+DOWN печатает "Hello from Milandr!" | ABAB:4024 | `enum_test.py` |
-| `MSC_ONLY` | `examples/msc-only` | флешка (диск в RAM, метка "Milandr MSC") | CAFE:4002 | `msc_stress.py` |
-| `WEBUSB_ONLY` | `examples/webusb-only` | WebUSB без флешки: страница управления платой запускается с локального сервера, светодиоды, кнопки, АЦП, игра | CAFE:4015 | `webusb_stress.py webusb-only` |
+| `HID_MOUSE` | `examples/hid-only` | мышь, кнопки платы двигают курсор; UP+DOWN рисует круг | CAFE:4002 | `enum_test.py` |
+| `HID_KEYBOARD` | `examples/hid-only` | клавиатура; UP+DOWN печатает "Hello from Milandr!" | CAFE:4003 | `enum_test.py` |
+| `MSC_ONLY` | `examples/msc-only` | флешка (диск в RAM, метка "Milandr MSC") | CAFE:4004 | `msc_stress.py` |
+| `WEBUSB_ONLY` | `examples/webusb-only` | WebUSB без флешки: страница управления платой запускается с локального сервера, светодиоды, кнопки, АЦП, игра | CAFE:4005 | `webusb_stress.py webusb-only` |
 | `MSC_HID` | `examples/msc-hid` | флешка + клавиатура; SELECT печатает содержимое `TEXT.TXT` | CAFE:4006 | `msc_stress.py`, `enum_test.py` |
-| `MSC_WEBUSB` | `examples/msc-webusb` | флешка только для чтения с веб-страницей управления платой + WebUSB (метка "Milandr WEB") | CAFE:4016 | `msc_stress.py raw`, `webusb_stress.py msc-webusb` |
+| `MSC_WEBUSB` | `examples/msc-webusb` | флешка только для чтения с веб-страницей управления платой + WebUSB (метка "Milandr WEB") | CAFE:4007 | `msc_stress.py raw`, `webusb_stress.py msc-webusb` |
 
-Мышь и клавиатура собираются из одних исходников двумя целями; отличаются макросом `HID_MODE` (в цели `HID_KEYBOARD` в Define добавлено `HID_MODE=2`). Режим входит в PID, поэтому Windows считает их разными устройствами.
+Мышь и клавиатура собираются из одних исходников двумя целями; отличаются макросом `HID_MODE` (в цели `HID_KEYBOARD` в Define добавлено `HID_MODE=2`). У мыши и клавиатуры разные PID (`0x4002 + HID_MODE - 1`), поэтому Windows считает их разными устройствами.
+
+VID у всех примеров `0xCAFE` (тестовый), PID = `0x4000` + номер цели по порядку в таблице: `CDC_ONLY` 0x4001 ... `MSC_WEBUSB` 0x4007. Windows запоминает драйвер по VID/PID, поэтому у каждого примера PID свой.
 
 Подробности: `examples/webusb-only/README.md` и `examples/msc-webusb/README.md`. В `WEBUSB_ONLY` страницу открывают с локального сервера, в `MSC_WEBUSB` она лежит на самой плате.
 

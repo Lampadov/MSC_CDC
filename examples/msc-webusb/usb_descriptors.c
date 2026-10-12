@@ -42,7 +42,7 @@
  */
 
 #define USB_VID   0xCAFE         // должен совпадать с USB_VID в web/app.js
-#define USB_PID   0x4016
+#define USB_PID   0x4007
 
 // Коды MS OS 1.0
 #define MS_VENDOR_CODE     0x03  // bRequest vendor-запросов; сообщается хосту в строке 0xEE

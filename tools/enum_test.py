@@ -26,13 +26,13 @@ from ctypes import wintypes
 # пример: (VID, PID, сколько интерфейсов-функций должно подняться кроме самого устройства)
 EXAMPLES = {
     "cdc-only":   (0xCAFE, 0x4001, 0),
-    "hid-mouse":    (0xABAB, 0x4004, 0),   # каталог examples/hid-only, по умолчанию мышь
-    "hid-only":     (0xABAB, 0x4004, 0),   # старое имя, то же что hid-mouse
-    "hid-keyboard": (0xABAB, 0x4024, 0),   # examples/hid-only, собранный с HID_MODE=2 (клавиатура)
-    "msc-only":   (0xCAFE, 0x4002, 0),
+    "hid-mouse":    (0xCAFE, 0x4002, 0),   # каталог examples/hid-only, по умолчанию мышь
+    "hid-only":     (0xCAFE, 0x4002, 0),   # старое имя, то же что hid-mouse
+    "hid-keyboard": (0xCAFE, 0x4003, 0),   # examples/hid-only, собранный с HID_MODE=2 (клавиатура)
+    "msc-only":   (0xCAFE, 0x4004, 0),
     "msc-hid":    (0xCAFE, 0x4006, 2),
-    "webusb-only": (0xCAFE, 0x4015, 0),
-    "msc-webusb": (0xCAFE, 0x4016, 2),
+    "webusb-only": (0xCAFE, 0x4005, 0),
+    "msc-webusb": (0xCAFE, 0x4007, 2),
 }
 # метка диска у примеров с флешкой
 LABELS = {"msc-only": "Milandr MSC", "msc-hid": "Milandr MSC", "msc-webusb": "Milandr WEB"}

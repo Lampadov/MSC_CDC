@@ -17,7 +17,7 @@ r"""
 Драйвер WinUSB Windows ставит сама (MS OS 1.0). Примеры:
   python webusb_stress.py msc-webusb --minutes 10
   python webusb_stress.py webusb-only --minutes 10
-  python webusb_stress.py msc-webusb --pid 0x4016 --minutes 30 --seed 5
+  python webusb_stress.py msc-webusb --pid 0x4007 --minutes 30 --seed 5
 Код выхода 1, если были ошибки.
 """
 import argparse
@@ -35,8 +35,8 @@ except ImportError:
 REQ_LEDS, MS_VENDOR = 0x10, 0x03
 # профили: интерфейс, EP IN, EP OUT для команд (None - команды vendor-запросом), PID
 PROFILES = {
-    "msc-webusb": dict(itf=1, ep_in=0x83, ep_out=None, pid=0x4016),
-    "webusb-only": dict(itf=0, ep_in=0x82, ep_out=0x01, pid=0x4015),
+    "msc-webusb": dict(itf=1, ep_in=0x83, ep_out=None, pid=0x4007),
+    "webusb-only": dict(itf=0, ep_in=0x82, ep_out=0x01, pid=0x4005),
 }
 ITF, EP_IN, EP_OUT = 1, 0x83, None
 FRAME_GAP = 0.3
