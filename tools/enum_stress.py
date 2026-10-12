@@ -245,6 +245,24 @@ def read_disk(root):
     return content
 
 
+def read_disk_raw(root):
+    """Читает весь том как устройство (\\\\.\\E:), минуя файловую систему и кэш: быстро, без AutoPlay и антивируса.
+    Возвращает {"тело": байты}; том из одних нулей считается ошибкой."""
+    path = "\\\\.\\" + root.rstrip("\\")
+    data = bytearray()
+    with open(path, "rb", buffering=0) as f:
+        while len(data) < (1 << 20):                       # дисков больше 1 МБ у примеров нет
+            chunk = f.read(4096)
+            if not chunk:
+                break
+            data += chunk
+    if not data:
+        raise OSError("том не отдаёт данных")
+    if not any(data):
+        raise OSError("том состоит из одних нулей")
+    return {"тело": bytes(data)}
+
+
 def com_port(vid, pid):
     try:
         from serial.tools import list_ports
@@ -258,8 +276,9 @@ def com_port(vid, pid):
 
 class Checker:
     """Одним вызовом отвечает: устройство готово или чего не хватает."""
-    def __init__(self, prof, functional=True):
+    def __init__(self, prof, functional=True, disk_check="raw"):
         self.p, self.functional = prof, functional
+        self.disk_check = disk_check
         self.prefix = "USB\\VID_%04X&PID_%04X" % (prof["vid"], prof["pid"])
         self.disk_ref = None                               # эталон: содержимое диска при первом чтении
 
@@ -294,14 +313,20 @@ class Checker:
             root = drive_with_label(self.p["label"])
             if not root:
                 return False, "диск с меткой '%s' не смонтирован" % self.p["label"]
+            if self.disk_check == "none":
+                return True, ""
             try:
-                content = read_disk(root)
+                content = (read_disk_raw if self.disk_check == "raw" else read_disk)(root)
             except OSError as e:
                 return False, "диск %s не читается: %s" % (root, e)
             if self.disk_ref is None:
                 self.disk_ref = content
             elif content != self.disk_ref:
                 diff = sorted(set(content) ^ set(self.disk_ref)) or [n for n in content if content[n] != self.disk_ref[n]]
+                if diff == ["тело"]:
+                    a, b = content["тело"], self.disk_ref["тело"]
+                    first = next((i for i in range(min(len(a), len(b))) if a[i] != b[i]), min(len(a), len(b)))
+                    diff = ["тело тома, первое отличие в секторе %d (размер %d, был %d)" % (first // 512, len(a), len(b))]
                 return False, "диск отличается от эталона: %s" % ", ".join(diff)
         return True, ""
 
@@ -734,6 +759,8 @@ def main():
     ap.add_argument("--timeout", type=float, default=15.0, help="сколько ждать готовности после включения, с")
     ap.add_argument("--gone-timeout", type=float, default=10.0, help="сколько ждать исчезновения устройства, с")
     ap.add_argument("--slow-ms", type=int, default=3000, help="цикл дольше этого (мс) пишется в журнал как медленный")
+    ap.add_argument("--disk-check", choices=["raw", "files", "none"], default="raw",
+                    help="как проверять диск: raw - читать том целиком (быстро, по умолчанию), files - через файловую систему")
     ap.add_argument("--no-functional", action="store_true", help="не проверять диск и COM-порт, только узлы USB")
     ap.add_argument("--stop-on-fail", action="store_true", help="остановиться на первом отказе, оставив плату как есть")
     ap.add_argument("--seed", type=int, help="зерно случайных пауз (повторение прогона)")
@@ -754,7 +781,7 @@ def main():
         prof["vid"] = args.vid
     if args.pid is not None:
         prof["pid"] = args.pid
-    chk = Checker(prof, not args.no_functional)
+    chk = Checker(prof, not args.no_functional, args.disk_check)
 
     sim = None
     if args.selftest:
