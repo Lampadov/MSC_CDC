@@ -380,7 +380,7 @@
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>Example</GroupName>
+          <GroupName>Example - CDC_ONLY</GroupName>
           <Files>
             <File>
               <FileName>main.c</FileName>
@@ -395,7 +395,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>TinyUSB</GroupName>
+          <GroupName>TinyUSB - CDC_ONLY</GroupName>
           <Files>
             <File>
               <FileName>cdc_device.c</FileName>
@@ -811,7 +811,7 @@
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>Example</GroupName>
+          <GroupName>Example - HID_MOUSE</GroupName>
           <Files>
             <File>
               <FileName>main.c</FileName>
@@ -826,7 +826,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>TinyUSB</GroupName>
+          <GroupName>TinyUSB - HID_MOUSE</GroupName>
           <Files>
             <File>
               <FileName>hid_device.c</FileName>
@@ -1242,7 +1242,7 @@
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>Example</GroupName>
+          <GroupName>Example - HID_KEYBOARD</GroupName>
           <Files>
             <File>
               <FileName>main.c</FileName>
@@ -1257,7 +1257,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>TinyUSB</GroupName>
+          <GroupName>TinyUSB - HID_KEYBOARD</GroupName>
           <Files>
             <File>
               <FileName>hid_device.c</FileName>
@@ -1673,7 +1673,7 @@
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>Example</GroupName>
+          <GroupName>Example - MSC_ONLY</GroupName>
           <Files>
             <File>
               <FileName>main.c</FileName>
@@ -1693,7 +1693,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>TinyUSB</GroupName>
+          <GroupName>TinyUSB - MSC_ONLY</GroupName>
           <Files>
             <File>
               <FileName>msc_device.c</FileName>
@@ -2109,7 +2109,7 @@
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>Example</GroupName>
+          <GroupName>Example - MSC_HID</GroupName>
           <Files>
             <File>
               <FileName>main.c</FileName>
@@ -2129,7 +2129,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>TinyUSB</GroupName>
+          <GroupName>TinyUSB - MSC_HID</GroupName>
           <Files>
             <File>
               <FileName>msc_device.c</FileName>
@@ -2550,7 +2550,7 @@
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>Example</GroupName>
+          <GroupName>Example - WEBUSB</GroupName>
           <Files>
             <File>
               <FileName>main.c</FileName>
@@ -2565,7 +2565,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>TinyUSB</GroupName>
+          <GroupName>TinyUSB - WEBUSB</GroupName>
           <Files>
             <File>
               <FileName>vendor_device.c</FileName>
@@ -2981,7 +2981,7 @@
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>Example</GroupName>
+          <GroupName>Example - MSC_WEBUSB</GroupName>
           <Files>
             <File>
               <FileName>main.c</FileName>
@@ -3006,7 +3006,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>TinyUSB</GroupName>
+          <GroupName>TinyUSB - MSC_WEBUSB</GroupName>
           <Files>
             <File>
               <FileName>msc_device.c</FileName>
