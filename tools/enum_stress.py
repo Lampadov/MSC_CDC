@@ -226,18 +226,23 @@ def drive_with_label(label):
 
 
 def read_disk(root):
-    """Читает файловую систему диска: каталог и первый файл целиком. Исключение - диск не работает."""
+    """Читает весь диск через файловую систему: имена и содержимое всех файлов.
+    Исключение - диск не работает."""
     names = sorted(os.listdir(root))
     if not names:
         raise OSError("каталог пуст")
+    content = {}
     for n in names:
         p = os.path.join(root, n)
         if os.path.isfile(p):
             with open(p, "rb") as f:
-                if not f.read():
-                    raise OSError("файл %s пуст" % n)
-            return
-    raise OSError("на диске нет файлов")
+                data = f.read()
+            if not data:
+                raise OSError("файл %s пуст" % n)
+            content[n] = data
+    if not content:
+        raise OSError("на диске нет файлов")
+    return content
 
 
 def com_port(vid, pid):
@@ -256,7 +261,7 @@ class Checker:
     def __init__(self, prof, functional=True):
         self.p, self.functional = prof, functional
         self.prefix = "USB\\VID_%04X&PID_%04X" % (prof["vid"], prof["pid"])
-        self.checked_func = False
+        self.disk_ref = None                               # эталон: содержимое диска при первом чтении
 
     def mine(self, nodes):
         return [n for n in nodes if n.iid.startswith(self.prefix)]
@@ -290,9 +295,14 @@ class Checker:
             if not root:
                 return False, "диск с меткой '%s' не смонтирован" % self.p["label"]
             try:
-                read_disk(root)
+                content = read_disk(root)
             except OSError as e:
                 return False, "диск %s не читается: %s" % (root, e)
+            if self.disk_ref is None:
+                self.disk_ref = content
+            elif content != self.disk_ref:
+                diff = sorted(set(content) ^ set(self.disk_ref)) or [n for n in content if content[n] != self.disk_ref[n]]
+                return False, "диск отличается от эталона: %s" % ", ".join(diff)
         return True, ""
 
     def unknown_devices(self, nodes):
