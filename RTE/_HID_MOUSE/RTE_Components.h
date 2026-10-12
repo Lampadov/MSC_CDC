@@ -3,7 +3,7 @@
  * Auto generated Run-Time-Environment Configuration File
  *      *** Do not modify ! ***
  *
- * Project: 'USB_EXAMPLES' 
+ * Project: 'USB_HID' 
  * Target:  'HID_MOUSE' 
  */
 

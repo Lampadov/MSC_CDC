@@ -1,35 +1,34 @@
-# TinyUSB на К1986ВЕ9х (MDR32F9Q2I): набор примеров в одном проекте
+# TinyUSB на К1986ВЕ9х (MDR32F9Q2I): набор примеров с общим кодом TinyUSB
 
-Один проект Keil `USB_EXAMPLES.uvprojx` с несколькими целями (Target). Код TinyUSB и драйвер контроллера `src/tusb_mdr32fxqi.c` общие для всех примеров, у каждого примера в `examples/<имя>/` лежат только его файлы: `main.c`, `usb_descriptors.c`, `tusb_config.h` (и `msc_disk.c`, `disk_image.c`, где они нужны).
+У каждого примера свой проект Keil в корне репозитория: в дереве проекта только файлы этого примера. Код TinyUSB и драйвер контроллера `src/tusb_mdr32fxqi.c` общие для всех проектов, у каждого примера в `examples/<имя>/` лежат только его файлы: `main.c`, `usb_descriptors.c`, `tusb_config.h` (и `msc_disk.c`, `disk_image.c`, где они нужны).
 
 ## Примеры
 
-| Цель Keil | Каталог | Что делает плата | VID:PID | Тест |
+| Проект Keil | Каталог | Что делает плата | VID:PID | Тест |
 |---|---|---|---|---|
-| `CDC_ONLY` | `examples/cdc-only` | виртуальный COM-порт | CAFE:4001 | `cdc_stress.py` |
-| `HID_MOUSE` | `examples/hid-only` | мышь, кнопки платы двигают курсор; UP+DOWN рисует круг | ABAB:4004 | `hid_check.py mouse` |
-| `HID_KEYBOARD` | `examples/hid-only` | клавиатура; UP+DOWN печатает "Hello from Milandr!" | ABAB:4024 | `hid_check.py keyboard` |
-| `MSC_ONLY` | `examples/msc-only` | флешка (диск в RAM, метка "Milandr MSC") | CAFE:4002 | `msc_stress.py` |
-| `MSC_HID` | `examples/msc-hid` | флешка + клавиатура; SELECT печатает содержимое `TEXT.TXT` | CAFE:4006 | `msc_stress.py`, `hid_check.py` |
-| `WEBUSB` | `examples/webusb` | WebUSB без флешки: страница управления платой запускается с локального сервера, светодиоды, кнопки, АЦП, игра | CAFE:4015 | `webusb_stress.py webusb` |
-| `MSC_WEBUSB` | `examples/msc-webusb` | флешка только для чтения с веб-страницей управления платой + WebUSB (метка "Milandr WEB") | CAFE:4016 | `msc_stress.py raw`, `webusb_stress.py msc-webusb` |
+| `USB_CDC.uvprojx` | `examples/cdc-only` | виртуальный COM-порт | CAFE:4001 | `cdc_stress.py` |
+| `USB_HID.uvprojx`, цель `HID_MOUSE` | `examples/hid-only` | мышь, кнопки платы двигают курсор; UP+DOWN рисует круг | ABAB:4004 | `hid_check.py mouse` |
+| `USB_HID.uvprojx`, цель `HID_KEYBOARD` | `examples/hid-only` | клавиатура; UP+DOWN печатает "Hello from Milandr!" | ABAB:4024 | `hid_check.py keyboard` |
+| `USB_MSC.uvprojx` | `examples/msc-only` | флешка (диск в RAM, метка "Milandr MSC") | CAFE:4002 | `msc_stress.py` |
+| `USB_MSC_HID.uvprojx` | `examples/msc-hid` | флешка + клавиатура; SELECT печатает содержимое `TEXT.TXT` | CAFE:4006 | `msc_stress.py`, `hid_check.py` |
+| `USB_WEBUSB.uvprojx` | `examples/webusb` | WebUSB без флешки: страница управления платой запускается с локального сервера, светодиоды, кнопки, АЦП, игра | CAFE:4015 | `webusb_stress.py webusb` |
+| `USB_MSC_WEBUSB.uvprojx` | `examples/msc-webusb` | флешка только для чтения с веб-страницей управления платой + WebUSB (метка "Milandr WEB") | CAFE:4016 | `msc_stress.py raw`, `webusb_stress.py msc-webusb` |
 
-`HID_MOUSE` и `HID_KEYBOARD` собираются из одних исходников; отличаются макросом `HID_MODE` (во втором `HID_MODE=2` в Define цели). Режим входит в PID, поэтому Windows считает их разными устройствами.
+Мышь и клавиатура собираются из одних исходников двумя целями проекта `USB_HID.uvprojx`; отличаются макросом `HID_MODE` (в цели `HID_KEYBOARD` в Define добавлено `HID_MODE=2`). Режим входит в PID, поэтому Windows считает их разными устройствами.
 
 Подробности: `examples/webusb/README.md` и `examples/msc-webusb/README.md`. В `WEBUSB` страницу открывают с локального сервера, в `MSC_WEBUSB` она лежит на самой плате.
 
 ## Сборка
 
-1. Откройте `USB_EXAMPLES.uvprojx`, выберите цель в выпадающем списке.
-2. Build, Download. Образ каждой цели лежит в `Objects\<ЦЕЛЬ>\`, листинги в `Listings\<ЦЕЛЬ>\`, поэтому цели не затирают друг друга.
-3. В дереве проекта видны группы всех примеров (так устроен Keil: группы общие для целей). Группы, не входящие в выбранную цель, исключены из сборки (значок исключения); собирается только то, что без значка.
-4. Цели собираются в бесплатной версии Keil (32 КБ) при условии, что код укладывается в лимит; размер `MSC_WEBUSB` близок к границе.
+1. Откройте проект нужного примера (для `USB_HID.uvprojx` выберите цель мышь или клавиатура).
+2. Build, Download. Результат лежит в `Objects\<проект>\`, листинги в `Listings\<проект>\`, поэтому проекты не мешают друг другу.
+3. В бесплатной версии Keil (32 КБ) код должен укладываться в лимит; размер `USB_MSC_WEBUSB` близок к границе.
 
-Новая цель: скопируйте существующую (Project -> Manage -> Components, Environment -> вкладка Targets), замените каталог примера первым элементом в Include Path и файлы в группе Example.
+В каждом проекте две группы: `Example` (файлы из `examples/<имя>/`) и `TinyUSB` (общие файлы из `src/`). Первым в Include Path стоит `.\examples\<имя>`, поэтому каждый проект находит свой `tusb_config.h`.
 
 ## Тесты
 
-Все скрипты на Python 3 (Windows; `msc_stress.py` и `cdc_stress.py` работают и на Linux). Каждый тест запускайте на плате с соответствующей целью.
+Все скрипты на Python 3 (Windows; `msc_stress.py` и `cdc_stress.py` работают и на Linux). Каждый тест запускайте на плате с прошивкой соответствующего проекта.
 
 **Энумерация** (`tools/enum_test.py`, Windows, права администратора). Скрипт программно отключает и снова включает USB-порт платы (IOCTL_USB_HUB_CYCLE_PORT) и проверяет, что устройство вернулось: узлы запущены без ошибок, число интерфейсов верно, у дисков читается том и содержимое совпадает с эталоном.
 
@@ -52,18 +51,18 @@
     python hid_check.py keyboard --runs 20                      # HID: сверка набранного текста
     python hid_check.py mouse --runs 20                         # HID: проверка движения курсора
 
-Для `MSC_WEBUSB` запускайте `msc_stress.py raw` и `webusb_stress.py msc-webusb` одновременно: так проверяется составное устройство под нагрузкой.
+Для `msc-webusb` запускайте `msc_stress.py raw` и `webusb_stress.py msc-webusb` одновременно: так проверяется составное устройство под нагрузкой.
 
-## Образ диска примера MSC_WEBUSB
+## Образ диска примера msc-webusb
 
-После правки страницы в `examples/msc-webusb/web/` выполните `python tools/make_disk.py` и пересоберите цель.
+После правки страницы в `examples/msc-webusb/web/` выполните `python tools/make_disk.py` и пересоберите проект.
 
 ## Состав репозитория
 
     src/                 TinyUSB v0.21 и порт для MDR32F9Q2I (общие)
     examples/<имя>/      файлы конкретного примера
     tools/               тесты и make_disk.py
-    RTE/                 файлы компонентов Keil (для каждой цели свой RTE_Components.h)
-    USB_EXAMPLES.uvprojx проект с семью целями
+    RTE/                 файлы компонентов Keil
+    USB_*.uvprojx        проекты Keil, по одному на пример
 
-Остальные ветки репозитория (`cdc-only`, `hid-only`, `msc-only`, `msc-hid`, `webusb`, `msc-webusb`) содержат те же примеры по одному: каждый со своим проектом Keil.
+Остальные ветки репозитория (`cdc-only`, `hid-only`, `msc-only`, `msc-hid`, `webusb`, `msc-webusb`) содержат те же примеры по одному.
