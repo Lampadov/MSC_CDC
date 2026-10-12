@@ -35,7 +35,7 @@ enum { BTN_SELECT, BTN_UP, BTN_DOWN, BTN_LEFT, BTN_RIGHT, BTN_COUNT };
 
 static const struct {
     MDR_PORT_TypeDef* port;
-    uint16_t          pin;
+    PORT_Pin_TypeDef  pin;
 } buttons[BTN_COUNT] = {
     {MDR_PORTC, PORT_Pin_2},   // SELECT
     {MDR_PORTB, PORT_Pin_5},   // UP
