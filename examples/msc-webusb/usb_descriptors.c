@@ -30,15 +30,6 @@
  *
  * Флешка содержит страницу управления платой. Страница открывается из браузера прямо с диска
  * платы и по WebUSB (интерфейс 1) общается с этой же платой.
- *
- * Как Windows сама, без драйвера и без прав администратора, подключает WinUSB (Microsoft OS 1.0):
- *   1. Хост читает строку 0xEE. В ней "MSFT100" и код vendor-запроса (MS_VENDOR_CODE).
- *   2. По этому коду хост запрашивает Compatible ID. Мы отвечаем "WINUSB", и Windows подключает winusb.sys.
- *   3. Вторым запросом хост получает GUID интерфейса: по нему браузер находит устройство.
- * Linux и macOS драйвер не требуют.
- *
- * Если Windows уже видела устройство без ответа на эти запросы, она запоминает результат
- * для связки VID/PID/bcdDevice. При отладке дескрипторов меняйте USB_PID или bcdDevice.
  */
 
 #define USB_VID   0xCAFE         // должен совпадать с USB_VID в web/app.js
@@ -111,7 +102,6 @@ enum {
 #define EPNUM_MSC_IN      0x82   // EP2 IN  - данные с флешки
 #define EPNUM_VENDOR_IN   0x83   // EP3 IN  - кадры состояния для страницы (команды идут через EP0)
 
-// Интерфейс WebUSB с одной точкой IN. Класс 0xFF - vendor, поэтому браузер разрешает его занять
 #define VENDOR_IN_ONLY_DESC_LEN  (9 + 7)
 #define VENDOR_IN_ONLY_DESCRIPTOR(_itfnum, _epin, _epsize) \
   9, TUSB_DESC_INTERFACE, _itfnum, 0, 1, TUSB_CLASS_VENDOR_SPECIFIC, 0x00, 0x00, 0, \

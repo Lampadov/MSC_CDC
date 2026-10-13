@@ -26,7 +26,7 @@
 #include "tusb.h"
 #include "usb_descriptors.h"
 
-/* PID = 0x4000 + номер примера (см. README): у каждого примера свой PID, потому что Windows запоминает
+/* PID = 0x4000 + номер примера: у каждого примера свой PID, потому что Windows запоминает
  * драйвер и дескрипторы по VID/PID после первого подключения. */
 #define USB_PID   (0x4002 + (HID_MODE - 1))   // 0x4002 мышь, 0x4003 клавиатура
 
@@ -97,7 +97,7 @@ enum
 };
 
 #if HID_MODE == HID_MODE_KEYBOARD
-#define HID_ITF_PROTOCOL_MODE  HID_ITF_PROTOCOL_KEYBOARD   // boot-клавиатура (работает в BIOS)
+#define HID_ITF_PROTOCOL_MODE  HID_ITF_PROTOCOL_KEYBOARD   
 #else
 #define HID_ITF_PROTOCOL_MODE  HID_ITF_PROTOCOL_NONE
 #endif

@@ -104,7 +104,7 @@ static void adc_init(void)
     ADCx_StructInit(&adc1);                            // АЦП1: одиночное преобразование
     adc1.ADC_ClockSource    = ADC_CLOCK_SOURCE_CPU;
     adc1.ADC_SamplingMode   = ADC_SAMPLING_MODE_SINGLE_CONV;
-    adc1.ADC_ChannelNumber  = ADC_CH_TEMP_SENSOR;      // чтобы измерять вход, например, ADC_CH_ADC7
+    adc1.ADC_ChannelNumber  = ADC_CH_TEMP_SENSOR;      
     adc1.ADC_Prescaler      = ADC_CLK_div_16;
     adc1.ADC_VRefSource     = ADC_VREF_SOURCE_INTERNAL;
     adc1.ADC_IntVRefSource  = ADC_INT_VREF_SOURCE_INEXACT;
