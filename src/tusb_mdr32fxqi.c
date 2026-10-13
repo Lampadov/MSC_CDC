@@ -17,8 +17,8 @@
  * Главное правило порта: EPRDY взводится, только когда стек поставил передачу (dcd_edpt_xfer).
  * Поэтому после сброса шины, dcd_edpt_open и clear_stall точки EP1..EP3 остаются в NAK.
  * STALL держится (повторным взведением с флагом STALL), пока стек не вызовет clear_stall.
- * Если OUT-пакет пришёл раньше, чем стек дал буфер, он остаётся в RX FIFO (rx_parked)
- * и отдаётся стеку при следующем dcd_edpt_xfer.
+ * Если OUT-пакет пришёл, когда стек ещё не запросил приём, пакет остаётся в RX FIFO (флаг rx_parked)
+ * и передается стеку при следующем вызове dcd_edpt_xfer.
  */
 
 #define EP_COUNT 4    // EP0..EP3
@@ -33,7 +33,7 @@ typedef struct {
 static ep_state_t    ep_state[EP_COUNT][2]; // [точка][TUSB_DIR_OUT / TUSB_DIR_IN]
 static volatile bool ep_armed[EP_COUNT];    // мы взвели EPRDY и ждём транзакцию
 static volatile bool ep0_stalled;           // стек ответил на SETUP STALL-ом
-static volatile bool rx_parked[EP_COUNT];   // в RX FIFO лежит пакет, которому ещё не дали буфер
+static volatile bool rx_parked[EP_COUNT];   // в RX FIFO лежит пакет, которому ещё не выделен буфер
 static volatile bool ep_halted[EP_COUNT];   // точка в состоянии STALL до clear_stall
 static uint32_t      set_addr = 0;
 static uint32_t      sis;
@@ -62,7 +62,7 @@ static bool ep_transaction_done(uint8_t ep)
     return false;
 }
 
-// Снять все поставленные передачи точки
+// Отменить передачи точки, поставленные стеком
 static void ep_clear_state(uint8_t ep)
 {
     ep_state[ep][TUSB_DIR_IN].pending  = false;
@@ -80,7 +80,7 @@ static void handle_ep0_in(void)
 
     USB_SetSEPxTXFDC(USB_EP0, 1);
 
-    for (uint16_t i = 0; i < state->total_len; i++) {   // total_len = 0 -> уйдёт ZLP
+    for (uint16_t i = 0; i < state->total_len; i++) {   // total_len = 0 -> будет отправлен ZLP
         USB_SetSEPxTXFD(USB_EP0, state->buffer[i]);
     }
 
@@ -148,7 +148,7 @@ static void handle_usb_device_reset(uint8_t rhport)
                             USB_SEPx_CTRL_EPISOEN_Reset);
 
         // Готова только EP0 (ждёт SETUP). Остальные отвечают NAK, пока стек не поставит передачу:
-        // точка с EPRDY=1 и пустым FIFO отвечает на IN пустым пакетом (ZLP), а для MSC это ошибка
+        // точка с EPRDY=1 и пустым FIFO отвечает на IN пустым пакетом (ZLP)
         ep_halted[ep] = false;
         ep_armed[ep]  = (ep == USB_EP0);
         USB_SetSEPxCTRL((USB_EP_TypeDef)ep,
@@ -177,7 +177,7 @@ bool dcd_init(uint8_t rhport, const tusb_rhport_init_t* rh_init)
         ep_halted[ep] = false;
     }
 
-    // Ядро: HSE x10, USB: HSE x6 = 48 МГц (для кварца 8 МГц)
+    // Ядро: HSE x10, USB: HSE x6 = 48 МГц (для HSE = 8 МГц)
     RST_CLK_HSEconfig(RST_CLK_HSE_ON);
     while (RST_CLK_HSEstatus() == ERROR) {}
     RST_CLK_CPUclkSelectionC1(RST_CLK_CPU_C1srcHSEdiv1);
@@ -260,7 +260,7 @@ void dcd_sof_enable(uint8_t rhport, bool enable)
 }
 
 //--------------------------------------------------------------------+
-// Конечные точки
+// Работа с конечными точками
 //--------------------------------------------------------------------+
 
 bool dcd_edpt_open(uint8_t rhport, tusb_desc_endpoint_t const* ep_desc)
@@ -277,7 +277,7 @@ bool dcd_edpt_open(uint8_t rhport, tusb_desc_endpoint_t const* ep_desc)
     uint32_t primask = __get_PRIMASK();
     __disable_irq();
 
-    // Точка включена, но в NAK: EPRDY взведёт dcd_edpt_xfer, когда у стека будут данные или буфер
+    // Точка включена, но в NAK: EPRDY взведёт dcd_edpt_xfer, когда у стека будут данные
     USB_SetSEPxCTRL((USB_EP_TypeDef)epnum,
                     USB_SEPx_CTRL_EPEN_Enable |
                         USB_SEPx_CTRL_EPRDY_NotReady |
@@ -310,7 +310,7 @@ void dcd_edpt_close_all(uint8_t rhport)
 {
     (void)rhport;
 
-    // Железо не трогаем - dcd_edpt_open() перенастроит точки
+        // Отключение всех точек по запросу стека
     for (int ep = 1; ep < EP_COUNT; ep++) {
         ep_clear_state(ep);
     }
@@ -330,7 +330,7 @@ bool dcd_edpt_xfer(uint8_t rhport, uint8_t ep_addr, uint8_t* buffer, uint16_t to
         return false;   // в TX FIFO помещается только один пакет
     }
 
-    // Запрещаем прерывания, чтобы обработчик USB не вмешался посередине
+    // Запрещаем прерывания, чтобы обработчик USB не вмешался по ходу работы
     uint32_t primask = __get_PRIMASK();
     __disable_irq();
 
@@ -384,7 +384,7 @@ void dcd_edpt_stall(uint8_t rhport, uint8_t ep_addr)
     uint32_t primask = __get_PRIMASK();
     __disable_irq();
 
-    ep_clear_state(epnum);   // TinyUSB требует снять поставленные передачи
+    ep_clear_state(epnum);   // TinyUSB требует снять поставленные в очередь передачи
 
     USB_SetSEPxTXFDC((USB_EP_TypeDef)epnum, 1);
     USB_SetSEPxRXFC((USB_EP_TypeDef)epnum, 1);
@@ -395,7 +395,7 @@ void dcd_edpt_stall(uint8_t rhport, uint8_t ep_addr)
                         USB_SEPx_CTRL_EPRDY_Ready);
     ep_armed[epnum]  = true;
     ep0_stalled      = (epnum == USB_EP0);
-    ep_halted[epnum] = (epnum != USB_EP0);   // EP0 выходит из STALL сама по новому SETUP
+    ep_halted[epnum] = (epnum != USB_EP0);   // Точка EP0 выходит из STALL сама по новому SETUP
 
     __set_PRIMASK(primask);
 }
@@ -418,7 +418,7 @@ void dcd_edpt_clear_stall(uint8_t rhport, uint8_t ep_addr)
     USB_SetSEPxTXFDC((USB_EP_TypeDef)epnum, 1);
     USB_SetSEPxRXFC((USB_EP_TypeDef)epnum, 1);
 
-    // После снятия STALL точка в NAK, пока стек не поставит передачу (обычно сразу следом)
+    // После снятия STALL точка в NAK, пока стек не установит новую передачу
     USB_SetSEPxCTRL((USB_EP_TypeDef)epnum,
                     USB_SEPx_CTRL_EPSSTALL_NotReply |
                         USB_SEPx_CTRL_EPDATASEQ_Data0 |
@@ -479,7 +479,7 @@ static void handle_ep0(uint8_t rhport)
             USB_SEPxToggleEPDATASEQ(USB_EP0);
 
             // Следующий пакет ответа должен попасть в FIFO до взведения EP0 ниже,
-            // иначе хост получит пустой пакет и оборвёт длинный дескриптор (>64 байт)
+            // иначе хост получит пустой пакет (в таком случае есть риски потери длинных дескрипторов)
             dcd_event_xfer_complete(rhport, 0x80, ep_state[0][TUSB_DIR_IN].total_len, XFER_RESULT_SUCCESS, true);
             tud_task();
         }
@@ -491,7 +491,7 @@ static void handle_ep0(uint8_t rhport)
     }
 
     // EP0 всегда взведена - она должна принять следующий SETUP.
-    // Исключение: стек только что ответил на SETUP STALL-ом - не затираем его
+    // Исключение: стек только что ответил на SETUP STALL-ом - не стираем его
     if (!ep0_stalled) {
         ep_set_ready(USB_EP0);
     }
@@ -544,7 +544,7 @@ static void handle_ep(uint8_t rhport, uint8_t ep)
         }
     }
 
-    // Снова взводим точку, только если у стека остались поставленные передачи
+    // Снова взводим точку, только если у стека остались установленные в очередь передачи
     if (!rx_parked[ep] && (in->pending || out->pending)) {
         ep_set_ready(ep);
     }
