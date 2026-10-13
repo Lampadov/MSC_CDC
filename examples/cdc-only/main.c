@@ -151,7 +151,7 @@ static void run_command(char* s)
     char* arg[3] = {0, 0, 0};
     int   n = 0;
 
-    while (*s && n < 3) {                
+    while (*s && n < 3) {
         while (*s == ' ') *s++ = 0;
         if (*s) {
             arg[n++] = s;
