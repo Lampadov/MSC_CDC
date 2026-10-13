@@ -147,6 +147,27 @@ def board_state(prefix, children, label=None):
     return True, ""
 
 
+class DEVPROPKEY(ctypes.Structure):
+    _fields_ = [("fmtid", ctypes.c_ubyte * 16), ("pid", wintypes.ULONG)]
+
+
+# DEVPKEY_Device_LastArrivalDate: время последнего подключения устройства (FILETIME), Windows 8 и новее
+LAST_ARRIVAL = DEVPROPKEY((ctypes.c_ubyte * 16).from_buffer_copy(
+    uuid.UUID("83DA6326-97A6-4088-9453-A1923F573B29").bytes_le), 102)
+
+
+def arrival(prefix):
+    """Время последнего подключения платы (число) или None, если узла нет или Windows его не сообщает."""
+    dev = next((n for n in usb_nodes() if n[0].startswith(prefix) and "&MI_" not in n[0]), None)
+    if dev is None:
+        return None
+    ptype, value, size = wintypes.ULONG(), ctypes.c_ulonglong(), wintypes.ULONG(8)
+    if cfgmgr.CM_Get_DevNode_PropertyW(dev[1], ctypes.byref(LAST_ARRIVAL), ctypes.byref(ptype),
+                                       ctypes.byref(value), ctypes.byref(size), 0) != 0:
+        return None
+    return value.value
+
+
 def find_port(prefix):
     """Путь к хабу и номер порта, к которому подключена плата."""
     dev = next((n for n in usb_nodes() if n[0].startswith(prefix) and "&MI_" not in n[0]), None)
@@ -211,12 +232,21 @@ def main():
     times, fails = [], 0
     for n in range(1, cycles + 1):
         t0 = time.perf_counter()
+        before = arrival(prefix)
         # хаб может отказать, пока плата ещё подключается после прошлого цикла: повторяем до 3 с
         if wait(lambda: cycle_port(hub, port), 3) is None:
             print("%4d: ОШИБКА, хаб не принял команду" % n)
             fails += 1
             continue
-        if wait(lambda: not any(x[2] for x in usb_nodes() if x[0].startswith(prefix)), 5) is None:
+        # Отключение видно либо по пропаже узлов, либо по новому времени подключения: если плата
+        # успела отключиться и вернуться между двумя опросами, узлы мы не застанем, а время изменится
+        def reconnected():
+            if not any(x[2] for x in usb_nodes() if x[0].startswith(prefix)):
+                return True
+            now = arrival(prefix)
+            return before is not None and now is not None and now != before
+
+        if wait(reconnected, 5) is None:
             print("%4d: ОШИБКА, плата не отключилась" % n)
             fails += 1
             continue
