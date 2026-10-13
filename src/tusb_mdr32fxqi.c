@@ -310,7 +310,7 @@ void dcd_edpt_close_all(uint8_t rhport)
 {
     (void)rhport;
 
-		// Отключение всех точек по запросу стека
+        // Отключение всех точек по запросу стека
     for (int ep = 1; ep < EP_COUNT; ep++) {
         ep_clear_state(ep);
     }

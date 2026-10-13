@@ -7,11 +7,11 @@
 | Цель Keil | Каталог | Что делает плата | VID:PID | Тест |
 |---|---|---|---|---|
 | `CDC_ONLY` | `examples/cdc-only` | виртуальный COM-порт | CAFE:4001 | `cdc_stress.py` |
-| `HID_MOUSE` | `examples/hid-only` | мышь, кнопки платы двигают курсор; UP+DOWN рисует круг | CAFE:4002 | `enum_test.py` |
-| `HID_KEYBOARD` | `examples/hid-only` | клавиатура; UP+DOWN печатает "Hello from Milandr!" | CAFE:4003 | `enum_test.py` |
+| `HID_MOUSE` | `examples/hid-only` | мышь, кнопки платы двигают курсор; UP+DOWN рисует круг | CAFE:4002 | `enum_test.py`, `hid_check.py mouse` |
+| `HID_KEYBOARD` | `examples/hid-only` | клавиатура; UP+DOWN печатает "Hello from Milandr!" | CAFE:4003 | `enum_test.py`, `hid_check.py keyboard` |
 | `MSC_ONLY` | `examples/msc-only` | флешка (диск в RAM, метка "Milandr MSC") | CAFE:4004 | `msc_stress.py` |
 | `WEBUSB_ONLY` | `examples/webusb-only` | WebUSB без флешки: страница управления платой запускается с локального сервера, светодиоды, кнопки, АЦП, игра | CAFE:4005 | `enum_test.py`, вручную |
-| `MSC_HID` | `examples/msc-hid` | флешка + клавиатура; SELECT печатает содержимое `TEXT.TXT` | CAFE:4006 | `msc_stress.py`, `enum_test.py` |
+| `MSC_HID` | `examples/msc-hid` | флешка + клавиатура; SELECT печатает содержимое `TEXT.TXT` | CAFE:4006 | `msc_stress.py`, `enum_test.py`, `hid_check.py keyboard` |
 | `MSC_WEBUSB` | `examples/msc-webusb` | флешка только для чтения с веб-страницей управления платой + WebUSB (метка "Milandr WEB") | CAFE:4007 | `msc_stress.py raw`, `enum_test.py`, вручную |
 
 Мышь и клавиатура собираются из одних исходников двумя целями; отличаются макросом `HID_MODE` (в цели `HID_KEYBOARD` в Define добавлено `HID_MODE=2`). У мыши и клавиатуры разные PID (`0x4002 + HID_MODE - 1`), поэтому Windows считает их разными устройствами.
@@ -54,6 +54,12 @@ VID у всех примеров `0xCAFE` (тестовый), PID = `0x4000` + �
     python cdc_stress.py COM5 all --minutes 15                  # CDC: поток, пинг-понг, переоткрытие порта
     python msc_stress.py raw \\.\E: --minutes 10                # MSC: чтение случайными кусками (администратор)
     python msc_stress.py files E:\ --minutes 10                 # MSC: файлы (только msc-only и msc-hid)
+
+**HID** (`tools/hid_check.py`). У HID нет канала от компьютера к плате, поэтому нагрузку создаёт сама плата, а скрипт принимает то, что она печатает или рисует, и сверяет с ожидаемым:
+
+    python hid_check.py keyboard --runs 20                          # HID_KEYBOARD: на плате зажмите UP+DOWN
+    python hid_check.py keyboard --expect-file E:\TEXT.TXT --runs 20 # MSC_HID: на плате нажмите SELECT
+    python hid_check.py mouse                                        # HID_MOUSE: UP+DOWN рисует круг
 
 WebUSB-страницу проверяйте вручную: откройте её (в `WEBUSB_ONLY` с локального сервера, в `MSC_WEBUSB` с диска платы), подключитесь к плате, проверьте светодиоды, кнопки, АЦП и игру. Для `MSC_WEBUSB` во время ручной проверки можно параллельно запустить `msc_stress.py raw`: так составное устройство проверяется под нагрузкой.
 
