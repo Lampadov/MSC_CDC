@@ -757,7 +757,7 @@ static int32_t proc_builtin_scsi(uint8_t lun, uint8_t const scsi_cmd[16], uint8_
       scsi_read_format_capacity_data_t read_fmt_capa = {
         .list_length = 8,
         .block_num = 0,
-        .descriptor_type = 0, // formatted media
+        .descriptor_type = 2, // formatted media
         .block_size_u16 = 0
       };
 
