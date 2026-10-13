@@ -1,11 +1,12 @@
 /*
  * ‘айл проекта Keil: подключает disk_image.c выбранного примера.
- * ѕример выбираетс€ целью (Options for Target -> C/C++ -> Define: EXAMPLE_...),
- * исходники примеров лежат в examples/<им€>/. ѕравьте их там, а не здесь.
+ * ѕример выбираетс€ макросом (Options for Target -> C/C++ -> Define: EXAMPLE_...
+ * - определенный макрос активируетс€ при выборе требуемого примера из "Select Target"),
+ * исходники примеров лежат в examples/<им€>/.
  */
 
 #if defined(EXAMPLE_MSC_WEBUSB)
   #include "msc-webusb/disk_image.c"
 #endif
 
-typedef int example_unit_is_not_empty_t;   /* чтобы файл не был пустым при выключенном примере */
+typedef int example_unit_is_not_empty_t;   /* чтобы файл не был пустым при отсутствии выбора какого-либо из примеров */
