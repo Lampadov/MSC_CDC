@@ -1,4 +1,4 @@
-# TinyUSB на К1986ВЕ9х (MDR32F9Q2I): набор примеров в одном проекте
+# TinyUSB на К1986ВЕ9х (К1986ВЕ92FI): набор примеров в одном проекте
 
 Один проект Keil `USB_EXAMPLES.uvprojx`, пример выбирается целью (Target). Код TinyUSB и драйвер контроллера `src/tusb_mdr32fxqi.c` общие для всех примеров, у каждого примера в `examples/<имя>/` лежат его файлы: `main.c`, `usb_descriptors.c`, `tusb_config.h` (и `msc_disk.c`, `disk_image.c`, где они нужны).
 
@@ -63,7 +63,7 @@ HID (мышь, клавиатуру) и WebUSB-страницу проверяй
 
 ## Состав репозитория
 
-    src/                 TinyUSB v0.21 и порт для MDR32F9Q2I (общие)
+    src/                 TinyUSB v0.21 и порт для К1986ВЕ92FI (общие)
     examples/<имя>/      файлы конкретного примера; examples/example_*.c: переходники для Keil
     tools/               тесты и make_disk.py
     RTE/                 файлы компонентов Keil (для каждой цели свой RTE_Components.h)
