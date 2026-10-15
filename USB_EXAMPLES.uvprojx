@@ -448,9 +448,9 @@
               <FilePath>.\src\tusb.c</FilePath>
             </File>
             <File>
-              <FileName>tusb_mdr32fxqi.c</FileName>
+              <FileName>tusb_MDR32Fx.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\src\tusb_mdr32fxqi.c</FilePath>
+              <FilePath>.\src\tusb_MDR32Fx.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -904,9 +904,9 @@
               <FilePath>.\src\tusb.c</FilePath>
             </File>
             <File>
-              <FileName>tusb_mdr32fxqi.c</FileName>
+              <FileName>tusb_MDR32Fx.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\src\tusb_mdr32fxqi.c</FilePath>
+              <FilePath>.\src\tusb_MDR32Fx.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1360,9 +1360,9 @@
               <FilePath>.\src\tusb.c</FilePath>
             </File>
             <File>
-              <FileName>tusb_mdr32fxqi.c</FileName>
+              <FileName>tusb_MDR32Fx.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\src\tusb_mdr32fxqi.c</FilePath>
+              <FilePath>.\src\tusb_MDR32Fx.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1816,9 +1816,9 @@
               <FilePath>.\src\tusb.c</FilePath>
             </File>
             <File>
-              <FileName>tusb_mdr32fxqi.c</FileName>
+              <FileName>tusb_MDR32Fx.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\src\tusb_mdr32fxqi.c</FilePath>
+              <FilePath>.\src\tusb_MDR32Fx.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -2272,9 +2272,9 @@
               <FilePath>.\src\tusb.c</FilePath>
             </File>
             <File>
-              <FileName>tusb_mdr32fxqi.c</FileName>
+              <FileName>tusb_MDR32Fx.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\src\tusb_mdr32fxqi.c</FilePath>
+              <FilePath>.\src\tusb_MDR32Fx.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -2728,9 +2728,9 @@
               <FilePath>.\src\tusb.c</FilePath>
             </File>
             <File>
-              <FileName>tusb_mdr32fxqi.c</FileName>
+              <FileName>tusb_MDR32Fx.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\src\tusb_mdr32fxqi.c</FilePath>
+              <FilePath>.\src\tusb_MDR32Fx.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -3184,9 +3184,9 @@
               <FilePath>.\src\tusb.c</FilePath>
             </File>
             <File>
-              <FileName>tusb_mdr32fxqi.c</FileName>
+              <FileName>tusb_MDR32Fx.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\src\tusb_mdr32fxqi.c</FilePath>
+              <FilePath>.\src\tusb_MDR32Fx.c</FilePath>
             </File>
           </Files>
         </Group>

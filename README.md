@@ -1,6 +1,6 @@
 # TinyUSB на К1986ВЕ9х (К1986ВЕ92FI): набор примеров в одном проекте
 
-Один проект Keil `USB_EXAMPLES.uvprojx`, пример выбирается целью (Target). Код TinyUSB и драйвер контроллера `src/tusb_mdr32fxqi.c` общие для всех примеров, у каждого примера в `examples/<имя>/` лежат его файлы: `main.c`, `usb_descriptors.c`, `tusb_config.h` (и `msc_disk.c`, `disk_image.c`, где они нужны).
+Один проект Keil `USB_EXAMPLES.uvprojx`, пример выбирается целью (Target). Код TinyUSB и драйвер контроллера `src/tusb_MDR32Fx.c` общие для всех примеров, у каждого примера в `examples/<имя>/` лежат его файлы: `main.c`, `usb_descriptors.c`, `tusb_config.h` (и `msc_disk.c`, `disk_image.c`, где они нужны).
 
 ## Примеры
 

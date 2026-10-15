@@ -2041,8 +2041,8 @@
       <tvExp>1</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>.\src\tusb_mdr32fxqi.c</PathWithFileName>
-      <FilenameWithoutPath>tusb_mdr32fxqi.c</FilenameWithoutPath>
+      <PathWithFileName>.\src\tusb_MDR32Fx.c</PathWithFileName>
+      <FilenameWithoutPath>tusb_MDR32Fx.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
