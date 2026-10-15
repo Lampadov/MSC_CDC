@@ -161,9 +161,9 @@
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>.\src\tusb_mdr32fxqi.c</Filename>
+          <Filename>.\src\tusb_MDR32Fx.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\USB_MSC_CDC\src/tusb_mdr32fxqi.c\137</Expression>
+          <Expression>\\USB_MSC_CDC\src/tusb_MDR32Fx.c\137</Expression>
         </Bp>
         <Bp>
           <Number>1</Number>
@@ -177,7 +177,7 @@
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>0</BreakIfRCount>
-          <Filename>.\src\tusb_mdr32fxqi.c</Filename>
+          <Filename>.\src\tusb_MDR32Fx.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression></Expression>
         </Bp>
@@ -443,8 +443,8 @@
       <tvExp>1</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>.\src\tusb_mdr32fxqi.c</PathWithFileName>
-      <FilenameWithoutPath>tusb_mdr32fxqi.c</FilenameWithoutPath>
+      <PathWithFileName>.\src\tusb_MDR32Fx.c</PathWithFileName>
+      <FilenameWithoutPath>tusb_MDR32Fx.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
