@@ -75,7 +75,7 @@
       <OPTFL>
         <tvExp>1</tvExp>
         <tvExpOptDlg>0</tvExpOptDlg>
-        <IsCurrentTarget>1</IsCurrentTarget>
+        <IsCurrentTarget>0</IsCurrentTarget>
       </OPTFL>
       <CpuCode>255</CpuCode>
       <DebugOpt>
@@ -148,33 +148,47 @@
           <Name></Name>
         </SetRegEntry>
       </TargetDriverDllRegistry>
-      <Breakpoint>
-      </Breakpoint>
+      <Breakpoint/>
       <WatchWindow1>
         <Ww>
-          <count>3</count>
+          <count>0</count>
           <WinNumber>1</WinNumber>
           <ItemText>epnum</ItemText>
         </Ww>
         <Ww>
-          <count>4</count>
+          <count>1</count>
           <WinNumber>1</WinNumber>
           <ItemText>ep_addr</ItemText>
         </Ww>
         <Ww>
-          <count>5</count>
+          <count>2</count>
           <WinNumber>1</WinNumber>
           <ItemText>event</ItemText>
         </Ww>
         <Ww>
-          <count>6</count>
+          <count>3</count>
           <WinNumber>1</WinNumber>
           <ItemText>ep_status</ItemText>
         </Ww>
         <Ww>
-          <count>7</count>
+          <count>4</count>
           <WinNumber>1</WinNumber>
           <ItemText>_usbd_dev</ItemText>
+        </Ww>
+        <Ww>
+          <count>5</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>debug</ItemText>
+        </Ww>
+        <Ww>
+          <count>6</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>ctrl</ItemText>
+        </Ww>
+        <Ww>
+          <count>7</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>count</ItemText>
         </Ww>
         <Ww>
           <count>8</count>
@@ -184,35 +198,20 @@
         <Ww>
           <count>9</count>
           <WinNumber>1</WinNumber>
-          <ItemText>ctrl</ItemText>
+          <ItemText>debug</ItemText>
         </Ww>
         <Ww>
           <count>10</count>
           <WinNumber>1</WinNumber>
-          <ItemText>count</ItemText>
+          <ItemText>state</ItemText>
         </Ww>
         <Ww>
           <count>11</count>
           <WinNumber>1</WinNumber>
-          <ItemText>debug</ItemText>
-        </Ww>
-        <Ww>
-          <count>12</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>debug</ItemText>
-        </Ww>
-        <Ww>
-          <count>13</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>state</ItemText>
-        </Ww>
-        <Ww>
-          <count>14</count>
-          <WinNumber>1</WinNumber>
           <ItemText>ep_state</ItemText>
         </Ww>
         <Ww>
-          <count>15</count>
+          <count>12</count>
           <WinNumber>1</WinNumber>
           <ItemText>ptr</ItemText>
         </Ww>
@@ -341,7 +340,7 @@
       <OPTFL>
         <tvExp>1</tvExp>
         <tvExpOptDlg>0</tvExpOptDlg>
-        <IsCurrentTarget>0</IsCurrentTarget>
+        <IsCurrentTarget>1</IsCurrentTarget>
       </OPTFL>
       <CpuCode>255</CpuCode>
       <DebugOpt>
@@ -369,7 +368,7 @@
         <bEvRecOn>1</bEvRecOn>
         <bSchkAxf>0</bSchkAxf>
         <bTchkAxf>0</bTchkAxf>
-        <nTsel>3</nTsel>
+        <nTsel>0</nTsel>
         <sDll></sDll>
         <sDllPa></sDllPa>
         <sDlgDll></sDlgDll>
@@ -380,18 +379,18 @@
         <tDlgDll></tDlgDll>
         <tDlgPa></tDlgPa>
         <tIfile></tIfile>
-        <pMon>BIN\CMSIS_AGDI.dll</pMon>
+        <pMon>BIN\UL2CM3.DLL</pMon>
       </DebugOpt>
       <TargetDriverDllRegistry>
         <SetRegEntry>
           <Number>0</Number>
           <Key>UL2CM3</Key>
-          <Name>-UAny -O1486 -S0 -C0 -P00 -N00("ARM CoreSight SW-DP") -D00(2BA01477) -L00(0) -TO65555 -TC80000000 -TT10000000 -TP21 -TDS3F -TDT0 -TDC1F -TIE1 -TIP9 -FO31 -FD20000000 -FC8000 -FN1 -FF0MDR32F9Q2I.FLM -FS08000000 -FL020000 -FP0($$Device:MDR32F9Q2I$FLM\MDR32F9Q2I\MDR32F9Q2I.FLM)</Name>
+          <Name>-UAny -O1486 -S0 -C0 -P00 -N00("ARM CoreSight SW-DP") -D00(2BA01477) -L00(0) -TO65555 -TC80000000 -TT10000000 -TP21 -TDS3F -TDT0 -TDC1F -TIE1 -TIP9 -FO31  -FN1 -FC8000 -FD20000000 -FF0K1986VE9xI -FL020000 -FS08000000 -FP0($$Device:K1986VE92xI$FLM\K1986VE9xI\K1986VE9xI.FLM)</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
           <Key>CMSIS_AGDI</Key>
-          <Name>-X"Milandrr CMSIS-DAP v1" -U123456 -O1486 -S0 -C0 -P00000000 -TO65554 -TC80000000 -TT10000000 -TP20 -TDS9F -TDT0 -TDC1F -TIE1 -TIP1 -FO31 -FD20000000 -FC8000 -FN1 -FF0MDR32F9Q2I.FLM -FS08000000 -FL020000 -FP0($$Device:MDR32F9Q2I$FLM\MDR32F9Q2I\MDR32F9Q2I.FLM)</Name>
+          <Name>-UAny -O1486 -S0 -C0 -P00 -N00("ARM CoreSight SW-DP") -D00(2BA01477) -L00(0) -TO65555 -TC80000000 -TT10000000 -TP21 -TDS3F -TDT0 -TDC1F -TIE1 -TIP9 -FO31  -FN1 -FC8000 -FD20000000 -FF0K1986VE9xI -FL020000 -FS08000000 -FP0($$Device:K1986VE92xI$FLM\K1986VE9xI\K1986VE9xI.FLM)</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -414,33 +413,47 @@
           <Name></Name>
         </SetRegEntry>
       </TargetDriverDllRegistry>
-      <Breakpoint>
-      </Breakpoint>
+      <Breakpoint/>
       <WatchWindow1>
         <Ww>
-          <count>3</count>
+          <count>0</count>
           <WinNumber>1</WinNumber>
           <ItemText>epnum</ItemText>
         </Ww>
         <Ww>
-          <count>4</count>
+          <count>1</count>
           <WinNumber>1</WinNumber>
           <ItemText>ep_addr</ItemText>
         </Ww>
         <Ww>
-          <count>5</count>
+          <count>2</count>
           <WinNumber>1</WinNumber>
           <ItemText>event</ItemText>
         </Ww>
         <Ww>
-          <count>6</count>
+          <count>3</count>
           <WinNumber>1</WinNumber>
           <ItemText>ep_status</ItemText>
         </Ww>
         <Ww>
-          <count>7</count>
+          <count>4</count>
           <WinNumber>1</WinNumber>
           <ItemText>_usbd_dev</ItemText>
+        </Ww>
+        <Ww>
+          <count>5</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>debug</ItemText>
+        </Ww>
+        <Ww>
+          <count>6</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>ctrl</ItemText>
+        </Ww>
+        <Ww>
+          <count>7</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>count</ItemText>
         </Ww>
         <Ww>
           <count>8</count>
@@ -450,35 +463,20 @@
         <Ww>
           <count>9</count>
           <WinNumber>1</WinNumber>
-          <ItemText>ctrl</ItemText>
+          <ItemText>debug</ItemText>
         </Ww>
         <Ww>
           <count>10</count>
           <WinNumber>1</WinNumber>
-          <ItemText>count</ItemText>
+          <ItemText>state</ItemText>
         </Ww>
         <Ww>
           <count>11</count>
           <WinNumber>1</WinNumber>
-          <ItemText>debug</ItemText>
-        </Ww>
-        <Ww>
-          <count>12</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>debug</ItemText>
-        </Ww>
-        <Ww>
-          <count>13</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>state</ItemText>
-        </Ww>
-        <Ww>
-          <count>14</count>
-          <WinNumber>1</WinNumber>
           <ItemText>ep_state</ItemText>
         </Ww>
         <Ww>
-          <count>15</count>
+          <count>12</count>
           <WinNumber>1</WinNumber>
           <ItemText>ptr</ItemText>
         </Ww>
@@ -680,33 +678,47 @@
           <Name></Name>
         </SetRegEntry>
       </TargetDriverDllRegistry>
-      <Breakpoint>
-      </Breakpoint>
+      <Breakpoint/>
       <WatchWindow1>
         <Ww>
-          <count>3</count>
+          <count>0</count>
           <WinNumber>1</WinNumber>
           <ItemText>epnum</ItemText>
         </Ww>
         <Ww>
-          <count>4</count>
+          <count>1</count>
           <WinNumber>1</WinNumber>
           <ItemText>ep_addr</ItemText>
         </Ww>
         <Ww>
-          <count>5</count>
+          <count>2</count>
           <WinNumber>1</WinNumber>
           <ItemText>event</ItemText>
         </Ww>
         <Ww>
-          <count>6</count>
+          <count>3</count>
           <WinNumber>1</WinNumber>
           <ItemText>ep_status</ItemText>
         </Ww>
         <Ww>
-          <count>7</count>
+          <count>4</count>
           <WinNumber>1</WinNumber>
           <ItemText>_usbd_dev</ItemText>
+        </Ww>
+        <Ww>
+          <count>5</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>debug</ItemText>
+        </Ww>
+        <Ww>
+          <count>6</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>ctrl</ItemText>
+        </Ww>
+        <Ww>
+          <count>7</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>count</ItemText>
         </Ww>
         <Ww>
           <count>8</count>
@@ -716,35 +728,20 @@
         <Ww>
           <count>9</count>
           <WinNumber>1</WinNumber>
-          <ItemText>ctrl</ItemText>
+          <ItemText>debug</ItemText>
         </Ww>
         <Ww>
           <count>10</count>
           <WinNumber>1</WinNumber>
-          <ItemText>count</ItemText>
+          <ItemText>state</ItemText>
         </Ww>
         <Ww>
           <count>11</count>
           <WinNumber>1</WinNumber>
-          <ItemText>debug</ItemText>
-        </Ww>
-        <Ww>
-          <count>12</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>debug</ItemText>
-        </Ww>
-        <Ww>
-          <count>13</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>state</ItemText>
-        </Ww>
-        <Ww>
-          <count>14</count>
-          <WinNumber>1</WinNumber>
           <ItemText>ep_state</ItemText>
         </Ww>
         <Ww>
-          <count>15</count>
+          <count>12</count>
           <WinNumber>1</WinNumber>
           <ItemText>ptr</ItemText>
         </Ww>
@@ -923,7 +920,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>CMSIS_AGDI</Key>
-          <Name>-X"Milandrr CMSIS-DAP v1" -U123456 -O1486 -S0 -C0 -P00000000 -TO65554 -TC80000000 -TT10000000 -TP20 -TDS9F -TDT0 -TDC1F -TIE1 -TIP1 -FO31 -FD20000000 -FC8000 -FN1 -FF0MDR32F9Q2I.FLM -FS08000000 -FL020000 -FP0($$Device:MDR32F9Q2I$FLM\MDR32F9Q2I\MDR32F9Q2I.FLM)</Name>
+          <Name>-X"Milandr CMSIS-DAP v1" -U220997 -O1486 -S0 -C0 -P00000000 -N00("ARM CoreSight SW-DP") -D00(2BA01477) -L00(0) -TO65554 -TC80000000 -TT10000000 -TP20 -TDS9F -TDT0 -TDC1F -TIE1 -TIP1 -FO31 -FD20000000 -FC8000 -FN1 -FF0MDR32F9Q2I.FLM -FS08000000 -FL020000 -FP0($$Device:MDR32F9Q2I$FLM\MDR32F9Q2I\MDR32F9Q2I.FLM)</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -946,33 +943,47 @@
           <Name></Name>
         </SetRegEntry>
       </TargetDriverDllRegistry>
-      <Breakpoint>
-      </Breakpoint>
+      <Breakpoint/>
       <WatchWindow1>
         <Ww>
-          <count>3</count>
+          <count>0</count>
           <WinNumber>1</WinNumber>
           <ItemText>epnum</ItemText>
         </Ww>
         <Ww>
-          <count>4</count>
+          <count>1</count>
           <WinNumber>1</WinNumber>
           <ItemText>ep_addr</ItemText>
         </Ww>
         <Ww>
-          <count>5</count>
+          <count>2</count>
           <WinNumber>1</WinNumber>
           <ItemText>event</ItemText>
         </Ww>
         <Ww>
-          <count>6</count>
+          <count>3</count>
           <WinNumber>1</WinNumber>
           <ItemText>ep_status</ItemText>
         </Ww>
         <Ww>
-          <count>7</count>
+          <count>4</count>
           <WinNumber>1</WinNumber>
           <ItemText>_usbd_dev</ItemText>
+        </Ww>
+        <Ww>
+          <count>5</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>debug</ItemText>
+        </Ww>
+        <Ww>
+          <count>6</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>ctrl</ItemText>
+        </Ww>
+        <Ww>
+          <count>7</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>count</ItemText>
         </Ww>
         <Ww>
           <count>8</count>
@@ -982,35 +993,20 @@
         <Ww>
           <count>9</count>
           <WinNumber>1</WinNumber>
-          <ItemText>ctrl</ItemText>
+          <ItemText>debug</ItemText>
         </Ww>
         <Ww>
           <count>10</count>
           <WinNumber>1</WinNumber>
-          <ItemText>count</ItemText>
+          <ItemText>state</ItemText>
         </Ww>
         <Ww>
           <count>11</count>
           <WinNumber>1</WinNumber>
-          <ItemText>debug</ItemText>
-        </Ww>
-        <Ww>
-          <count>12</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>debug</ItemText>
-        </Ww>
-        <Ww>
-          <count>13</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>state</ItemText>
-        </Ww>
-        <Ww>
-          <count>14</count>
-          <WinNumber>1</WinNumber>
           <ItemText>ep_state</ItemText>
         </Ww>
         <Ww>
-          <count>15</count>
+          <count>12</count>
           <WinNumber>1</WinNumber>
           <ItemText>ptr</ItemText>
         </Ww>
@@ -1212,33 +1208,47 @@
           <Name></Name>
         </SetRegEntry>
       </TargetDriverDllRegistry>
-      <Breakpoint>
-      </Breakpoint>
+      <Breakpoint/>
       <WatchWindow1>
         <Ww>
-          <count>3</count>
+          <count>0</count>
           <WinNumber>1</WinNumber>
           <ItemText>epnum</ItemText>
         </Ww>
         <Ww>
-          <count>4</count>
+          <count>1</count>
           <WinNumber>1</WinNumber>
           <ItemText>ep_addr</ItemText>
         </Ww>
         <Ww>
-          <count>5</count>
+          <count>2</count>
           <WinNumber>1</WinNumber>
           <ItemText>event</ItemText>
         </Ww>
         <Ww>
-          <count>6</count>
+          <count>3</count>
           <WinNumber>1</WinNumber>
           <ItemText>ep_status</ItemText>
         </Ww>
         <Ww>
-          <count>7</count>
+          <count>4</count>
           <WinNumber>1</WinNumber>
           <ItemText>_usbd_dev</ItemText>
+        </Ww>
+        <Ww>
+          <count>5</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>debug</ItemText>
+        </Ww>
+        <Ww>
+          <count>6</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>ctrl</ItemText>
+        </Ww>
+        <Ww>
+          <count>7</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>count</ItemText>
         </Ww>
         <Ww>
           <count>8</count>
@@ -1248,35 +1258,20 @@
         <Ww>
           <count>9</count>
           <WinNumber>1</WinNumber>
-          <ItemText>ctrl</ItemText>
+          <ItemText>debug</ItemText>
         </Ww>
         <Ww>
           <count>10</count>
           <WinNumber>1</WinNumber>
-          <ItemText>count</ItemText>
+          <ItemText>state</ItemText>
         </Ww>
         <Ww>
           <count>11</count>
           <WinNumber>1</WinNumber>
-          <ItemText>debug</ItemText>
-        </Ww>
-        <Ww>
-          <count>12</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>debug</ItemText>
-        </Ww>
-        <Ww>
-          <count>13</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>state</ItemText>
-        </Ww>
-        <Ww>
-          <count>14</count>
-          <WinNumber>1</WinNumber>
           <ItemText>ep_state</ItemText>
         </Ww>
         <Ww>
-          <count>15</count>
+          <count>12</count>
           <WinNumber>1</WinNumber>
           <ItemText>ptr</ItemText>
         </Ww>
@@ -1478,33 +1473,47 @@
           <Name></Name>
         </SetRegEntry>
       </TargetDriverDllRegistry>
-      <Breakpoint>
-      </Breakpoint>
+      <Breakpoint/>
       <WatchWindow1>
         <Ww>
-          <count>3</count>
+          <count>0</count>
           <WinNumber>1</WinNumber>
           <ItemText>epnum</ItemText>
         </Ww>
         <Ww>
-          <count>4</count>
+          <count>1</count>
           <WinNumber>1</WinNumber>
           <ItemText>ep_addr</ItemText>
         </Ww>
         <Ww>
-          <count>5</count>
+          <count>2</count>
           <WinNumber>1</WinNumber>
           <ItemText>event</ItemText>
         </Ww>
         <Ww>
-          <count>6</count>
+          <count>3</count>
           <WinNumber>1</WinNumber>
           <ItemText>ep_status</ItemText>
         </Ww>
         <Ww>
-          <count>7</count>
+          <count>4</count>
           <WinNumber>1</WinNumber>
           <ItemText>_usbd_dev</ItemText>
+        </Ww>
+        <Ww>
+          <count>5</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>debug</ItemText>
+        </Ww>
+        <Ww>
+          <count>6</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>ctrl</ItemText>
+        </Ww>
+        <Ww>
+          <count>7</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>count</ItemText>
         </Ww>
         <Ww>
           <count>8</count>
@@ -1514,35 +1523,20 @@
         <Ww>
           <count>9</count>
           <WinNumber>1</WinNumber>
-          <ItemText>ctrl</ItemText>
+          <ItemText>debug</ItemText>
         </Ww>
         <Ww>
           <count>10</count>
           <WinNumber>1</WinNumber>
-          <ItemText>count</ItemText>
+          <ItemText>state</ItemText>
         </Ww>
         <Ww>
           <count>11</count>
           <WinNumber>1</WinNumber>
-          <ItemText>debug</ItemText>
-        </Ww>
-        <Ww>
-          <count>12</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>debug</ItemText>
-        </Ww>
-        <Ww>
-          <count>13</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>state</ItemText>
-        </Ww>
-        <Ww>
-          <count>14</count>
-          <WinNumber>1</WinNumber>
           <ItemText>ep_state</ItemText>
         </Ww>
         <Ww>
-          <count>15</count>
+          <count>12</count>
           <WinNumber>1</WinNumber>
           <ItemText>ptr</ItemText>
         </Ww>
@@ -1744,33 +1738,47 @@
           <Name></Name>
         </SetRegEntry>
       </TargetDriverDllRegistry>
-      <Breakpoint>
-      </Breakpoint>
+      <Breakpoint/>
       <WatchWindow1>
         <Ww>
-          <count>3</count>
+          <count>0</count>
           <WinNumber>1</WinNumber>
           <ItemText>epnum</ItemText>
         </Ww>
         <Ww>
-          <count>4</count>
+          <count>1</count>
           <WinNumber>1</WinNumber>
           <ItemText>ep_addr</ItemText>
         </Ww>
         <Ww>
-          <count>5</count>
+          <count>2</count>
           <WinNumber>1</WinNumber>
           <ItemText>event</ItemText>
         </Ww>
         <Ww>
-          <count>6</count>
+          <count>3</count>
           <WinNumber>1</WinNumber>
           <ItemText>ep_status</ItemText>
         </Ww>
         <Ww>
-          <count>7</count>
+          <count>4</count>
           <WinNumber>1</WinNumber>
           <ItemText>_usbd_dev</ItemText>
+        </Ww>
+        <Ww>
+          <count>5</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>debug</ItemText>
+        </Ww>
+        <Ww>
+          <count>6</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>ctrl</ItemText>
+        </Ww>
+        <Ww>
+          <count>7</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>count</ItemText>
         </Ww>
         <Ww>
           <count>8</count>
@@ -1780,35 +1788,20 @@
         <Ww>
           <count>9</count>
           <WinNumber>1</WinNumber>
-          <ItemText>ctrl</ItemText>
+          <ItemText>debug</ItemText>
         </Ww>
         <Ww>
           <count>10</count>
           <WinNumber>1</WinNumber>
-          <ItemText>count</ItemText>
+          <ItemText>state</ItemText>
         </Ww>
         <Ww>
           <count>11</count>
           <WinNumber>1</WinNumber>
-          <ItemText>debug</ItemText>
-        </Ww>
-        <Ww>
-          <count>12</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>debug</ItemText>
-        </Ww>
-        <Ww>
-          <count>13</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>state</ItemText>
-        </Ww>
-        <Ww>
-          <count>14</count>
-          <WinNumber>1</WinNumber>
           <ItemText>ep_state</ItemText>
         </Ww>
         <Ww>
-          <count>15</count>
+          <count>12</count>
           <WinNumber>1</WinNumber>
           <ItemText>ptr</ItemText>
         </Ww>
@@ -1882,5 +1875,193 @@
       </SystemViewers>
     </TargetOption>
   </Target>
+
+  <Group>
+    <GroupName>Example</GroupName>
+    <tvExp>1</tvExp>
+    <tvExpOptDlg>0</tvExpOptDlg>
+    <cbSel>0</cbSel>
+    <RteFlg>0</RteFlg>
+    <File>
+      <GroupNumber>1</GroupNumber>
+      <FileNumber>1</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>.\examples\example_main.c</PathWithFileName>
+      <FilenameWithoutPath>example_main.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>1</GroupNumber>
+      <FileNumber>2</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>.\examples\example_usb_descriptors.c</PathWithFileName>
+      <FilenameWithoutPath>example_usb_descriptors.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>1</GroupNumber>
+      <FileNumber>3</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>.\examples\example_msc_disk.c</PathWithFileName>
+      <FilenameWithoutPath>example_msc_disk.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>1</GroupNumber>
+      <FileNumber>4</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>.\examples\example_disk_image.c</PathWithFileName>
+      <FilenameWithoutPath>example_disk_image.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+  </Group>
+
+  <Group>
+    <GroupName>TinyUSB</GroupName>
+    <tvExp>1</tvExp>
+    <tvExpOptDlg>0</tvExpOptDlg>
+    <cbSel>0</cbSel>
+    <RteFlg>0</RteFlg>
+    <File>
+      <GroupNumber>2</GroupNumber>
+      <FileNumber>5</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>.\src\class\cdc\cdc_device.c</PathWithFileName>
+      <FilenameWithoutPath>cdc_device.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>2</GroupNumber>
+      <FileNumber>6</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>.\src\class\msc\msc_device.c</PathWithFileName>
+      <FilenameWithoutPath>msc_device.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>2</GroupNumber>
+      <FileNumber>7</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>.\src\class\hid\hid_device.c</PathWithFileName>
+      <FilenameWithoutPath>hid_device.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>2</GroupNumber>
+      <FileNumber>8</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>.\src\class\vendor\vendor_device.c</PathWithFileName>
+      <FilenameWithoutPath>vendor_device.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>2</GroupNumber>
+      <FileNumber>9</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>.\src\common\tusb_fifo.c</PathWithFileName>
+      <FilenameWithoutPath>tusb_fifo.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>2</GroupNumber>
+      <FileNumber>10</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>.\src\device\usbd.c</PathWithFileName>
+      <FilenameWithoutPath>usbd.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>2</GroupNumber>
+      <FileNumber>11</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>.\src\typec\usbc.c</PathWithFileName>
+      <FilenameWithoutPath>usbc.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>2</GroupNumber>
+      <FileNumber>12</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>.\src\tusb.c</PathWithFileName>
+      <FilenameWithoutPath>tusb.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>2</GroupNumber>
+      <FileNumber>13</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>1</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>.\src\tusb_mdr32fxqi.c</PathWithFileName>
+      <FilenameWithoutPath>tusb_mdr32fxqi.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+  </Group>
+
+  <Group>
+    <GroupName>::Device</GroupName>
+    <tvExp>0</tvExp>
+    <tvExpOptDlg>0</tvExpOptDlg>
+    <cbSel>0</cbSel>
+    <RteFlg>1</RteFlg>
+  </Group>
+
+  <Group>
+    <GroupName>::Drivers</GroupName>
+    <tvExp>1</tvExp>
+    <tvExpOptDlg>0</tvExpOptDlg>
+    <cbSel>0</cbSel>
+    <RteFlg>1</RteFlg>
+  </Group>
 
 </ProjectOpt>
