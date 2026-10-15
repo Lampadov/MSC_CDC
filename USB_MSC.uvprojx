@@ -14,15 +14,15 @@
       <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
-          <Device>MDR32F9Q2I</Device>
+          <Device>K1986VE92xI</Device>
           <Vendor>Milandr</Vendor>
           <PackID>Milandr.MDR32FxQI.1.3.2</PackID>
           <Cpu>IRAM(0x20000000,0x8000) IROM(0x08000000,0x20000) CPUTYPE("Cortex-M3") CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile></StartupFile>
-          <FlashDriverDll>UL2CM3(-S0 -C0 -P0 -FD20000000 -FC8000 -FN1 -FF0MDR32F9Q2I -FS08000000 -FL020000 -FP0($$Device:MDR32F9Q2I$FLM\MDR32F9Q2I\MDR32F9Q2I.FLM))</FlashDriverDll>
+          <FlashDriverDll>UL2CM3(-S0 -C0 -P0 -FD20000000 -FC8000 -FN1 -FF0K1986VE9xI -FS08000000 -FL020000 -FP0($$Device:K1986VE92xI$FLM\K1986VE9xI\K1986VE9xI.FLM))</FlashDriverDll>
           <DeviceId>0</DeviceId>
-          <RegisterFile>$$Device:MDR32F9Q2I$Libraries\CMSIS\MDR32FxQI\DeviceSupport\MDR32F9Q2I\inc\MDR32F9Q2I.h</RegisterFile>
+          <RegisterFile>$$Device:K1986VE92xI$Libraries\CMSIS\MDR32FxQI\DeviceSupport\K1986VE9xI\inc\K1986VE9xI.h</RegisterFile>
           <MemoryEnv></MemoryEnv>
           <Cmp></Cmp>
           <Asm></Asm>
@@ -32,7 +32,7 @@
           <SLE66CMisc></SLE66CMisc>
           <SLE66AMisc></SLE66AMisc>
           <SLE66LinkerMisc></SLE66LinkerMisc>
-          <SFDFile>$$Device:MDR32F9Q2I$IDE\SVD\MDR32F9Q2I.svd</SFDFile>
+          <SFDFile>$$Device:K1986VE92xI$IDE\SVD\K1986VE9xI.svd</SFDFile>
           <bCustSvd>0</bCustSvd>
           <UseEnv>0</UseEnv>
           <BinPath></BinPath>
@@ -442,11 +442,15 @@
   <RTE>
     <apis/>
     <components>
-      <component Cclass="Device" Cgroup="Startup" Cvendor="Milandr" Cversion="2.2.0i" condition="CON_MDR32F9Q2I">
+      <component Cclass="Device" Cgroup="Startup" Cvendor="Milandr" Cversion="2.2.0i" condition="CON_K1986VE92xI">
         <package name="MDR32FxQI" schemaVersion="1.2" url="" vendor="Milandr" version="1.3.2"/>
         <targetInfos>
           <targetInfo name="Target 1"/>
         </targetInfos>
+      </component>
+      <component Cclass="Device" Cgroup="Startup" Cvendor="Milandr" Cversion="2.2.0i" condition="CON_MDR32F9Q2I">
+        <package name="MDR32FxQI" schemaVersion="1.2" url="" vendor="Milandr" version="1.3.2"/>
+        <targetInfos/>
       </component>
       <component Cclass="Drivers" Cgroup="PORT" Cvendor="Milandr" Cversion="2.2.0i" condition="CON_MDR32FxQI">
         <package name="MDR32FxQI" schemaVersion="1.2" url="" vendor="Milandr" version="1.3.2"/>
@@ -468,6 +472,46 @@
       </component>
     </components>
     <files>
+      <file attr="config" category="linkerScript" name="IDE\scatter\K1986VE9xI.sct" version="2.2.0i">
+        <instance index="0">RTE\Device\K1986VE92xI\K1986VE9xI.sct</instance>
+        <component Cclass="Device" Cgroup="Startup" Cvendor="Milandr" Cversion="2.2.0i" condition="CON_K1986VE92xI"/>
+        <package name="MDR32FxQI" schemaVersion="1.2" url="" vendor="Milandr" version="1.3.2"/>
+        <targetInfos>
+          <targetInfo name="Target 1"/>
+        </targetInfos>
+      </file>
+      <file attr="config" category="header" name="Libraries\SPL\MDR32FxQI\MDR32FxQI_config.h" version="2.2.0i">
+        <instance index="0">RTE\Device\K1986VE92xI\MDR32FxQI_config.h</instance>
+        <component Cclass="Device" Cgroup="Startup" Cvendor="Milandr" Cversion="2.2.0i" condition="CON_K1986VE92xI"/>
+        <package name="MDR32FxQI" schemaVersion="1.2" url="" vendor="Milandr" version="1.3.2"/>
+        <targetInfos>
+          <targetInfo name="Target 1"/>
+        </targetInfos>
+      </file>
+      <file attr="config" category="source" name="Libraries\CMSIS\MDR32FxQI\DeviceSupport\K1986VE9xI\startup\arm\startup_K1986VE9xI.S" version="2.2.0i">
+        <instance index="0">RTE\Device\K1986VE92xI\startup_K1986VE9xI.S</instance>
+        <component Cclass="Device" Cgroup="Startup" Cvendor="Milandr" Cversion="2.2.0i" condition="CON_K1986VE92xI"/>
+        <package name="MDR32FxQI" schemaVersion="1.2" url="" vendor="Milandr" version="1.3.2"/>
+        <targetInfos>
+          <targetInfo name="Target 1"/>
+        </targetInfos>
+      </file>
+      <file attr="config" category="source" name="Libraries\CMSIS\MDR32FxQI\DeviceSupport\K1986VE9xI\startup\system_K1986VE9xI.c" version="2.2.0i">
+        <instance index="0">RTE\Device\K1986VE92xI\system_K1986VE9xI.c</instance>
+        <component Cclass="Device" Cgroup="Startup" Cvendor="Milandr" Cversion="2.2.0i" condition="CON_K1986VE92xI"/>
+        <package name="MDR32FxQI" schemaVersion="1.2" url="" vendor="Milandr" version="1.3.2"/>
+        <targetInfos>
+          <targetInfo name="Target 1"/>
+        </targetInfos>
+      </file>
+      <file attr="config" category="header" name="Libraries\CMSIS\MDR32FxQI\DeviceSupport\K1986VE9xI\startup\system_K1986VE9xI.h" version="2.2.0i">
+        <instance index="0">RTE\Device\K1986VE92xI\system_K1986VE9xI.h</instance>
+        <component Cclass="Device" Cgroup="Startup" Cvendor="Milandr" Cversion="2.2.0i" condition="CON_K1986VE92xI"/>
+        <package name="MDR32FxQI" schemaVersion="1.2" url="" vendor="Milandr" version="1.3.2"/>
+        <targetInfos>
+          <targetInfo name="Target 1"/>
+        </targetInfos>
+      </file>
       <file attr="config" category="source" name="Libraries\CMSIS\CM1\DeviceSupport\MDR1986VE1T\startup\arm\startup_MDR1986VE1T.s">
         <instance index="0" removed="1">RTE\Device\MDR1986BE1T\startup_MDR1986VE1T.s</instance>
         <component Cclass="Device" Cgroup="Startup" Cvendor="Keil" Cversion="1.5" condition="CON_MDR1986BE1T"/>
@@ -556,41 +600,31 @@
         <instance index="0">RTE\Device\MDR32F9Q2I\MDR32F9Q2I.sct</instance>
         <component Cclass="Device" Cgroup="Startup" Cvendor="Milandr" Cversion="2.2.0i" condition="CON_MDR32F9Q2I"/>
         <package name="MDR32FxQI" schemaVersion="1.2" url="" vendor="Milandr" version="1.3.2"/>
-        <targetInfos>
-          <targetInfo name="Target 1"/>
-        </targetInfos>
+        <targetInfos/>
       </file>
       <file attr="config" category="header" name="Libraries\SPL\MDR32FxQI\MDR32FxQI_config.h" version="2.2.0i">
         <instance index="0">RTE\Device\MDR32F9Q2I\MDR32FxQI_config.h</instance>
         <component Cclass="Device" Cgroup="Startup" Cvendor="Milandr" Cversion="2.2.0i" condition="CON_MDR32F9Q2I"/>
         <package name="MDR32FxQI" schemaVersion="1.2" url="" vendor="Milandr" version="1.3.2"/>
-        <targetInfos>
-          <targetInfo name="Target 1"/>
-        </targetInfos>
+        <targetInfos/>
       </file>
       <file attr="config" category="source" name="Libraries\CMSIS\MDR32FxQI\DeviceSupport\MDR32F9Q2I\startup\arm\startup_MDR32F9Q2I.S" version="2.2.0i">
         <instance index="0">RTE\Device\MDR32F9Q2I\startup_MDR32F9Q2I.S</instance>
         <component Cclass="Device" Cgroup="Startup" Cvendor="Milandr" Cversion="2.2.0i" condition="CON_MDR32F9Q2I"/>
         <package name="MDR32FxQI" schemaVersion="1.2" url="" vendor="Milandr" version="1.3.2"/>
-        <targetInfos>
-          <targetInfo name="Target 1"/>
-        </targetInfos>
+        <targetInfos/>
       </file>
       <file attr="config" category="source" name="Libraries\CMSIS\MDR32FxQI\DeviceSupport\MDR32F9Q2I\startup\system_MDR32F9Q2I.c" version="2.2.0i">
         <instance index="0">RTE\Device\MDR32F9Q2I\system_MDR32F9Q2I.c</instance>
         <component Cclass="Device" Cgroup="Startup" Cvendor="Milandr" Cversion="2.2.0i" condition="CON_MDR32F9Q2I"/>
         <package name="MDR32FxQI" schemaVersion="1.2" url="" vendor="Milandr" version="1.3.2"/>
-        <targetInfos>
-          <targetInfo name="Target 1"/>
-        </targetInfos>
+        <targetInfos/>
       </file>
       <file attr="config" category="header" name="Libraries\CMSIS\MDR32FxQI\DeviceSupport\MDR32F9Q2I\startup\system_MDR32F9Q2I.h" version="2.2.0i">
         <instance index="0">RTE\Device\MDR32F9Q2I\system_MDR32F9Q2I.h</instance>
         <component Cclass="Device" Cgroup="Startup" Cvendor="Milandr" Cversion="2.2.0i" condition="CON_MDR32F9Q2I"/>
         <package name="MDR32FxQI" schemaVersion="1.2" url="" vendor="Milandr" version="1.3.2"/>
-        <targetInfos>
-          <targetInfo name="Target 1"/>
-        </targetInfos>
+        <targetInfos/>
       </file>
     </files>
   </RTE>
