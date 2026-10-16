@@ -27,7 +27,7 @@ EXAMPLE = os.path.join(ROOT, "examples", "msc-webusb")
 WEB = os.path.join(EXAMPLE, "web")
 
 README = (
-    "﻿Milandr K1986VE9x - USB flash drive + WebUSB (TinyUSB).\r\n"
+    "﻿Milandr K1986VE92FI - USB flash drive + WebUSB (TinyUSB).\r\n"
     "\r\n"
     "Open index.htm from this drive in Chrome or Edge,\r\n"
     "press the \"Connect board\" button and choose the board in the list.\r\n"
