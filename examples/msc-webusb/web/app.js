@@ -38,7 +38,7 @@ function ledsRequest(mask) {
   };
 }
 
-// ---------- змейка: чистая логика без рисования ----------
+// ---------- змейка ----------
 const DIRS     = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
 const OPPOSITE = { up: 'down', down: 'up', left: 'right', right: 'left' };
 
@@ -146,7 +146,6 @@ if (typeof document !== 'undefined') (function () {
     }
   }
 
-  // Светодиоды: отправляем последнее пожелание, промежуточные при частой смене пропускаем
   let wantedLeds = 0, sentLeds = -1, sending = false;
 
   async function setLeds(mask) {
@@ -165,7 +164,7 @@ if (typeof document !== 'undefined') (function () {
     }
   }
 
-  // Короткая вспышка светодиода; те, что были включены, остаются включёнными
+  // Короткое переключение светодиода; те, что были включены, остаются включёнными
   async function flash(mask, ms) {
     setLeds(boardLeds | mask);
     await sleep(ms);
@@ -262,7 +261,7 @@ if (typeof document !== 'undefined') (function () {
       if (game.score > best) {
         best = game.score;
         $('best').textContent = best;
-        try { localStorage.setItem('snakeBest', String(best)); } catch (e) { /* без хранилища */ }
+        try { localStorage.setItem('snakeBest', String(best)); } catch (e) { }
       }
       flash(1, 500);                                // проигрыш: VD3
     }
