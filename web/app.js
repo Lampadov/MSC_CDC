@@ -83,9 +83,14 @@ async function connect(d) {
   setStatus('Плата подключена'); $('connect').textContent = 'Отключить';
   await send();
   let rest = new Uint8Array(0);
+  // несколько запросов сразу: пока страница разбирает данные, контроллер уже принимает следующие
+  const q = [];
+  const rd = () => { const p = d.transferIn(3, 1024); p.catch(() => {}); q.push(p); };
+  for (let i = 0; i < 4; i++) rd();
   while (dev === d) {
     try {
-      const r = await d.transferIn(3, 1024);
+      const r = await q.shift();
+      rd();
       const a = new Uint8Array(r.data.buffer, r.data.byteOffset, r.data.byteLength);
       const m = new Uint8Array(rest.length + a.length); m.set(rest); m.set(a, rest.length);
       rest = parse(m);
