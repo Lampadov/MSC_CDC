@@ -21,11 +21,17 @@
  * Страница -> плата (vendor-запросы на EP0, интерфейс 1, см. usb_descriptors.c):
  *   0x11  wValue = номер скорости (биты 0..3) | число отсчётов / 16 (биты 4..10)
  *   0x12  wValue = уровень синхронизации (биты 0..11) | спад (бит 12) | ждущий режим (бит 13) | пуск (бит 14)
+ *                  | непрерывный режим (бит 15)
  *
  * Плата -> страница, EP3 IN: кадры (little-endian)
- *   [0xA5] [0x5A] [флаги: бит 0 = запуск по синхронизации] [номер скорости] [число отсчётов, 2 байта]
+ *   [0xA5] [0x5A] [флаги: бит 0 = запуск по синхронизации, бит 1 = непрерывный режим,
+ *                  бит 2 = в непрерывном режиме перед этим куском потеряны отсчёты] [номер скорости] [число отсчётов, 2 байта]
  *   [номер кадра, 2 байта] [частота дискретизации, Гц, 4 байта] [отсчёты, по 2 байта, 12 бит]
  * Точка синхронизации стоит на пятой части окна, то есть на отсчёте n / 5.
+ *
+ * Непрерывный режим: синхронизации нет, отсчёты идут без пропусков через FIFO и уходят кусками по
+ * CONT_CHUNK штук. Если USB не успевает (быстрые развёртки: при 357 квыб/с нужно около 0,75 МБ/с),
+ * FIFO переполняется, лишние отсчёты отбрасываются, а в следующем куске взводится флаг потери.
  */
 
 // Канал АЦП и вывод. Если на вашей плате сигнал заведён на другой канал, замените оба
@@ -37,6 +43,8 @@
 #define REQ_TRIGGER         0x12
 
 #define FRAME_HEADER_LEN    12
+#define CONT_CHUNK          128     // отсчётов в одном куске непрерывного потока
+#define FIFO_SIZE           1024    // степень двойки
 #define TX_STALL_MS         300     // страница не забирает данные дольше этого времени: считаем её закрытой
 
 #define VD3  PORT_Pin_0              // горит, если последний кадр пришёл по синхронизации
@@ -80,10 +88,25 @@ static uint32_t ticks_now(void)
 //--------------------------------------------------------------------+
 static uint32_t t_first, t_last;         // время первого и последнего отсчёта захвата
 
+// Непрерывный режим: FIFO между прерыванием АЦП и главным циклом
+static volatile uint8_t  cont_mode;
+static volatile uint16_t fifo_head, fifo_tail;      // счётчики (индекс - младшие биты)
+static volatile uint32_t fifo_drop;                  // отброшено с последнего куска
+static volatile uint32_t cont_seen;                  // всего отсчётов от АЦП (принятых и отброшенных)
+static uint16_t          fifo[FIFO_SIZE];
+
 void ADC_IRQHandler(void)
 {
     uint16_t v = (uint16_t)(ADC1_GetResult() & 0x0FFF);   // чтение результата сбрасывает флаг
 
+    if (cont_mode) {
+        uint16_t h = fifo_head;
+        cont_seen++;
+        if ((uint16_t)(h - fifo_tail) >= FIFO_SIZE) { fifo_drop++; return; }
+        fifo[h & (FIFO_SIZE - 1)] = v;
+        fifo_head = (uint16_t)(h + 1);
+        return;
+    }
     scope_sample(v);
     if (scope_count() == 1) t_first = ticks_now();
     if (scope_state() == SCOPE_DONE) {
@@ -124,9 +147,9 @@ static volatile struct {
     uint8_t  rate;
     uint16_t n;
     uint16_t level;
-    uint8_t  falling, normal, run;
+    uint8_t  falling, normal, run, cont;
     uint8_t  dirty;
-} cfg = { 0, 352, 2048, 0, 0, 0, 0 };
+} cfg = { 0, 352, 2048, 0, 0, 0, 0, 0 };
 
 bool scope_command(uint8_t request, uint16_t value)
 {
@@ -141,6 +164,7 @@ bool scope_command(uint8_t request, uint16_t value)
         cfg.falling = (value >> 12) & 1;
         cfg.normal  = (value >> 13) & 1;
         cfg.run     = (value >> 14) & 1;
+        cfg.cont    = (value >> 15) & 1;
     } else {
         return false;
     }
@@ -157,10 +181,25 @@ static uint8_t  tx_active;
 static uint16_t frame_seq;
 static uint32_t tx_progress_ms;
 
+static uint32_t fs_cont, ref_ticks, ref_seen;   // частота дискретизации непрерывного потока
+
 static void capture_start(void)
 {
     (void)ADC1_GetResult();                            // выбрасываем устаревший отсчёт
     scope_arm(cfg.n, cfg.level, cfg.falling, cfg.normal);
+    ADC1_ITConfig(ADC1_IT_END_OF_CONVERSION, ENABLE);
+}
+
+// Непрерывный режим: сброс FIFO и пуск
+static void cont_start(void)
+{
+    (void)ADC1_GetResult();
+    fifo_head = fifo_tail = 0;
+    fifo_drop = 0;
+    cont_seen = 0;
+    ref_ticks = ticks_now();
+    ref_seen  = 0;
+    cont_mode = 1;
     ADC1_ITConfig(ADC1_IT_END_OF_CONVERSION, ENABLE);
 }
 
@@ -191,6 +230,43 @@ static void frame_build(void)
     tx_active = 1;
     tx_progress_ms = ms_ticks;
     leds_update(trig);
+    frame_seq++;
+}
+
+// Кусок непрерывного потока: CONT_CHUNK отсчётов из FIFO
+static void cont_build(void)
+{
+    uint16_t  t   = fifo_tail, i;
+    uint16_t *dst = (uint16_t*)(void*)(frame + FRAME_HEADER_LEN);
+    uint32_t  drop, now, seen;
+
+    for (i = 0; i < CONT_CHUNK; i++) dst[i] = fifo[(uint16_t)(t + i) & (FIFO_SIZE - 1)];
+    fifo_tail = (uint16_t)(t + CONT_CHUNK);
+
+    __disable_irq();
+    drop = fifo_drop;  fifo_drop = 0;
+    __enable_irq();
+
+    now  = ticks_now();
+    seen = cont_seen;
+    if (now - ref_ticks > 20u * ticks_per_ms) {      // частоту обновляем раз в 20 мс
+        fs_cont   = (uint32_t)(((uint64_t)(seen - ref_seen) * SystemCoreClock) / (now - ref_ticks));
+        ref_ticks = now;
+        ref_seen  = seen;
+    }
+
+    frame[0] = 0xA5;  frame[1] = 0x5A;
+    frame[2] = (uint8_t)(2 | (drop ? 4 : 0));  frame[3] = cfg.rate;
+    frame[4] = (uint8_t)CONT_CHUNK;  frame[5] = (uint8_t)(CONT_CHUNK >> 8);
+    frame[6] = (uint8_t)frame_seq;   frame[7] = (uint8_t)(frame_seq >> 8);
+    frame[8] = (uint8_t)fs_cont;          frame[9]  = (uint8_t)(fs_cont >> 8);
+    frame[10] = (uint8_t)(fs_cont >> 16); frame[11] = (uint8_t)(fs_cont >> 24);
+
+    frame_len = (uint16_t)(FRAME_HEADER_LEN + 2u * CONT_CHUNK);
+    frame_off = 0;
+    tx_active = 1;
+    tx_progress_ms = ms_ticks;
+    leds_update(0);
     frame_seq++;
 }
 
@@ -259,19 +335,22 @@ int main(void)
         if (cfg.dirty) {                 // страница прислала новые настройки
             cfg.dirty = 0;
             running = cfg.run;
-            if (!running) {
-                scope_stop();
-                ADC1_ITConfig(ADC1_IT_END_OF_CONVERSION, DISABLE);
-            } else {
+            ADC1_ITConfig(ADC1_IT_END_OF_CONVERSION, DISABLE);
+            cont_mode = 0;
+            scope_stop();
+            tx_active = 0;
+            if (running) {
                 if (cfg.rate != cur_rate) {      // новая скорость: перенастраиваем АЦП
                     cur_rate = cfg.rate;
                     adc_start(cur_rate);
                 }
-                capture_start();
+                if (cfg.cont) cont_start(); else capture_start();
             }
         }
 
-        if (running && !tx_active && scope_state() == SCOPE_DONE) {
+        if (running && cfg.cont) {
+            if (!tx_active && (uint16_t)(fifo_head - fifo_tail) >= CONT_CHUNK) cont_build();
+        } else if (running && !tx_active && scope_state() == SCOPE_DONE) {
             frame_build();
             capture_start();             // следующий захват идёт, пока уходит этот кадр
         }

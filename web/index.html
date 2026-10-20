@@ -46,8 +46,9 @@
     <label>Окно <select id="len"></select></label>
     <label>Уровень синхронизации <input type="range" id="lvl" min="0" max="4095" value="2048"></label>
     <label>Фронт <select id="edge"><option value="0">Нарастающий</option><option value="1">Спадающий</option></select></label>
-    <label>Режим <select id="mode"><option value="0">Авто</option><option value="1">Ждущий</option></select></label>
+    <label>Режим <select id="mode"><option value="0">Авто</option><option value="1">Ждущий</option><option value="2">Непрерывный</option></select></label>
   </div>
+  <p class="hint">Непрерывный режим: бегущая осциллограмма без синхронизации. На быстрых развёртках USB может не успевать, число потерянных отсчётов видно в строке под экраном.</p>
   <p class="hint">Вход: канал 7 АЦП платы (BNC, перемычка EXT_CON), диапазон 0…3,3 В. Не подавайте напряжение вне этого диапазона.</p>
 </main>
 <script src="app.js"></script>

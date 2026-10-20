@@ -5,7 +5,8 @@
 //   [частота дискретизации, Гц: 4][отсчёты по 2 байта, 12 бит]
 // Команды (vendor-запрос на интерфейс 1, значение в wValue):
 //   0x11  биты 0..3 - номер скорости, биты 4..10 - число отсчётов / 16
-//   0x12  биты 0..11 - уровень синхронизации, бит 12 - спад, бит 13 - ждущий режим, бит 14 - пуск
+//   0x12  биты 0..11 - уровень синхронизации, бит 12 - спад, бит 13 - ждущий режим, бит 14 - пуск,
+//         бит 15 - непрерывный режим (кадры по 128 отсчётов без синхронизации, флаг кадра: бит 1; бит 2 - были потери)
 
 const USB_VID = 0xCAFE;     // как USB_VID в usb_descriptors.c
 const VREF = 3.3, FULL = 4095, HEAD = 12;
@@ -13,7 +14,7 @@ const RATES = ['~357 квыб/с', '~178 квыб/с', '~89 квыб/с', '~45 �
 const LENS = [160, 352, 704, 1120];
 const $ = (id) => document.getElementById(id);
 const cv = $('cv'), g = cv.getContext('2d');
-let dev = null, running = true, frame = null, lastSeq = -1, fps = 0, t0 = performance.now(), cnt = 0;
+let dev = null, running = true, frame = null, fps = 0, t0 = performance.now(), cnt = 0, roll = [], lost = 0;
 
 for (const [i, r] of RATES.entries()) $('rate').add(new Option(r, i));
 for (const n of LENS) $('len').add(new Option(n + ' точек', n));
@@ -32,12 +33,13 @@ let busy = false, again = false;
 async function send() {
   if (!dev) return;
   if (busy) { again = true; return; }
-  busy = true;
+  busy = true; roll = []; lost = 0;
   try {
     do {
       again = false;
       const cap = Number($('rate').value) | (Number($('len').value) / 16 << 4);
-      const trg = Number($('lvl').value) | (Number($('edge').value) << 12) | (Number($('mode').value) << 13) | ((running ? 1 : 0) << 14);
+      const m = Number($('mode').value);
+      const trg = Number($('lvl').value) | (Number($('edge').value) << 12) | ((m === 1 ? 1 : 0) << 13) | ((running ? 1 : 0) << 14) | ((m === 2 ? 1 : 0) << 15);
       for (const [request, value] of [[0x11, cap], [0x12, trg]])
         await dev.controlTransferOut({ requestType: 'vendor', recipient: 'interface', request, value, index: 1 });
     } while (again);
@@ -60,7 +62,13 @@ function parse(buf) {                      // buf - Uint8Array с накопле
     if (running) {
       const s = new Uint16Array(n);
       for (let k = 0; k < n; k++) s[k] = v.getUint16(HEAD + 2 * k, true);
-      frame = { trig: buf[2] & 1, fs: v.getUint32(8, true), s };
+      const fs = v.getUint32(8, true);
+      if (buf[2] & 2) {                           // непрерывный поток: прокручиваем окно
+        if (buf[2] & 4) lost++;
+        const w = Number($('len').value);
+        roll = roll.concat(Array.from(s)).slice(-w);
+        frame = { cont: 1, fs, s: null };
+      } else frame = { trig: buf[2] & 1, fs, s };
       cnt++;
     }
     buf = buf.subarray(len);
@@ -105,12 +113,14 @@ function draw() {
   g.strokeStyle = '#8a5a14'; g.setLineDash([6, 6]); g.beginPath(); g.moveTo(0, Y(lv)); g.lineTo(W, Y(lv)); g.stroke(); g.setLineDash([]);
   let info = '<span>Нет данных</span>';
   if (frame) {
-    const s = frame.s, n = s.length, X = (i) => i / (n - 1) * W;
+    const s = frame.cont ? Uint16Array.from(roll) : frame.s, n = s.length, X = (i) => i / (n - 1) * W;
     g.strokeStyle = '#ffb347'; g.lineWidth = 2; g.lineJoin = 'round'; g.beginPath();
     for (let i = 0; i < n; i++) i ? g.lineTo(X(i), Y(s[i])) : g.moveTo(X(i), Y(s[i]));
     g.stroke();
-    g.fillStyle = frame.trig ? '#4cd964' : '#7a736c'; const tx = X(Math.floor(n / 5));
-    g.beginPath(); g.moveTo(tx - 6, 0); g.lineTo(tx + 6, 0); g.lineTo(tx, 10); g.fill();
+    if (!frame.cont) {
+      g.fillStyle = frame.trig ? '#4cd964' : '#7a736c'; const tx = X(Math.floor(n / 5));
+      g.beginPath(); g.moveTo(tx - 6, 0); g.lineTo(tx + 6, 0); g.lineTo(tx, 10); g.fill();
+    }
     let mn = 4095, mx = 0, sum = 0;
     for (const c of s) { mn = Math.min(mn, c); mx = Math.max(mx, c); sum += c; }
     const mid = (mn + mx) / 2, h = (mx - mn) / 8 + 1; let up = [], hi = s[0] > mid;
@@ -122,7 +132,7 @@ function draw() {
     info = `<span>Размах <b>${fmt(volts(mx - mn), 'В')}</b></span><span>Макс <b>${volts(mx).toFixed(2)} В</b></span>` +
       `<span>Мин <b>${volts(mn).toFixed(2)} В</b></span><span>Среднее <b>${volts(sum / n).toFixed(2)} В</b></span>` +
       `<span>Частота <b>${T ? fmt(1 / T, 'Гц') : '—'}</b></span><span>Fs <b>${(frame.fs / 1e3).toFixed(0)} кГц</b></span>` +
-      `<span>${fmt(perDiv, 'с')}/дел · 0,41 В/дел</span><span>${frame.trig ? 'Синхронизация' : 'Нет синхронизации'}</span><span>${fps} кадр/с</span>`;
+      `<span>${fmt(perDiv, 'с')}/дел · 0,41 В/дел</span><span>${frame.cont ? 'Потери: ' + lost : frame.trig ? 'Синхронизация' : 'Нет синхронизации'}</span><span>${fps} кадр/с</span>`;
   }
   if ($('info').dataset.t !== info) { $('info').innerHTML = info; $('info').dataset.t = info; }
   requestAnimationFrame(draw);
