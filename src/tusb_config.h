@@ -23,7 +23,7 @@
 
 // Размер буферов vendor-класса (WebUSB); команды приходят через EP0, приёмный буфер не используется
 #define CFG_TUD_VENDOR_RX_BUFSIZE  64
-#define CFG_TUD_VENDOR_TX_BUFSIZE  64
+#define CFG_TUD_VENDOR_TX_BUFSIZE  512
 
 
 #endif

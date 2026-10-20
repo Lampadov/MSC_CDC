@@ -14,7 +14,7 @@ r"""
   python enum_test.py msc-hid           # 100 циклов
   python enum_test.py cdc-only 500 0    # 500 циклов без паузы
 
-Примеры: cdc-only, hid-mouse, hid-keyboard, msc-only, msc-hid, webusb-only, msc-webusb.
+Примеры: cdc-only, hid-mouse, hid-keyboard, msc-only, msc-hid, webusb-only, msc-webusb, oscilloscope.
 Плату подключайте прямо к порту компьютера, без хаба. Код выхода 1, если были отказы.
 """
 import ctypes
@@ -33,9 +33,10 @@ EXAMPLES = {
     "msc-hid":    (0xCAFE, 0x4006, 2),
     "webusb-only": (0xCAFE, 0x4005, 0),
     "msc-webusb": (0xCAFE, 0x4007, 2),
+    "oscilloscope": (0xCAFE, 0x4008, 2),
 }
 # метка диска у примеров с флешкой
-LABELS = {"msc-only": "Milandr MSC", "msc-hid": "Milandr MSC", "msc-webusb": "Milandr WEB"}
+LABELS = {"msc-only": "Milandr MSC", "msc-hid": "Milandr MSC", "msc-webusb": "Milandr WEB", "oscilloscope": "Milandr OSC"}
 TIMEOUT = 10.0                      # сколько ждать появления устройства, с
 
 setupapi = ctypes.WinDLL("setupapi", use_last_error=True)

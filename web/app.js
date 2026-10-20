@@ -1,318 +1,144 @@
-// Страница для платы К1986ВЕ92FI: светодиоды, кнопки, датчик температуры и змейка по WebUSB.
+// Осциллограф для платы К1986ВЕ92FI: отсчёты АЦП приходят по WebUSB кадрами.
 //
-// Формат кадров (little-endian), см. main.c в прошивке:
-//   плата -> страница  [0x01][кнопки][светодиоды][АЦП: 2 байта][мс с запуска: 4 байта]  (9 байт)
-//   страница -> плата  vendor-запрос на интерфейс 1: bRequest 0x10, wValue = маска светодиодов
-//                      (отдельной точки OUT нет: EP1/EP2 заняты флешкой)
-// Биты кнопок: 0 SELECT, 1 UP, 2 DOWN, 3 LEFT, 4 RIGHT. Биты светодиодов: 0 VD3, 1 VD4.
+// Кадр (little-endian), см. main.c в прошивке:
+//   [A5][5A][флаги: бит 0 - запуск по синхронизации][номер скорости][число отсчётов: 2][номер кадра: 2]
+//   [частота дискретизации, Гц: 4][отсчёты по 2 байта, 12 бит]
+// Команды (vendor-запрос на интерфейс 1, значение в wValue):
+//   0x11  биты 0..3 - номер скорости, биты 4..10 - число отсчётов / 16
+//   0x12  биты 0..11 - уровень синхронизации, бит 12 - спад, бит 13 - ждущий режим, бит 14 - пуск
 
-const USB_VID    = 0xCAFE;   // должен совпадать с USB_VID в usb_descriptors.c
-const ITF_WEBUSB = 1;        // интерфейс 0 - флешка, интерфейс 1 - WebUSB
-const EP_IN      = 3;        // EP3 IN: кадры состояния (EP1/EP2 заняты флешкой)
-const REQ_LEDS   = 0x10;     // bRequest команды "установить светодиоды"
-const FRAME_SIZE = 9;
-const BTN        = { SELECT: 0, UP: 1, DOWN: 2, LEFT: 3, RIGHT: 4 };
+const USB_VID = 0xCAFE;     // как USB_VID в usb_descriptors.c
+const VREF = 3.3, FULL = 4095, HEAD = 12;
+const RATES = ['~357 квыб/с', '~178 квыб/с', '~89 квыб/с', '~45 квыб/с', '~22 квыб/с', '~11 квыб/с'];
+const LENS = [160, 352, 704, 1120];
+const $ = (id) => document.getElementById(id);
+const cv = $('cv'), g = cv.getContext('2d');
+let dev = null, running = true, frame = null, lastSeq = -1, fps = 0, t0 = performance.now(), cnt = 0;
 
-function parseFrame(view) {
-  if (view.byteLength < FRAME_SIZE || view.getUint8(0) !== 0x01) return null;
-  return {
-    buttons: view.getUint8(1),
-    leds: view.getUint8(2),
-    adc: view.getUint16(3, true),
-    ms: view.getUint32(5, true),        // время работы платы по SysTick, мс
-  };
+for (const [i, r] of RATES.entries()) $('rate').add(new Option(r, i));
+for (const n of LENS) $('len').add(new Option(n + ' точек', n));
+$('len').value = 352;
+
+function fmt(v, u) {
+  const a = Math.abs(v);
+  if (a >= 1) return v.toFixed(2) + ' ' + u;
+  if (a >= 1e-3) return (v * 1e3).toFixed(1) + ' м' + u;
+  return (v * 1e6).toFixed(1) + ' мк' + u;
+}
+const volts = (c) => c * VREF / FULL;
+
+// Очередь команд: один controlTransfer за раз, в конце отправляется самое свежее состояние
+let busy = false, again = false;
+async function send() {
+  if (!dev) return;
+  if (busy) { again = true; return; }
+  busy = true;
+  try {
+    do {
+      again = false;
+      const cap = Number($('rate').value) | (Number($('len').value) / 16 << 4);
+      const trg = Number($('lvl').value) | (Number($('edge').value) << 12) | (Number($('mode').value) << 13) | ((running ? 1 : 0) << 14);
+      for (const [request, value] of [[0x11, cap], [0x12, trg]])
+        await dev.controlTransferOut({ requestType: 'vendor', recipient: 'interface', request, value, index: 1 });
+    } while (again);
+  } catch (e) { setStatus('Ошибка: ' + e.message); }
+  busy = false;
 }
 
-// Время работы платы: "ЧЧ:ММ:СС", с суточным счётчиком после 24 часов
-function formatUptime(ms) {
-  const t = Math.floor(ms / 1000), d = Math.floor(t / 86400);
-  const p = (n) => String(n).padStart(2, '0');
-  const clock = p(Math.floor(t / 3600) % 24) + ':' + p(Math.floor(t / 60) % 60) + ':' + p(t % 60);
-  return d > 0 ? d + ' д ' + clock : clock;
-}
+function setStatus(t) { $('status').textContent = t; }
 
-// Параметры controlTransferOut для установки светодиодов
-function ledsRequest(mask) {
-  return {
-    setup: { requestType: 'vendor', recipient: 'interface', request: REQ_LEDS, value: mask & 0x03, index: ITF_WEBUSB },
-  };
-}
-
-// ---------- змейка: чистая логика без рисования ----------
-const DIRS     = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
-const OPPOSITE = { up: 'down', down: 'up', left: 'right', right: 'left' };
-
-function newGame(w, h, rand = Math.random) {
-  const y = h >> 1;
-  const game = { w, h, rand, body: [{ x: 4, y }, { x: 3, y }, { x: 2, y }], dir: 'right', score: 0, food: null };
-  game.food = placeFood(game);
-  return game;
-}
-
-function placeFood(game) {
-  const free = [];
-  for (let y = 0; y < game.h; y++) {
-    for (let x = 0; x < game.w; x++) {
-      if (!game.body.some((p) => p.x === x && p.y === y)) free.push({ x, y });
+function parse(buf) {                      // buf - Uint8Array с накопленными данными; возвращает остаток
+  for (;;) {
+    let i = 0;
+    while (i + 1 < buf.length && !(buf[i] === 0xA5 && buf[i + 1] === 0x5A)) i++;
+    buf = buf.subarray(i);
+    if (buf.length < HEAD) return buf;
+    const v = new DataView(buf.buffer, buf.byteOffset, buf.length);
+    const n = v.getUint16(4, true), len = HEAD + 2 * n;
+    if (n < 16 || n > 1120) return buf.subarray(2);
+    if (buf.length < len) return buf;
+    if (running) {
+      const s = new Uint16Array(n);
+      for (let k = 0; k < n; k++) s[k] = v.getUint16(HEAD + 2 * k, true);
+      frame = { trig: buf[2] & 1, fs: v.getUint32(8, true), s };
+      cnt++;
     }
+    buf = buf.subarray(len);
   }
-  return free[Math.floor(game.rand() * free.length)];
 }
 
-// Один ход. Возвращает 'eat' (съели яблоко), 'die' (врезались) или null
-function stepGame(game, wantedDir) {
-  if (wantedDir && wantedDir !== OPPOSITE[game.dir]) game.dir = wantedDir;
-
-  const [dx, dy] = DIRS[game.dir];
-  const next = { x: game.body[0].x + dx, y: game.body[0].y + dy };
-  const eats = next.x === game.food.x && next.y === game.food.y;
-
-  const hitsWall = next.x < 0 || next.y < 0 || next.x >= game.w || next.y >= game.h;
-  const body = eats ? game.body : game.body.slice(0, -1);       // хвост освободит клетку, если не растём
-  if (hitsWall || body.some((p) => p.x === next.x && p.y === next.y)) return 'die';
-
-  game.body.unshift(next);
-  if (!eats) { game.body.pop(); return null; }
-  game.score++;
-  game.food = placeFood(game);
-  return 'eat';
-}
-
-// Сглаживание отсчётов АЦП: экспоненциальное среднее, чем меньше alpha, тем плавнее линия
-function smooth(previous, sample, alpha = 0.06) {
-  return previous === null ? sample : previous + (sample - previous) * alpha;
-}
-
-if (typeof module !== 'undefined') module.exports = { formatUptime, parseFrame, ledsRequest, newGame, stepGame, smooth };
-
-// ---------- остальной код работает только в браузере ----------
-if (typeof document !== 'undefined') (function () {
-  const $ = (id) => document.getElementById(id);
-  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-  const ORANGE = '#f08300', ORANGE_LIGHT = '#f6b160', TEXT = '#2a2623';
-
-  if (!navigator.usb) {
-    $('nosupport').style.display = 'block';
-    $('connect').disabled = true;
-    return;
-  }
-
-  // ===== подключение и обмен =====
-  let device = null;
-  let boardLeds = 0;            // светодиоды, как их показывает плата
-  let prevButtons = 0;          // кнопки в прошлом кадре: по разнице находим нажатия
-
-  function setStatus(text, on) {
-    $('statusText').textContent = text;
-    $('status').classList.toggle('on', on);
-    if (!on) $('uptime').textContent = '--:--:--';
-    $('connect').textContent = on ? 'Отключить' : 'Подключить плату';
-  }
-
-  async function connect(dev) {
-    device = dev;
-    await device.open();
-    if (device.configuration === null) await device.selectConfiguration(1);
-    await device.claimInterface(ITF_WEBUSB);
-    sentLeds = -1;
-    setStatus('подключено', true);
-    readLoop();
-  }
-
-  async function disconnect() {
-    if (!device) return;
-    const d = device;
-    device = null;
-    try { await d.close(); } catch (e) { /* уже отключена */ }
-    setStatus('не подключено', false);
-  }
-
-  async function readLoop() {
-    const dev = device;
-    while (device === dev && dev) {
-      try {
-        const r = await dev.transferIn(EP_IN, 64);
-        if (device !== dev) return;                 // пока ждали кадр, плату отключили
-        if (r.status === 'ok') {
-          const frame = parseFrame(r.data);
-          if (frame) onFrame(frame);
-        } else if (r.status === 'stall') {
-          await dev.clearHalt('in', EP_IN);
-        }
-      } catch (e) {
-        if (device === dev) await disconnect();
-        return;
-      }
-    }
-  }
-
-  // Светодиоды: отправляем последнее пожелание, промежуточные при частой смене пропускаем
-  let wantedLeds = 0, sentLeds = -1, sending = false;
-
-  async function setLeds(mask) {
-    wantedLeds = mask & 3;
-    if (sending || !device) return;
-    sending = true;
+async function connect(d) {
+  dev = d;
+  await dev.open();
+  if (dev.configuration === null) await dev.selectConfiguration(1);
+  await dev.claimInterface(1);
+  setStatus('Плата подключена'); $('connect').textContent = 'Отключить';
+  await send();
+  let rest = new Uint8Array(0);
+  while (dev === d) {
     try {
-      while (device && sentLeds !== wantedLeds) {
-        sentLeds = wantedLeds;
-        await device.controlTransferOut(ledsRequest(sentLeds).setup);
-      }
-    } catch (e) {
-      await disconnect();
-    } finally {
-      sending = false;
+      const r = await d.transferIn(3, 1024);
+      const a = new Uint8Array(r.data.buffer, r.data.byteOffset, r.data.byteLength);
+      const m = new Uint8Array(rest.length + a.length); m.set(rest); m.set(a, rest.length);
+      rest = parse(m);
+    } catch (e) { break; }
+  }
+  if (dev === d) disconnect();
+}
+
+async function disconnect() {
+  const d = dev; dev = null;
+  setStatus('Плата не подключена'); $('connect').textContent = 'Подключить плату';
+  try { await d.close(); } catch (e) {}
+}
+
+// ---------- рисование ----------
+function draw() {
+  const W = cv.width, H = cv.height, dx = W / 10, dy = H / 8;
+  g.fillStyle = '#10151a'; g.fillRect(0, 0, W, H);
+  g.strokeStyle = '#26323b'; g.lineWidth = 1; g.beginPath();
+  for (let i = 0; i <= 10; i++) { g.moveTo(i * dx + .5, 0); g.lineTo(i * dx + .5, H); }
+  for (let j = 0; j <= 8; j++) { g.moveTo(0, j * dy + .5); g.lineTo(W, j * dy + .5); }
+  g.stroke();
+  const Y = (c) => H - 10 - (c / FULL) * (H - 20);
+  const lv = Number($('lvl').value);
+  g.strokeStyle = '#8a5a14'; g.setLineDash([6, 6]); g.beginPath(); g.moveTo(0, Y(lv)); g.lineTo(W, Y(lv)); g.stroke(); g.setLineDash([]);
+  let info = '<span>Нет данных</span>';
+  if (frame) {
+    const s = frame.s, n = s.length, X = (i) => i / (n - 1) * W;
+    g.strokeStyle = '#ffb347'; g.lineWidth = 2; g.lineJoin = 'round'; g.beginPath();
+    for (let i = 0; i < n; i++) i ? g.lineTo(X(i), Y(s[i])) : g.moveTo(X(i), Y(s[i]));
+    g.stroke();
+    g.fillStyle = frame.trig ? '#4cd964' : '#7a736c'; const tx = X(Math.floor(n / 5));
+    g.beginPath(); g.moveTo(tx - 6, 0); g.lineTo(tx + 6, 0); g.lineTo(tx, 10); g.fill();
+    let mn = 4095, mx = 0, sum = 0;
+    for (const c of s) { mn = Math.min(mn, c); mx = Math.max(mx, c); sum += c; }
+    const mid = (mn + mx) / 2, h = (mx - mn) / 8 + 1; let up = [], hi = s[0] > mid;
+    for (let i = 1; i < n; i++) {
+      if (!hi && s[i] > mid + h) { hi = true; up.push(i); } else if (hi && s[i] < mid - h) hi = false;
     }
+    const T = frame.fs ? (up.length > 1 ? (up[up.length - 1] - up[0]) / (up.length - 1) / frame.fs : 0) : 0;
+    const perDiv = frame.fs ? n / frame.fs / 10 : 0;
+    info = `<span>Размах <b>${fmt(volts(mx - mn), 'В')}</b></span><span>Макс <b>${volts(mx).toFixed(2)} В</b></span>` +
+      `<span>Мин <b>${volts(mn).toFixed(2)} В</b></span><span>Среднее <b>${volts(sum / n).toFixed(2)} В</b></span>` +
+      `<span>Частота <b>${T ? fmt(1 / T, 'Гц') : '—'}</b></span><span>Fs <b>${(frame.fs / 1e3).toFixed(0)} кГц</b></span>` +
+      `<span>${fmt(perDiv, 'с')}/дел · 0,41 В/дел</span><span>${frame.trig ? 'Синхронизация' : 'Нет синхронизации'}</span><span>${fps} кадр/с</span>`;
   }
+  if ($('info').dataset.t !== info) { $('info').innerHTML = info; $('info').dataset.t = info; }
+  requestAnimationFrame(draw);
+}
+setInterval(() => { const t = performance.now(); fps = Math.round(cnt * 1000 / (t - t0)); cnt = 0; t0 = t; }, 1000);
 
-  // Короткая вспышка светодиода; те, что были включены, остаются включёнными
-  async function flash(mask, ms) {
-    setLeds(boardLeds | mask);
-    await sleep(ms);
-    setLeds(boardLeds & ~mask);
-  }
-
-  // ===== кадр от платы =====
-  const history = [];                               // сглаженные отсчёты АЦП для графика
-  let averaged = null;
-  const HISTORY = 500;                              // около 10 секунд
-
-  function onFrame(f) {
-    $('uptime').textContent = formatUptime(f.ms);
-    for (let i = 0; i < 5; i++) $('k' + i).classList.toggle('down', !!(f.buttons & (1 << i)));
-
-    boardLeds = f.leds;
-    for (let i = 0; i < 2; i++) $('led' + i).setAttribute('aria-pressed', String(!!(f.leds & (1 << i))));
-
-    averaged = smooth(averaged, f.adc);
-    $('adc').textContent = Math.round(averaged);
-    history.push(averaged);
-    if (history.length > HISTORY) history.shift();
-
-    const pressed = f.buttons & ~prevButtons;       // кнопки, нажатые с прошлого кадра
-    prevButtons = f.buttons;
-    for (let i = 0; i < 5; i++) if (pressed & (1 << i)) gameButton(i);
-  }
-
-  [0, 1].forEach((i) => { $('led' + i).onclick = () => setLeds(boardLeds ^ (1 << i)); });
-
-  // ===== график температуры =====
-  const chart = $('chart'), c2d = chart.getContext('2d');
-
-  function drawChart() {
-    const w = chart.width, h = chart.height;
-    c2d.clearRect(0, 0, w, h);
-    if (history.length > 1) {
-      let min = Math.min(...history), max = Math.max(...history);
-      if (max - min < 20) { const c = (max + min) / 2; min = c - 10; max = c + 10; }   // не растягивать шум на весь график
-      c2d.strokeStyle = ORANGE; c2d.lineWidth = 3; c2d.lineJoin = 'round'; c2d.beginPath();
-      const px = (i) => i * w / (HISTORY - 1);
-      const py = (v) => h - 8 - (v - min) / (max - min) * (h - 16);
-      c2d.moveTo(px(0), py(history[0]));
-      for (let i = 1; i < history.length - 1; i++) {      // кривая через середины отрезков: без изломов
-        c2d.quadraticCurveTo(px(i), py(history[i]), (px(i) + px(i + 1)) / 2, (py(history[i]) + py(history[i + 1])) / 2);
-      }
-      c2d.lineTo(px(history.length - 1), py(history[history.length - 1]));
-      c2d.stroke();
-    }
-    requestAnimationFrame(drawChart);
-  }
-  drawChart();
-
-  // ===== змейка =====
-  const GRID_W = 20, GRID_H = 14, CELL = 28, TICK_MS = 140;
-  const canvas = $('game'), g2d = canvas.getContext('2d');
-  let game = newGame(GRID_W, GRID_H);
-  let state = 'idle';                               // idle, running, paused, over
-  let wantedDir = null, timer = null, best = 0;
-  try { best = Number(localStorage.getItem('snakeBest')) || 0; } catch (e) { /* без хранилища */ }
-  $('best').textContent = best;
-
-  // Кнопки платы и стрелки клавиатуры управляют одним и тем же
-  function gameButton(button) {
-    const dirs = { [BTN.UP]: 'up', [BTN.DOWN]: 'down', [BTN.LEFT]: 'left', [BTN.RIGHT]: 'right' };
-    if (dirs[button]) wantedDir = dirs[button];
-    if (button === BTN.SELECT) toggleGame();
-  }
-
-  function toggleGame() {
-    if (state === 'running') {
-      state = 'paused';
-      clearInterval(timer);
-    } else {
-      if (state === 'idle' || state === 'over') {
-        game = newGame(GRID_W, GRID_H);
-        wantedDir = null;
-        $('score').textContent = 0;
-      }
-      state = 'running';
-      timer = setInterval(tick, TICK_MS);
-    }
-    draw();
-  }
-
-  function tick() {
-    const result = stepGame(game, wantedDir);
-    if (result === 'eat') {
-      $('score').textContent = game.score;
-      flash(2, 120);                                // яблоко: VD4
-    } else if (result === 'die') {
-      state = 'over';
-      clearInterval(timer);
-      if (game.score > best) {
-        best = game.score;
-        $('best').textContent = best;
-        try { localStorage.setItem('snakeBest', String(best)); } catch (e) { /* без хранилища */ }
-      }
-      flash(1, 500);                                // проигрыш: VD3
-    }
-    draw();
-  }
-
-  function draw() {
-    g2d.fillStyle = '#fff';
-    g2d.fillRect(0, 0, canvas.width, canvas.height);
-
-    g2d.fillStyle = TEXT;                           // яблоко
-    g2d.beginPath();
-    g2d.arc(game.food.x * CELL + CELL / 2, game.food.y * CELL + CELL / 2, CELL / 2 - 6, 0, 7);
-    g2d.fill();
-
-    game.body.forEach((p, i) => {                   // змейка: голова темнее хвоста
-      g2d.fillStyle = i === 0 ? ORANGE : ORANGE_LIGHT;
-      g2d.fillRect(p.x * CELL + 2, p.y * CELL + 2, CELL - 4, CELL - 4);
-    });
-
-    const messages = { idle: 'SELECT или щелчок: старт', paused: 'Пауза', over: 'Игра окончена. SELECT: ещё раз' };
-    if (messages[state]) {
-      g2d.fillStyle = 'rgba(255, 255, 255, .85)';
-      g2d.fillRect(0, canvas.height / 2 - 28, canvas.width, 56);
-      g2d.fillStyle = TEXT;
-      g2d.font = '600 20px "Segoe UI", system-ui, sans-serif';
-      g2d.textAlign = 'center';
-      g2d.fillText(messages[state], canvas.width / 2, canvas.height / 2 + 7);
-    }
-  }
-
-  canvas.onclick = toggleGame;                      // без платы тоже можно играть: щелчок и стрелки
-  document.addEventListener('keydown', (e) => {
-    const arrows = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right' };
-    if (arrows[e.key]) { wantedDir = arrows[e.key]; e.preventDefault(); }
-  });
-  draw();
-
-  // ===== подключение и отключение =====
-  $('connect').onclick = async () => {
-    if (device) return disconnect();
-    try {
-      connect(await navigator.usb.requestDevice({ filters: [{ vendorId: USB_VID }] }));
-    } catch (e) { /* окно выбора закрыли */ }
-  };
-
-  navigator.usb.addEventListener('disconnect', (e) => { if (e.device === device) disconnect(); });
-  navigator.usb.addEventListener('connect', (e) => { if (!device && e.device.vendorId === USB_VID) connect(e.device); });
-  navigator.usb.getDevices().then((list) => {        // плата уже разрешена: подключаемся сразу
-    const d = list.find((x) => x.vendorId === USB_VID);
-    if (d && !device) connect(d);
-  });
-})();
+// ---------- элементы ----------
+for (const id of ['rate', 'len', 'lvl', 'edge', 'mode']) $(id).addEventListener('input', send);
+$('run').onclick = () => { running = !running; $('run').textContent = running ? 'Стоп' : 'Пуск'; send(); };
+$('connect').onclick = async () => {
+  if (dev) return disconnect();
+  try { connect(await navigator.usb.requestDevice({ filters: [{ vendorId: USB_VID }] })); } catch (e) {}
+};
+if (!navigator.usb) $('nosupport').style.display = 'block';
+else {
+  navigator.usb.addEventListener('disconnect', (e) => { if (e.device === dev) disconnect(); });
+  navigator.usb.getDevices().then((l) => { const d = l.find((x) => x.vendorId === USB_VID); if (d) connect(d); });
+}
+draw();

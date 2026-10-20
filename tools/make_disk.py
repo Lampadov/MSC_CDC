@@ -19,18 +19,18 @@ import sys
 
 SECTOR = 512
 ROOT_ENTRIES = 16
-LABEL = b"Milandr WEB"          # метка тома, 11 символов
+LABEL = b"Milandr OSC"          # метка тома, 11 символов
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 WEB = os.path.join(ROOT, "web")
 
 README = (
-    "﻿Milandr K1986VE92FI - USB flash drive + WebUSB (TinyUSB).\r\n"
+    "\ufeffMilandr K1986VE92FI - USB flash drive + oscilloscope (TinyUSB).\r\n"
     "\r\n"
-    "Open index.htm from this drive in Chrome or Edge,\r\n"
+    "Open index.htm from this drive in a Chromium-based browser,\r\n"
     "press the \"Connect board\" button and choose the board in the list.\r\n"
-    "The page controls the LEDs, shows the buttons and the temperature.\r\n"
+    "The page shows the signal on ADC channel 7 (input range 0...3.3 V).\r\n"
     "\r\n"
     "The page is stored in the flash memory of the microcontroller.\r\n"
     "The disk is read only.\r\n"

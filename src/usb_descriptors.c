@@ -33,18 +33,19 @@
  */
 
 #define USB_VID   0xCAFE         // должен совпадать с USB_VID в web/app.js
-#define USB_PID   0x4007
+#define USB_PID   0x4008
 
 // Коды MS OS 1.0
 #define MS_VENDOR_CODE     0x03  // bRequest vendor-запросов; сообщается хосту в строке 0xEE
 #define MS_REQ_COMPAT_ID   4     // wIndex: запрос Compatible ID
 #define MS_REQ_PROPERTIES  5     // wIndex: запрос свойств (GUID интерфейса)
 
-// Команда страницы: установить светодиоды (wValue - маска). Адресована интерфейсу 1
-#define REQ_SET_LEDS       0x10
+// Команды страницы осциллографа (интерфейс 1): 0x11 - развёртка, 0x12 - синхронизация и пуск
+#define REQ_CAPTURE        0x11
+#define REQ_TRIGGER        0x12
 
 // Реализация в main.c
-void leds_set(uint8_t mask);
+bool scope_command(uint8_t request, uint16_t value);
 
 //--------------------------------------------------------------------+
 // Device Descriptor
@@ -161,8 +162,8 @@ bool tud_vendor_control_xfer_cb(uint8_t rhport, uint8_t stage, tusb_control_requ
 
   if (request->bmRequestType_bit.type != TUSB_REQ_TYPE_VENDOR) return false;
 
-  if (request->bRequest == REQ_SET_LEDS) {           // страница управляет светодиодами
-    leds_set((uint8_t) request->wValue);
+  if (request->bRequest == REQ_CAPTURE || request->bRequest == REQ_TRIGGER) {   // команды осциллографа
+    if (!scope_command(request->bRequest, request->wValue)) return false;
     return tud_control_status(rhport, request);
   }
 
@@ -187,8 +188,8 @@ bool tud_vendor_control_xfer_cb(uint8_t rhport, uint8_t stage, tusb_control_requ
 static char const *string_desc_arr[] = {
     (const char[]) { 0x09, 0x04 }, // 0: язык - английский (0x0409)
     "Milandr",                     // 1: производитель
-    "Milandr WebUSB Drive",         // 2: изделие
-    "MDR32-MSCWEB-0001",           // 3: серийный номер
+    "Milandr Scope Drive",         // 2: изделие
+    "MDR32-SCOPE-0001",           // 3: серийный номер
 };
 
 static uint16_t _desc_str[32 + 1];
